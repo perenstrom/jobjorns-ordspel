@@ -110,8 +110,8 @@ export const Board: React.FC<{}> = () => {
       copiedTiles.push(placedTile);
 
       copiedBoard[row][column] = emptyTile;
-    }
-    if (selectedTile.letter !== emptyTile.letter) {
+      setSelectedTile(placedTile);
+    } else if (selectedTile.letter !== emptyTile.letter) {
       console.log('place tile: ', selectedTile);
 
       copiedBoard[row][column] = selectedTile;
@@ -175,7 +175,8 @@ const TileHolder = styled('div')(() => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
   gap: '0px 0px',
-  justifyItems: 'stretch'
+  justifyItems: 'stretch',
+  width: '75%'
 }));
 
 interface TileProps {
@@ -203,7 +204,8 @@ const BoardGrid = styled('div')(() => ({
   gridTemplateColumns: 'repeat(7, 1fr)',
   gridTemplateRows: 'repeat(7, 1fr)',
   gap: '0px 0px',
-  justifyItems: 'stretch'
+  justifyItems: 'stretch',
+  width: '75%'
 }));
 
 const BoardCellContainer = styled('div')(() => ({
