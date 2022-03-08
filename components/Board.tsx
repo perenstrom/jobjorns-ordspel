@@ -128,14 +128,65 @@ export const Board: React.FC<{}> = () => {
   };
 
   const submitWord = () => {
-    console.log('submit word!');
+    let usedColumn = -1;
+    let usedRow = -1;
+    let correctlyPlaced = [];
+    let direction = '';
+    let result = true;
+
+    //console.log('submit word!');
     unplayedBoard.map((row, indexRow) =>
       row.map((cell, indexColumn) => {
         if (cell.letter !== emptyTile.letter) {
-          return false;
+          // första brickan - alltid OK
+          if (usedColumn === -1 && usedRow === -1) {
+            //console.log('första brickan:', indexRow, indexColumn, cell.letter);
+            usedColumn = indexColumn;
+            usedRow = indexRow;
+            correctlyPlaced.push(cell);
+          } // andra brickan - OK om den är bredvid
+          else if (correctlyPlaced.length === 1) {
+            //console.log('andra brickan:', indexRow, indexColumn, cell.letter);
+
+            if (
+              (usedColumn === indexColumn || usedRow === indexRow) &&
+              (usedColumn + 1 === indexColumn || usedRow + 1 === indexRow)
+            ) {
+              //console.log('andra brickan ligger bredvid!');
+              if (usedColumn === indexColumn) {
+                direction = 'column';
+              } else if (usedRow === indexRow) {
+                direction = 'row';
+              }
+              usedColumn = indexColumn;
+              usedRow = indexRow;
+
+              correctlyPlaced.push(cell);
+            } else {
+              console.log('andra brickan var felaktig');
+              result = false;
+            }
+          } // tredje osv brickan - OK om den är bredvid OCH även på samma rad/kolumn som den första
+          else if (correctlyPlaced.length > 1) {
+            //console.log('tredje+ brickan:', indexRow, indexColumn, cell.letter);
+            if (
+              ((direction === 'column' && usedColumn === indexColumn) ||
+                (direction === 'row' && usedRow === indexRow)) &&
+              (usedColumn + 1 === indexColumn || usedRow + 1 === indexRow)
+            ) {
+              //console.log('tredje+ brickan ligger bredvid och i rätt kolumn/rad!');
+              usedColumn = indexColumn;
+              usedRow = indexRow;
+              correctlyPlaced.push(cell);
+            } else {
+              //console.log('brickan ligger fel.');
+              result = false;
+            }
+          }
         }
       })
     );
+    console.log('Är ordet korrekt lagt?', result);
   };
 
   return (
