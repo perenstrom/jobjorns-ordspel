@@ -5,20 +5,7 @@ import { defaultBoard } from 'data/defaults';
 import { Tile } from 'types/types';
 import { allTiles } from 'data/defaults';
 
-const startingTiles: Tile[] = [
-  { letter: 'S', placed: 'hand' },
-  { letter: 'A', placed: 'hand' },
-  { letter: 'T', placed: 'hand' },
-  { letter: 'O', placed: 'hand' },
-  { letter: 'R', placed: 'hand' },
-  { letter: 'E', placed: 'hand' },
-  { letter: 'P', placed: 'hand' }
-];
-
 const shuffleTilesPile = () => {
-  let copiedAllTiles = allTiles.sort((a, b) => 0.5 - Math.random());
-
-  // implementera Fisher Yates istället???
   const shuffleArray = (array) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -26,8 +13,11 @@ const shuffleTilesPile = () => {
       array[i] = array[j];
       array[j] = temp;
     }
+    return array;
   };
 
+  let copiedAllTiles: Tile[] = shuffleArray(allTiles);
+  console.log('här har vi shufflade tiles', copiedAllTiles);
   return copiedAllTiles;
 };
 
@@ -39,16 +29,22 @@ const emptyTile: Tile = {
 export const Board: React.FC<{}> = () => {
   const [board, setBoard] = useState(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
-  const [unusedTiles, setUnusedTiles] = useState<Tile[]>(shuffleTilesPile());
+  const [unusedTiles, setUnusedTiles] = useState<Tile[]>([]);
   const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
   useEffect(() => {
-    // dra de första 7 brickorna från unusedTiles
+    // slumpa tiles-listan och peta in de 7 första brickorna därifrån
     let copiedTiles = tiles;
+    let copiedUnusedTiles = shuffleTilesPile();
     for (let i = copiedTiles.length; i < 7; i++) {
-      copiedTiles.push(unusedTiles.pop());
+      copiedTiles.push(copiedUnusedTiles.pop());
     }
+    copiedTiles = copiedTiles.map((tile) => {
+      tile.placed = 'hand';
+      return tile;
+    });
     setTiles(copiedTiles);
+    setUnusedTiles(copiedUnusedTiles);
   }, []);
 
   const selectTile = (tile: Tile) => {
