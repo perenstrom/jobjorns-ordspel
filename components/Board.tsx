@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button, styled } from '@mui/material';
+import wordList from 'data/swedish.json';
 
 const defaultBoard = [
   [
@@ -143,7 +144,7 @@ export const Board: React.FC<{}> = () => {
             //console.log('första brickan:', indexRow, indexColumn, cell.letter);
             usedColumn = indexColumn;
             usedRow = indexRow;
-            correctlyPlaced.push(cell);
+            correctlyPlaced.push(cell.letter);
           } // andra brickan - OK om den är bredvid
           else if (correctlyPlaced.length === 1) {
             //console.log('andra brickan:', indexRow, indexColumn, cell.letter);
@@ -161,7 +162,7 @@ export const Board: React.FC<{}> = () => {
               usedColumn = indexColumn;
               usedRow = indexRow;
 
-              correctlyPlaced.push(cell);
+              correctlyPlaced.push(cell.letter);
             } else {
               console.log('andra brickan var felaktig');
               result = false;
@@ -177,7 +178,7 @@ export const Board: React.FC<{}> = () => {
               //console.log('tredje+ brickan ligger bredvid och i rätt kolumn/rad!');
               usedColumn = indexColumn;
               usedRow = indexRow;
-              correctlyPlaced.push(cell);
+              correctlyPlaced.push(cell.letter);
             } else {
               //console.log('brickan ligger fel.');
               result = false;
@@ -187,6 +188,11 @@ export const Board: React.FC<{}> = () => {
       })
     );
     console.log('Är ordet korrekt lagt?', result);
+    let playedWord: string = correctlyPlaced.join('');
+    console.log('Vilket ord har lagts?', playedWord);
+
+    let inWordList = wordList.includes(playedWord.toLowerCase());
+    console.log('Fanns ordet i listan?', inWordList);
   };
 
   return (
