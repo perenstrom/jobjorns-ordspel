@@ -4,3 +4,8 @@ export interface Fruit {
   position: number;
   pivot?: boolean;
 }
+
+export interface Tile {
+  letter: string;
+  placed: string;
+}
