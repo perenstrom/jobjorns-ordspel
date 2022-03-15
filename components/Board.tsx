@@ -1,72 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
-
-const defaultBoard = [
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ],
-  [
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' },
-    { letter: '', placed: 'no' }
-  ]
-];
+import { defaultBoard } from 'data/defaults';
+import { Tile } from 'types/types';
+import { allTiles } from 'data/defaults';
 
 const startingTiles: Tile[] = [
   { letter: 'S', placed: 'hand' },
@@ -78,10 +15,21 @@ const startingTiles: Tile[] = [
   { letter: 'P', placed: 'hand' }
 ];
 
-interface Tile {
-  letter: string;
-  placed: string;
-}
+const shuffleTilesPile = () => {
+  let copiedAllTiles = allTiles.sort((a, b) => 0.5 - Math.random());
+
+  // implementera Fisher Yates istället???
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+  };
+
+  return copiedAllTiles;
+};
 
 const emptyTile: Tile = {
   letter: '',
@@ -90,11 +38,17 @@ const emptyTile: Tile = {
 
 export const Board: React.FC<{}> = () => {
   const [board, setBoard] = useState(defaultBoard);
-  const [tiles, setTiles] = useState(startingTiles);
-  const [unplayedBoard, setUnplayedBoard] = useState(defaultBoard);
+  const [tiles, setTiles] = useState<Tile[]>([]);
+  const [unusedTiles, setUnusedTiles] = useState<Tile[]>(shuffleTilesPile());
+  const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
   useEffect(() => {
-    // herp
+    // dra de första 7 brickorna från unusedTiles
+    let copiedTiles = tiles;
+    for (let i = copiedTiles.length; i < 7; i++) {
+      copiedTiles.push(unusedTiles.pop());
+    }
+    setTiles(copiedTiles);
   }, []);
 
   const selectTile = (tile: Tile) => {
@@ -105,8 +59,9 @@ export const Board: React.FC<{}> = () => {
   const placeTile = (placedTile: Tile, row: number, column: number) => {
     const copiedBoard = unplayedBoard.map((row) => row.map((cell) => cell));
     const copiedTiles = [...tiles];
-
-    if (placedTile.letter !== emptyTile.letter) {
+    if (placedTile.placed === 'board') {
+      console.log('this tile is played and can not be removed');
+    } else if (placedTile.letter !== emptyTile.letter) {
       console.log('unplace tile', placedTile);
       copiedTiles.push(placedTile);
 
@@ -193,6 +148,19 @@ export const Board: React.FC<{}> = () => {
 
     let inWordList = wordList.includes(playedWord.toLowerCase());
     console.log('Fanns ordet i listan?', inWordList);
+
+    if (result && inWordList) {
+      console.log('Ordet spelas!');
+      const playedBoard = unplayedBoard.map((row, indexRow) =>
+        row.map((cell, indexColumn) => {
+          if (cell.placed === 'hand') {
+            cell.placed = 'board';
+          }
+          return cell;
+        })
+      );
+      setBoard(playedBoard);
+    }
   };
 
   return (
@@ -201,6 +169,7 @@ export const Board: React.FC<{}> = () => {
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
             <BoardCell
+              isPlaced={cell.placed === 'board'}
               onClick={() => placeTile(cell, indexRow, indexColumn)}
               key={indexRow * 100 + indexColumn}
             >
@@ -211,13 +180,13 @@ export const Board: React.FC<{}> = () => {
       </BoardGrid>
       <TileHolder>
         {tiles.map((tile, index) => (
-          <Tile
+          <SingleTile
             isSelected={tile === selectedTile}
             key={index}
             onClick={() => selectTile(tile)}
           >
             {tile.letter}
-          </Tile>
+          </SingleTile>
         ))}
       </TileHolder>
       <Button variant="outlined" onClick={() => submitWord()}>
@@ -240,7 +209,7 @@ interface TileProps {
   readonly isSelected: boolean;
 }
 
-const Tile = styled('div', {
+const SingleTile = styled('div', {
   shouldForwardProp: (prop) => prop !== 'isSelected'
 })<TileProps>(({ isSelected }) => ({
   backgroundColor: isSelected ? 'lime' : 'white',
@@ -269,7 +238,14 @@ const BoardCellContainer = styled('div')(() => ({
   border: '2px solid red'
 }));
 
-const BoardCell = styled('div')((props) => ({
+interface BoardCellProps {
+  readonly isPlaced: boolean;
+}
+
+const BoardCell = styled('div', {
+  shouldForwardProp: (prop) => prop !== 'isPlaced'
+})<BoardCellProps>(({ isPlaced }) => ({
+  backgroundColor: isPlaced ? 'gainsboro' : 'white',
   border: '1px solid blue',
   maxWidth: '100%',
   width: '100%',
