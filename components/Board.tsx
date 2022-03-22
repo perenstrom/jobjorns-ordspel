@@ -84,125 +84,126 @@ export const Board: React.FC<{}> = () => {
     // criteria:
     let sameDirection = true; // alla placerade brickor ska vara i samma riktning
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
-    let inWordList = true; // det lagda ordet måste finnas i ordlistan
-    let extraWordsInList = true; // eventuella extraord som formas ortogonalt måste också finnas i ordlistan
-
-    let firstRow: number;
-    let firstColumn: number;
-    let direction: 'row' | 'column';
+    let inWordList = true; // de lagda orden måste finnas i ordlistan
 
     let i = 0;
+    let rowHandIsPlayed = [];
+    let columnHandIsPlayed = [];
+    let rowFinished = [];
+    let columnFinished = [];
+    let rowLetters = [];
+    let columnLetters = [];
+    let previousRow = -1;
+    let previousColumn = -1;
+
     unplayedBoard.forEach((row, indexRow) =>
       row.forEach((cell, indexColumn) => {
+        if (typeof rowHandIsPlayed[indexRow] === 'undefined') {
+          rowHandIsPlayed[indexRow] = false;
+        }
+        if (typeof columnHandIsPlayed[indexColumn] === 'undefined') {
+          columnHandIsPlayed[indexColumn] = false;
+        }
+        if (typeof rowFinished[indexRow] === 'undefined') {
+          rowFinished[indexRow] = false;
+        }
+        if (typeof columnFinished[indexColumn] === 'undefined') {
+          columnFinished[indexColumn] = false;
+        }
+        if (typeof rowLetters[indexRow] === 'undefined') {
+          rowLetters[indexRow] = [];
+        }
+        if (typeof columnLetters[indexColumn] === 'undefined') {
+          columnLetters[indexColumn] = [];
+        }
+
         if (cell.placed === 'hand') {
-          console.log('här är en lagd bricka', cell.letter);
+          rowHandIsPlayed[indexRow] = true;
+          columnHandIsPlayed[indexColumn] = true;
 
-          i++;
+          rowLetters[indexRow].push(cell.letter);
+          columnLetters[indexColumn].push(cell.letter);
 
-          if (i === 1) {
-            // första lagda brickan - definiera row/column
-            firstRow = indexRow;
-            firstColumn = indexColumn;
-          } else if (i === 2) {
-            // andra lagda brickan
-            if (indexRow === firstRow) {
-              direction = 'row';
-            } else if (indexColumn === firstColumn) {
-              direction = 'column';
-            } else {
-              sameDirection = false;
-            }
-          } else if (i >= 3) {
-            // tredje+ lagda brickan
-            if (direction === 'row' && indexRow === firstRow) {
-              // brickan ligger på samma row, OK
-            } else if (direction === 'column' && indexColumn === firstColumn) {
-              // brickan ligger på samma column, OK
-            } else {
-              sameDirection = false;
-            }
+          rowFinished[indexRow] = false;
+          columnFinished[indexColumn] = false;
+
+          if (
+            previousRow !== indexRow &&
+            previousRow !== -1 &&
+            previousColumn !== indexColumn &&
+            previousColumn !== -1
+          ) {
+            console.log('här failar sameDirection', cell);
+            sameDirection = false;
+          }
+          previousRow = indexRow;
+          previousColumn = indexColumn;
+        } else if (cell.placed === 'no') {
+          if (rowHandIsPlayed[indexRow] === false) {
+            rowLetters[indexRow].length = 0;
+          } else {
+            rowFinished[indexRow] = true;
+            rowLetters[indexRow].push(' ');
+          }
+
+          if (columnHandIsPlayed[indexColumn] === false) {
+            columnLetters[indexColumn].length = 0;
+          } else {
+            columnFinished[indexColumn] = true;
+            columnLetters[indexColumn].push(' ');
+          }
+        } else {
+          if (!rowFinished[indexRow]) {
+            rowLetters[indexRow].push(cell.letter);
+          }
+          if (!columnFinished[indexColumn]) {
+            columnLetters[indexColumn].push(cell.letter);
           }
         }
       })
     );
-    console.log('sameDirection', sameDirection);
 
-    // andra loopen
+    rowHandIsPlayed.forEach((value, index) => {
+      if (value === false) {
+        rowLetters[index].length = 0;
+      }
+    });
 
-    let lettersInRange = [];
-    let lettersInAltRange = [];
-    if (sameDirection) {
-      i = 0;
-      let handIsPlayed = false;
-      let altHandIsPlayed = [];
-      let indexToPush: number;
-      unplayedBoard.forEach((row, indexRow) =>
-        row.forEach((cell, indexColumn) => {
-          if (!handIsPlayed && cell.placed === 'hand') {
-            handIsPlayed = true;
-          }
+    columnHandIsPlayed.forEach((value, index) => {
+      if (value === false) {
+        columnLetters[index].length = 0;
+      }
+    });
 
-          if (
-            (direction === 'row' && indexRow === firstRow) ||
-            (direction === 'column' && indexColumn === firstColumn)
-          ) {
-            console.log('lagd bricka i rätt rad/kolumn', cell);
-            if (cell.letter === '' && handIsPlayed) {
-              lettersInRange.push(' ');
-            } else if (cell.letter === '' && !handIsPlayed) {
-              lettersInRange.length = 0;
-            } else {
-              lettersInRange.push(cell.letter);
-            }
-          } else {
-            if (direction === 'row') {
-              indexToPush = indexColumn;
-            } else if (direction === 'column') {
-              indexToPush = indexRow;
-            }
+    let playedLetterRanges = rowLetters.concat(columnLetters);
+    console.log('playedLetterRanges', playedLetterRanges);
 
-            if (typeof altHandIsPlayed[indexToPush] === 'undefined') {
-              altHandIsPlayed[indexToPush] = false;
-            }
-            if (typeof lettersInAltRange[indexToPush] === 'undefined') {
-              lettersInAltRange[indexToPush] = [];
-            }
+    let playedWords = [];
+    playedLetterRanges.forEach((range) => {
+      if (range.length > 0) {
+        playedWords.push(range.join('').trim());
+      }
+    });
+    console.log('playedWords', playedWords);
 
-            if (!altHandIsPlayed[indexToPush] && cell.placed === 'hand') {
-              altHandIsPlayed[indexToPush] = true;
-            }
+    playedWords.forEach((word) => {
+      let singleWordInList = wordList.includes(word.toLowerCase());
+      console.log('singleWordInList', word, singleWordInList);
+      if (singleWordInList === false) {
+        inWordList = false;
+      }
 
-            if (cell.letter === '' && altHandIsPlayed[indexToPush]) {
-              console.log('push space');
-              lettersInAltRange[indexToPush].push(' ');
-            } else if (cell.letter === '' && !altHandIsPlayed[indexToPush]) {
-              console.log('reset alt range');
-              lettersInAltRange[indexToPush].length = 0;
-            } else {
-              console.log('push', cell.letter);
-              lettersInAltRange[indexToPush].push(cell.letter);
-            }
-          }
-        })
-      );
-    }
-    console.log('lettersInRange', lettersInRange);
-    console.log('lettersInAltRange', lettersInAltRange);
-    let playedWord: string = lettersInRange.join('').trim();
-    if (playedWord.indexOf(' ') !== -1) {
-      coherentWord = false;
-    }
-    console.log('coherentWord', coherentWord);
+      let singleCoherentWord = word.indexOf(' ') === -1;
+      console.log('singleCoherentWord', word, singleCoherentWord);
+      if (singleCoherentWord === false) {
+        coherentWord = false;
+      }
+    });
 
-    console.log('Vilket ord har lagts?', playedWord);
-
-    inWordList = wordList.includes(playedWord.toLowerCase());
-    console.log('inWordlist', inWordList);
-
-    if (sameDirection && coherentWord && inWordList && extraWordsInList) {
+    if (sameDirection && coherentWord && inWordList) {
       console.log('Ordet spelas!');
       const playedBoard = unplayedBoard.map((row, indexRow) =>
-        row.map((cell, indexColumn) => {
+        row.map((cell) => {
           if (cell.placed === 'hand') {
             cell.placed = 'board';
           }
