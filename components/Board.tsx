@@ -32,6 +32,7 @@ export const Board: React.FC<{}> = () => {
   const [unusedTiles, setUnusedTiles] = useState<Tile[]>([]);
   const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
+
   useEffect(() => {
     // slumpa tiles-listan och peta in de 7 första brickorna därifrån
     let copiedTiles = tiles;
@@ -80,72 +81,125 @@ export const Board: React.FC<{}> = () => {
   };
 
   const submitWord = () => {
-    let usedColumn = -1;
-    let usedRow = -1;
-    let correctlyPlaced = [];
-    let direction = '';
-    let result = true;
+    // criteria:
+    let sameDirection = true; // alla placerade brickor ska vara i samma riktning
+    let coherentWord = true; // placerade brickor får inte ha ett mellanrum
+    let inWordList = true; // det lagda ordet måste finnas i ordlistan
+    let extraWordsInList = true; // eventuella extraord som formas ortogonalt måste också finnas i ordlistan
 
-    //console.log('submit word!');
-    unplayedBoard.map((row, indexRow) =>
-      row.map((cell, indexColumn) => {
-        if (cell.letter !== emptyTile.letter) {
-          // första brickan - alltid OK
-          if (usedColumn === -1 && usedRow === -1) {
-            //console.log('första brickan:', indexRow, indexColumn, cell.letter);
-            usedColumn = indexColumn;
-            usedRow = indexRow;
-            correctlyPlaced.push(cell.letter);
-          } // andra brickan - OK om den är bredvid
-          else if (correctlyPlaced.length === 1) {
-            //console.log('andra brickan:', indexRow, indexColumn, cell.letter);
+    let firstRow: number;
+    let firstColumn: number;
+    let direction: 'row' | 'column';
 
-            if (
-              (usedColumn === indexColumn || usedRow === indexRow) &&
-              (usedColumn + 1 === indexColumn || usedRow + 1 === indexRow)
-            ) {
-              //console.log('andra brickan ligger bredvid!');
-              if (usedColumn === indexColumn) {
-                direction = 'column';
-              } else if (usedRow === indexRow) {
-                direction = 'row';
-              }
-              usedColumn = indexColumn;
-              usedRow = indexRow;
+    let i = 0;
+    unplayedBoard.forEach((row, indexRow) =>
+      row.forEach((cell, indexColumn) => {
+        if (cell.placed === 'hand') {
+          console.log('här är en lagd bricka', cell.letter);
 
-              correctlyPlaced.push(cell.letter);
+          i++;
+
+          if (i === 1) {
+            // första lagda brickan - definiera row/column
+            firstRow = indexRow;
+            firstColumn = indexColumn;
+          } else if (i === 2) {
+            // andra lagda brickan
+            if (indexRow === firstRow) {
+              direction = 'row';
+            } else if (indexColumn === firstColumn) {
+              direction = 'column';
             } else {
-              console.log('andra brickan var felaktig');
-              result = false;
+              sameDirection = false;
             }
-          } // tredje osv brickan - OK om den är bredvid OCH även på samma rad/kolumn som den första
-          else if (correctlyPlaced.length > 1) {
-            //console.log('tredje+ brickan:', indexRow, indexColumn, cell.letter);
-            if (
-              ((direction === 'column' && usedColumn === indexColumn) ||
-                (direction === 'row' && usedRow === indexRow)) &&
-              (usedColumn + 1 === indexColumn || usedRow + 1 === indexRow)
-            ) {
-              //console.log('tredje+ brickan ligger bredvid och i rätt kolumn/rad!');
-              usedColumn = indexColumn;
-              usedRow = indexRow;
-              correctlyPlaced.push(cell.letter);
+          } else if (i >= 3) {
+            // tredje+ lagda brickan
+            if (direction === 'row' && indexRow === firstRow) {
+              // brickan ligger på samma row, OK
+            } else if (direction === 'column' && indexColumn === firstColumn) {
+              // brickan ligger på samma column, OK
             } else {
-              //console.log('brickan ligger fel.');
-              result = false;
+              sameDirection = false;
             }
           }
         }
       })
     );
-    console.log('Är ordet korrekt lagt?', result);
-    let playedWord: string = correctlyPlaced.join('');
+    console.log('sameDirection', sameDirection);
+
+    // andra loopen
+
+    let lettersInRange = [];
+    let lettersInAltRange = [];
+    if (sameDirection) {
+      i = 0;
+      let handIsPlayed = false;
+      let altHandIsPlayed = [];
+      let indexToPush: number;
+      unplayedBoard.forEach((row, indexRow) =>
+        row.forEach((cell, indexColumn) => {
+          if (!handIsPlayed && cell.placed === 'hand') {
+            handIsPlayed = true;
+          }
+
+          if (
+            (direction === 'row' && indexRow === firstRow) ||
+            (direction === 'column' && indexColumn === firstColumn)
+          ) {
+            console.log('lagd bricka i rätt rad/kolumn', cell);
+            if (cell.letter === '' && handIsPlayed) {
+              lettersInRange.push(' ');
+            } else if (cell.letter === '' && !handIsPlayed) {
+              lettersInRange.length = 0;
+            } else {
+              lettersInRange.push(cell.letter);
+            }
+          } else {
+            if (direction === 'row') {
+              indexToPush = indexColumn;
+            } else if (direction === 'column') {
+              indexToPush = indexRow;
+            }
+
+            if (typeof altHandIsPlayed[indexToPush] === 'undefined') {
+              altHandIsPlayed[indexToPush] = false;
+            }
+            if (typeof lettersInAltRange[indexToPush] === 'undefined') {
+              lettersInAltRange[indexToPush] = [];
+            }
+
+            if (!altHandIsPlayed[indexToPush] && cell.placed === 'hand') {
+              altHandIsPlayed[indexToPush] = true;
+            }
+
+            if (cell.letter === '' && altHandIsPlayed[indexToPush]) {
+              console.log('push space');
+              lettersInAltRange[indexToPush].push(' ');
+            } else if (cell.letter === '' && !altHandIsPlayed[indexToPush]) {
+              console.log('reset alt range');
+              lettersInAltRange[indexToPush].length = 0;
+            } else {
+              console.log('push', cell.letter);
+              lettersInAltRange[indexToPush].push(cell.letter);
+            }
+          }
+        })
+      );
+    }
+    console.log('lettersInRange', lettersInRange);
+    console.log('lettersInAltRange', lettersInAltRange);
+    let playedWord: string = lettersInRange.join('').trim();
+    if (playedWord.indexOf(' ') !== -1) {
+      coherentWord = false;
+    }
+    console.log('coherentWord', coherentWord);
+
     console.log('Vilket ord har lagts?', playedWord);
 
-    let inWordList = wordList.includes(playedWord.toLowerCase());
-    console.log('Fanns ordet i listan?', inWordList);
+    inWordList = wordList.includes(playedWord.toLowerCase());
+    console.log('inWordlist', inWordList);
 
-    if (result && inWordList) {
+    if (sameDirection && coherentWord && inWordList && extraWordsInList) {
       console.log('Ordet spelas!');
       const playedBoard = unplayedBoard.map((row, indexRow) =>
         row.map((cell, indexColumn) => {
