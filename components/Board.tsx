@@ -278,8 +278,8 @@ const SingleTile = styled('div', {
 const BoardGrid = styled('div')(() => ({
   border: '2px solid green',
   display: 'grid',
-  gridTemplateColumns: 'repeat(7, 1fr)',
-  gridTemplateRows: 'repeat(7, 1fr)',
+  gridTemplateColumns: 'repeat(11, 1fr)',
+  gridTemplateRows: 'repeat(11, 1fr)',
   gap: '0px 0px',
   justifyItems: 'stretch',
   width: '75%'
