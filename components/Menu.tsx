@@ -40,7 +40,7 @@ export const Menu: React.FC<{}> = () => {
   };
 
   return (
-    <AppBar position="relative">
+    <AppBar position="relative" sx={{ marginBottom: '8px' }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           Jobjörns ordspel
@@ -50,7 +50,7 @@ export const Menu: React.FC<{}> = () => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ mr: 2 }}
+          sx={{ pr: 0 }}
           onClick={toggleDrawer(true)}
         >
           <MenuIcon />
