@@ -34,18 +34,31 @@ const IndexPage: NextPage<{}> = () => {
   const { user, error, isLoading } = useUser();
 
   return user ? (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        height: '100vh'
+      }}
+    >
       <Menu />
-      <Container maxWidth="md">
-        <Box>
-          <Paper>
-            <Board />
-          </Paper>
-        </Box>
+      <Container maxWidth="sm">
+        <Board />
       </Container>
-    </>
+      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+        <Copyright />
+      </Box>
+    </Box>
   ) : (
-    <>
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        height: '100vh'
+      }}
+    >
       <Box
         sx={{
           bgcolor: 'background.paper',
@@ -87,7 +100,7 @@ const IndexPage: NextPage<{}> = () => {
       <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
         <Copyright />
       </Box>
-    </>
+    </Box>
   );
 };
 

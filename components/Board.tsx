@@ -220,7 +220,7 @@ export const Board: React.FC<{}> = () => {
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
             <BoardCell
-              isPlaced={cell.placed === 'board'}
+              isPlaced={cell.placed}
               onClick={() => placeTile(cell, indexRow, indexColumn)}
               key={indexRow * 100 + indexColumn}
             >
@@ -247,13 +247,13 @@ export const Board: React.FC<{}> = () => {
   );
 };
 
-const TileHolder = styled('div')(() => ({
-  border: '2px solid teal',
+const TileHolder = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
-  gap: '0px 0px',
+  margin: props.theme.spacing(0.5, 0),
+  gap: props.theme.spacing(0.5),
   justifyItems: 'stretch',
-  width: '75%'
+  width: '100%'
 }));
 
 interface TileProps {
@@ -262,46 +262,47 @@ interface TileProps {
 
 const SingleTile = styled('div', {
   shouldForwardProp: (prop) => prop !== 'isSelected'
-})<TileProps>(({ isSelected }) => ({
-  backgroundColor: isSelected ? 'lime' : 'white',
-  border: '1px solid red',
+})<TileProps>((props) => ({
+  backgroundColor: props.isSelected
+    ? props.theme.palette.success.dark
+    : props.theme.palette.primary.dark,
   maxWidth: '100%',
   width: '100%',
   aspectRatio: '1',
-  fontSize: '3rem',
+  fontSize: '2rem',
 
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center'
 }));
 
-const BoardGrid = styled('div')(() => ({
-  border: '2px solid green',
+const BoardGrid = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(11, 1fr)',
   gridTemplateRows: 'repeat(11, 1fr)',
-  gap: '0px 0px',
+  gap: props.theme.spacing(0.5),
   justifyItems: 'stretch',
-  width: '75%'
-}));
-
-const BoardCellContainer = styled('div')(() => ({
-  border: '2px solid red'
+  width: '100%'
 }));
 
 interface BoardCellProps {
-  readonly isPlaced: boolean;
+  readonly isPlaced: string;
 }
 
 const BoardCell = styled('div', {
   shouldForwardProp: (prop) => prop !== 'isPlaced'
-})<BoardCellProps>(({ isPlaced }) => ({
-  backgroundColor: isPlaced ? 'gainsboro' : 'white',
-  border: '1px solid blue',
+})<BoardCellProps>((props) => ({
+  backgroundColor:
+    props.isPlaced === 'board'
+      ? props.theme.palette.secondary.dark
+      : props.isPlaced === 'hand'
+      ? props.theme.palette.primary.dark
+      : props.theme.palette.grey[900],
+
   maxWidth: '100%',
   width: '100%',
   aspectRatio: '1',
-  fontSize: '3rem',
+  fontSize: '1rem',
 
   display: 'flex',
   alignItems: 'center',
