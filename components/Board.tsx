@@ -250,7 +250,7 @@ export const Board: React.FC<{}> = () => {
 const TileHolder = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
-  margin: props.theme.spacing(0.5, 0),
+  margin: props.theme.spacing(1, 0),
   gap: props.theme.spacing(0.5),
   justifyItems: 'stretch',
   width: '100%'
@@ -267,13 +267,15 @@ const SingleTile = styled('div', {
     ? props.theme.palette.success.dark
     : props.theme.palette.primary.dark,
   maxWidth: '100%',
-  width: '100%',
+  width: 'calc(100% - 2px)',
   aspectRatio: '1',
   fontSize: '2rem',
 
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
+  borderRadius: props.theme.spacing(0.5),
+  boxShadow: '1px 1px 0px #fff, 2px 2px 0px #fff'
 }));
 
 const BoardGrid = styled('div')((props) => ({
@@ -297,14 +299,17 @@ const BoardCell = styled('div', {
       ? props.theme.palette.secondary.dark
       : props.isPlaced === 'hand'
       ? props.theme.palette.primary.dark
-      : props.theme.palette.grey[900],
+      : props.theme.palette.grey[800],
+
+  boxShadow: props.isPlaced !== 'no' ? '1px 1px 0px #fff' : '0',
+  width: props.isPlaced !== 'no' ? 'calc(100% - 1px)' : '100%',
 
   maxWidth: '100%',
-  width: '100%',
   aspectRatio: '1',
   fontSize: '1rem',
 
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center'
+  justifyContent: 'center',
+  borderRadius: props.theme.spacing(0.5)
 }));
