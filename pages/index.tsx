@@ -21,7 +21,14 @@ const IndexPage: NextPage<{}> = () => {
         }}
       >
         {isLoading ? (
-          <Container maxWidth="sm">
+          <Container
+            maxWidth="sm"
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'row'
+            }}
+          >
             <CircularProgress />
           </Container>
         ) : user ? (
