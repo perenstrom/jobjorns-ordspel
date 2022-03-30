@@ -3,7 +3,7 @@ import { Box, CircularProgress, Container } from '@mui/material';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import { useUser } from '@auth0/nextjs-auth0';
-import { Board } from 'components/Board';
+import { GameList } from 'components/GameList';
 import { Footer } from 'components/Footer';
 import { Splash } from 'components/Splash';
 
@@ -28,7 +28,7 @@ const IndexPage: NextPage<{}> = () => {
           <>
             <Menu />
             <Container maxWidth="sm">
-              <Board />
+              <GameList />
             </Container>
           </>
         ) : (
