@@ -1,106 +1,42 @@
 import React from 'react';
-import {
-  Box,
-  Button,
-  Container,
-  Link,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Box, CircularProgress, Container } from '@mui/material';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import { useUser } from '@auth0/nextjs-auth0';
 import { Board } from 'components/Board';
-
-function Copyright(props: any) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {'© '}
-      <Link color="inherit" href="https://jobjorn.se/">
-        Jobjörn Folkesson
-      </Link>{' '}
-      {new Date().getFullYear()}
-    </Typography>
-  );
-}
+import { Footer } from 'components/Footer';
+import { Splash } from 'components/Splash';
 
 const IndexPage: NextPage<{}> = () => {
   const { user, error, isLoading } = useUser();
 
-  return user ? (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        height: '100vh'
-      }}
-    >
-      <Menu />
-      <Container maxWidth="sm">
-        <Board />
-      </Container>
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Copyright />
-      </Box>
-    </Box>
-  ) : (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        height: '100vh'
-      }}
-    >
+  return (
+    <>
       <Box
         sx={{
-          bgcolor: 'background.paper',
-          pt: 8,
-          pb: 6
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: 'column',
+          height: '100vh'
         }}
       >
-        <Container maxWidth="sm">
-          <Typography
-            component="h1"
-            variant="h2"
-            align="center"
-            color="text.primary"
-            gutterBottom
-          >
-            Jobjörns ordspel
-          </Typography>
-          <Typography
-            variant="h5"
-            align="center"
-            color="text.secondary"
-            paragraph
-          >
-            Här kan du prova Jobjörns ordspel!
-          </Typography>
-          <Stack
-            sx={{ pt: 4 }}
-            direction="row"
-            spacing={2}
-            justifyContent="center"
-          >
-            <Button variant="contained" href="/api/auth/login">
-              Logga in
-            </Button>
-            <Button variant="outlined">Berätta mer</Button>
-          </Stack>
-        </Container>
+        {isLoading ? (
+          <Container maxWidth="sm">
+            <CircularProgress />
+          </Container>
+        ) : user ? (
+          <>
+            <Menu />
+            <Container maxWidth="sm">
+              <Board />
+            </Container>
+          </>
+        ) : (
+          <Splash />
+        )}
+        <Footer />
       </Box>
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
-        <Copyright />
-      </Box>
-    </Box>
+    </>
   );
 };
 
