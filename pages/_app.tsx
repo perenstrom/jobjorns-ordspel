@@ -3,20 +3,11 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import {
   ThemeProvider,
-  Theme,
   StyledEngineProvider,
   CssBaseline
 } from '@mui/material';
 import { theme } from 'styles/theme';
 import { UserProvider } from '@auth0/nextjs-auth0';
-
-/*
-
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-*/
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
