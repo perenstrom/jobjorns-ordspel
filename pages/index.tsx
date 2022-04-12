@@ -6,9 +6,16 @@ import { useUser } from '@auth0/nextjs-auth0';
 import { GameList } from 'components/GameList';
 import { Footer } from 'components/Footer';
 import { Splash } from 'components/Splash';
+import { addUser } from 'services/local';
 
 const IndexPage: NextPage<{}> = () => {
   const { user, error, isLoading } = useUser();
+
+  console.log('user', user);
+
+  if (typeof user !== 'undefined' && isLoading === false) {
+    addUser(user);
+  }
 
   return (
     <>
