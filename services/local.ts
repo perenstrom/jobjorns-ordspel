@@ -1,32 +1,29 @@
-import { Fruit } from 'types/types';
+export const addUser = (user) => {
+  console.log('nu kör vi addUser');
 
-/*
-type TwoFruits = [Fruit, Fruit];
-
-export const getTwoFruits = (): Promise<TwoFruits> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
   };
-  const url = `${process.env.NEXT_PUBLIC_ROOT_URL}/api/twofruits`;
+  const url = '/api/users';
   const options = {
-    method: 'GET',
-    headers: defaultHeaders
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({
+      name: user.name,
+      picture: user.picture,
+      email: user.email
+    })
   };
-  return fetch(url, options)
+  fetch(url, options)
     .then((response) => {
       if (response.status === 200) {
-        return response.json();
+        response.json().then((data) => console.log(data));
       } else {
         console.error(response.status);
       }
-    })
-    .then((response) => {
-      return response.fruits;
     })
     .catch((error) => {
       console.error(error);
     });
 };
-
-*/
