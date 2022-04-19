@@ -29,7 +29,7 @@ const emptyTile: Tile = {
 export const Board: React.FC<{}> = () => {
   const [board, setBoard] = useState(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
-  const [unusedTiles, setUnusedTiles] = useState<Tile[]>([]);
+  //const [unusedTiles, setUnusedTiles] = useState<Tile[]>([]);
   const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
 
@@ -45,7 +45,7 @@ export const Board: React.FC<{}> = () => {
       return tile;
     });
     setTiles(copiedTiles);
-    setUnusedTiles(copiedUnusedTiles);
+    // setUnusedTiles(copiedUnusedTiles);
   }, []);
 
   const selectTile = (tile: Tile) => {
@@ -86,7 +86,6 @@ export const Board: React.FC<{}> = () => {
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
     let inWordList = true; // de lagda orden måste finnas i ordlistan
 
-    let i = 0;
     let rowHandIsPlayed = [];
     let columnHandIsPlayed = [];
     let rowFinished = [];
@@ -202,7 +201,7 @@ export const Board: React.FC<{}> = () => {
 
     if (sameDirection && coherentWord && inWordList) {
       console.log('Ordet spelas!');
-      const playedBoard = unplayedBoard.map((row, indexRow) =>
+      const playedBoard = unplayedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
             cell.placed = 'board';

@@ -9,7 +9,7 @@ import { Splash } from 'components/Splash';
 import { addUser } from 'services/local';
 
 const IndexPage: NextPage<{}> = () => {
-  const { user, error, isLoading } = useUser();
+  const { user, isLoading } = useUser(); // härifrån finns också error att ta ut
 
   console.log('user', user);
 

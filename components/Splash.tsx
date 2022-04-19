@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Button, Container, Stack, Typography } from '@mui/material';
 
-export const Splash: React.FC<{}> = (props) => {
+export const Splash: React.FC<{}> = () => {
   return (
     <Box
       sx={{

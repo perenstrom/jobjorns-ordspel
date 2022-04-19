@@ -9,10 +9,12 @@ export default class MyDocument extends Document {
     const cache = createCache({ key: 'css', prepend: true });
     const { extractCriticalToChunks } = createEmotionServer(cache);
 
+    /* eslint-disable */
     ctx.renderPage = () =>
       originalRenderPage({
         enhanceApp: (App) => (props) => <App emotionCache={cache} {...props} />
       });
+    /* eslint-enable */
 
     const initialProps = await Document.getInitialProps(ctx);
     const emotionStyles = extractCriticalToChunks(initialProps.html);

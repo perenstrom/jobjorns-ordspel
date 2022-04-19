@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import {
   AppBar,
@@ -10,7 +10,6 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  styled,
   Toolbar,
   Typography
 } from '@mui/material';
@@ -23,10 +22,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useUser } from '@auth0/nextjs-auth0';
 
 export const Menu: React.FC<{}> = () => {
-  const { user, error, isLoading } = useUser();
+  const { user } = useUser();
 
   const [drawer, setDrawer] = useState(false);
-  const router = useRouter();
+  // const router = useRouter();
 
   const toggleDrawer = (open) => (event) => {
     if (

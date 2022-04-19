@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, List, ListItem, styled } from '@mui/material';
+import React, { useEffect } from 'react';
+import { List, ListItem } from '@mui/material';
 
 export const GameList: React.FC<{}> = () => {
   useEffect(() => {
