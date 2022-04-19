@@ -1,5 +1,5 @@
 export const addUser = (user) => {
-  console.log('nu kör vi addUser');
+  console.log('nu kör vi addUser i local');
 
   const defaultHeaders = {
     Accept: 'application/json',

@@ -1,2 +1,3 @@
-import { query } from 'lib/db';
-import { Fruit } from 'types/types';
+// import { query } from 'lib/db';
+
+export {};

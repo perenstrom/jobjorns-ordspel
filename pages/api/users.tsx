@@ -15,6 +15,8 @@ const addUser = async (user: User) => {
     ]);
 
     if (userExists.rowCount === 0) {
+      console.log('här försöker vi lägga till användaren');
+
       const addUserQuery = await query(
         'INSERT INTO users (name, email, picture) VALUES ($1, $2, $3)',
         [user.name, user.email, user.picture]
