@@ -9,6 +9,8 @@ export async function query(
   q: string,
   values: (string | number)[] | string | number = []
 ) {
+  console.log(process.env.DB_CONNECTION_STRING);
+
   try {
     await client.connect();
     const results = await client.query(q, values);
