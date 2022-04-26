@@ -1,6 +1,6 @@
 {
-  "name": "nextjs-typescript-starter",
-  "version": "1.0.1",
+  "name": "jobjorns-ordspel",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3500",
@@ -8,7 +8,9 @@
     "start": "next start",
     "what": "ECHO Package system: npm",
     "test": "jest",
-    "test-watch": "jest --watch"
+    "test-watch": "jest --watch",
+    "prisma:pull:local": "dotenv -e .env.local -- npx prisma db pull",
+    "prisma:generate:local": "dotenv -e .env.local -- npx prisma generate"
   },
   "dependencies": {
     "@auth0/nextjs-auth0": "^1.7.0",
@@ -18,6 +20,7 @@
     "@mui/icons-material": "^5.5.1",
     "@mui/material": "^5.0.3",
     "@mui/system": "^5.0.3",
+    "@prisma/client": "^3.13.0",
     "next": "^12.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -29,12 +32,14 @@
     "@types/react": "^17.0.14",
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.10.1",
+    "dotenv-cli": "^5.1.0",
     "eslint": "^7.31.0",
     "eslint-config-next": "^12.1.5",
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-react": "^7.24.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "jest": "^27.0.6",
+    "prisma": "^3.13.0",
     "typescript": "^4.3.5"
   }
 }

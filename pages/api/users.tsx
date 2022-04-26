@@ -1,5 +1,5 @@
-import { query } from 'lib/db';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { PrismaClient } from '@prisma/client';
 
 interface User {
   name: string;
@@ -7,31 +7,30 @@ interface User {
   email: string;
 }
 
+const prisma = new PrismaClient();
+
 const addUser = async (user: User) => {
   console.log('nu kör vi addUser i APIt');
-  try {
-    const userExists = await query('SELECT * FROM users WHERE email = $1', [
-      user.email
-    ]);
 
-    if (userExists.rowCount === 0) {
-      console.log('här försöker vi lägga till användaren');
+  const findSingleUser = await prisma.user.findUnique({
+    where: { email: user.email }
+  });
 
-      const addUserQuery = await query(
-        'INSERT INTO users (name, email, picture) VALUES ($1, $2, $3)',
-        [user.name, user.email, user.picture]
-      );
-
-      if (addUserQuery.rowCount === 1) {
-        return { message: 'Användaren tillagd' };
-      } else {
-        return { message: 'Något gick fel när användaren skulle läggas till' };
+  if (findSingleUser === null) {
+    const createResult = await prisma.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        picture: user.picture
       }
+    });
+    if (createResult !== null) {
+      return { message: `Användaren ${user.name} skapades` };
     } else {
-      return { message: 'Användaren finns redan' };
+      return { message: 'Något gick fel i skapandet av användare' };
     }
-  } catch (error) {
-    console.log(error);
+  } else {
+    return { message: 'Användaren finns redan' };
   }
 };
 
@@ -53,6 +52,9 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
         .catch((error) => {
           res.status(500).end(error);
           resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
         });
     });
   } else {
