@@ -12,25 +12,29 @@ const prisma = new PrismaClient();
 const addUser = async (user: User) => {
   console.log('nu kör vi addUser i APIt');
 
-  const findSingleUser = await prisma.user.findUnique({
-    where: { email: user.email }
-  });
-
-  if (findSingleUser === null) {
-    const createResult = await prisma.user.create({
-      data: {
-        name: user.name,
-        email: user.email,
-        picture: user.picture
-      }
+  try {
+    const findSingleUser = await prisma.user.findUnique({
+      where: { email: user.email }
     });
-    if (createResult !== null) {
-      return { message: `Användaren ${user.name} skapades` };
+
+    if (findSingleUser === null) {
+      const createResult = await prisma.user.create({
+        data: {
+          name: user.name,
+          email: user.email,
+          picture: user.picture
+        }
+      });
+      if (createResult !== null) {
+        return { message: `Användaren ${user.name} skapades` };
+      } else {
+        return { message: 'Något gick fel i skapandet av användare' };
+      }
     } else {
-      return { message: 'Något gick fel i skapandet av användare' };
+      return { message: 'Användaren finns redan' };
     }
-  } else {
-    return { message: 'Användaren finns redan' };
+  } catch (error) {
+    console.log(error);
   }
 };
 
