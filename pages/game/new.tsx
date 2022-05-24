@@ -8,15 +8,22 @@ import {
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
 import { listUsers } from 'services/local';
+import { User } from '@prisma/client';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>();
 
-  console.log(users);
+  const fetchUsers = async () => {
+    const usersList = await listUsers();
+    if (usersList.success) {
+      setUsers(usersList.data);
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const tempUsers = listUsers();
-    setUsers(tempUsers);
+    fetchUsers();
   }, []);
   return (
     <>
@@ -31,6 +38,18 @@ const NewGamePage: NextPage<{}> = () => {
         <>
           <Menu />
           <Container maxWidth="sm">
+            {loading ? (
+              <h2>Laddar...</h2>
+            ) : (
+              <Box>
+                <ol>
+                  {users.map((user: User, index) => (
+                    <li key={index}>{user.name}</li>
+                  ))}
+                </ol>
+              </Box>
+            )}
+
             {/*
             <Autocomplete
               multiple

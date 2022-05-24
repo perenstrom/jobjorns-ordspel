@@ -1,3 +1,6 @@
+import { User } from '@prisma/client';
+import { ResponseType } from 'types/types';
+
 export const addUser = (user) => {
   console.log('nu kör vi addUser i local');
 
@@ -28,9 +31,7 @@ export const addUser = (user) => {
     });
 };
 
-export const listUsers = () => {
-  console.log('ny kör vi listUsers i local');
-
+export const listUsers = (): Promise<ResponseType<User[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -40,19 +41,24 @@ export const listUsers = () => {
     method: 'GET',
     headers: defaultHeaders
   };
-  fetch(url, options)
+  return fetch(url, options)
     .then((response) => {
       if (response.status === 200) {
-        response.json().then((data) => {
-          console.log('data som returneras', data);
-
-          return data;
-        });
+        return response.json();
       } else {
-        console.error(response.status);
+        throw new Error(response.statusText);
       }
     })
+    .then((response) => {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    })
     .catch((error) => {
-      console.error('fel i local.ts', error);
+      return {
+        success: false,
+        error: error
+      };
     });
 };
