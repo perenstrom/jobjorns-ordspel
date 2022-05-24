@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Container } from '@mui/material';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import {
@@ -9,6 +8,11 @@ import {
 import { Footer } from 'components/Footer';
 import { listUsers } from 'services/local';
 import { User } from '@prisma/client';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -26,31 +30,20 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUsers();
   }, []);
   return (
-    <>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexDirection: 'column',
-          height: '100vh'
-        }}
-      >
-        <>
-          <Menu />
-          <Container maxWidth="sm">
-            {loading ? (
-              <h2>Laddar...</h2>
-            ) : (
-              <Box>
-                <ol>
-                  {users.map((user: User, index) => (
-                    <li key={index}>{user.name}</li>
-                  ))}
-                </ol>
-              </Box>
-            )}
-
-            {/*
+    <Box
+      sx={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        flexDirection: 'column',
+        height: '100vh'
+      }}
+    >
+      <Menu />
+      <Container maxWidth="sm">
+        {loading ? (
+          <CircularProgress />
+        ) : (
+          <Box>
             <Autocomplete
               multiple
               id="tags-outlined"
@@ -65,13 +58,11 @@ const NewGamePage: NextPage<{}> = () => {
                 />
               )}
             />
-              */}
-          </Container>
-        </>
-
-        <Footer />
-      </Box>
-    </>
+          </Box>
+        )}
+      </Container>
+      <Footer />
+    </Box>
   );
 };
 
