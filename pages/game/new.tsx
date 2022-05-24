@@ -47,7 +47,7 @@ const NewGamePage: NextPage<{}> = () => {
             <Autocomplete
               multiple
               id="tags-outlined"
-              options={users}
+              options={users.sort((a, b) => -b.name.localeCompare(a.name))}
               getOptionLabel={(option) => option.name}
               filterSelectedOptions
               renderInput={(params) => (
