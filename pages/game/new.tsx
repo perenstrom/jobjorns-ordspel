@@ -13,10 +13,11 @@ import Container from '@mui/material/Container';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
+import Button from '@mui/material/Button';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>();
+  const [users, setUsers] = useState<User[]>([]);
 
   const fetchUsers = async () => {
     const usersList = await listUsers();
@@ -40,14 +41,16 @@ const NewGamePage: NextPage<{}> = () => {
     >
       <Menu />
       <Container maxWidth="sm">
-        {loading ? (
+        {loading || !users.length ? (
           <CircularProgress />
         ) : (
           <Box>
             <Autocomplete
               multiple
               id="tags-outlined"
-              options={users.sort((a, b) => -b.name.localeCompare(a.name))}
+              options={users.sort(
+                (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
+              )}
               getOptionLabel={(option) => option.name}
               filterSelectedOptions
               renderInput={(params) => (
@@ -58,6 +61,7 @@ const NewGamePage: NextPage<{}> = () => {
                 />
               )}
             />
+            <Button variant="contained">Starta spelet</Button>
           </Box>
         )}
       </Container>

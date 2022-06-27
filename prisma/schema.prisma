@@ -8,10 +8,34 @@ datasource db {
 }
 
 model User {
-  id      Int     @id @default(autoincrement())
-  name    String?
-  email   String? @unique
-  picture String?
+  id           Int            @id @default(autoincrement())
+  name         String
+  email        String         @unique
+  picture      String?
+  games        UsersOnGames[]
+  startedGames Game[]
 
   @@map("users")
+}
+
+model Game {
+  id          Int      @id @default(autoincrement())
+  letters     String
+  startedAt   DateTime @default(now())
+  startedBy   User     @relation(fields: [startedById], references: [id])
+  startedById Int // relation scalar field
+
+  users UsersOnGames[]
+
+  @@map("games")
+}
+
+model UsersOnGames {
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int // relation scalar field (used in the `@relation` attribute above)
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    Int // relation scalar field (used in the `@relation` attribute above)
+  createdAt DateTime @default(now())
+
+  @@id([userId, gameId])
 }
