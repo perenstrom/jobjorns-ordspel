@@ -35,6 +35,7 @@ const addUser = async (user: User) => {
     }
   } catch (error) {
     console.log(error);
+    return { message: 'Det blev ett error som fångades i terminalen' };
   }
 };
 
