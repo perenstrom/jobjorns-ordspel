@@ -1,7 +1,8 @@
+import { UserProfile } from '@auth0/nextjs-auth0';
 import { User } from '@prisma/client';
 import { ResponseType } from 'types/types';
 
-export const addUser = (user) => {
+export const addUser = (user: UserProfile) => {
   console.log('nu kör vi addUser i local');
 
   const defaultHeaders = {
@@ -20,8 +21,14 @@ export const addUser = (user) => {
   };
   fetch(url, options)
     .then((response) => {
+      console.log(response);
       if (response.status === 200) {
-        response.json().then((data) => console.log(data));
+        response
+          .json()
+          .then((data) => console.log(data))
+          .catch((error) => {
+            console.error(error);
+          });
       } else {
         console.error(response.status);
       }

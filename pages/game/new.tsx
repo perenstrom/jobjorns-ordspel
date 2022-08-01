@@ -16,6 +16,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
 
 const NewGamePage: NextPage<{}> = () => {
+  const [autoCompleteValue, setAutoCompleteValue] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -30,6 +31,11 @@ const NewGamePage: NextPage<{}> = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  const startGame = (players: User[]) => {
+    console.log(players);
+  };
+
   return (
     <Box
       sx={{
@@ -51,6 +57,10 @@ const NewGamePage: NextPage<{}> = () => {
               options={users.sort(
                 (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
               )}
+              value={autoCompleteValue}
+              onChange={(event: any, newValue: User[]) => {
+                setAutoCompleteValue(newValue);
+              }}
               getOptionLabel={(option) => option.name}
               filterSelectedOptions
               renderInput={(params) => (
@@ -61,7 +71,12 @@ const NewGamePage: NextPage<{}> = () => {
                 />
               )}
             />
-            <Button variant="contained">Starta spelet</Button>
+            <Button
+              variant="contained"
+              onClick={() => startGame(autoCompleteValue)}
+            >
+              Starta spelet
+            </Button>
           </Box>
         )}
       </Container>
