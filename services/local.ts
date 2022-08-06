@@ -69,3 +69,36 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
       };
     });
 };
+
+export const startGame = (players: User[]) => {
+  console.log('nu kör vi startGame i local.ts');
+  console.log(players);
+
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/start';
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify(players)
+  };
+  fetch(url, options)
+    .then((response) => {
+      console.log(response);
+      if (response.status === 200) {
+        response
+          .json()
+          .then((data) => console.log(data))
+          .catch((error) => {
+            console.error(error);
+          });
+      } else {
+        console.error(response.status);
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};

@@ -14,6 +14,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
 import Button from '@mui/material/Button';
+import { startGame } from 'services/local';
 
 const NewGamePage: NextPage<{}> = () => {
   const [autoCompleteValue, setAutoCompleteValue] = useState<User[]>([]);
@@ -31,10 +32,6 @@ const NewGamePage: NextPage<{}> = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
-
-  const startGame = (players: User[]) => {
-    console.log(players);
-  };
 
   return (
     <Box

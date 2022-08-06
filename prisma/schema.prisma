@@ -31,11 +31,12 @@ model Game {
 }
 
 model UsersOnGames {
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int // relation scalar field (used in the `@relation` attribute above)
-  game      Game     @relation(fields: [gameId], references: [id])
-  gameId    Int // relation scalar field (used in the `@relation` attribute above)
-  createdAt DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int // relation scalar field (used in the `@relation` attribute above)
+  userAccepted Boolean  @default(false)
+  game         Game     @relation(fields: [gameId], references: [id])
+  gameId       Int // relation scalar field (used in the `@relation` attribute above)
+  createdAt    DateTime @default(now())
 
   @@id([userId, gameId])
 }
