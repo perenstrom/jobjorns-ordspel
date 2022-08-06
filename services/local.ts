@@ -70,9 +70,10 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
     });
 };
 
-export const startGame = (players: User[]) => {
+export const startGame = (starter: User, players: User[]) => {
   console.log('nu kör vi startGame i local.ts');
-  console.log(players);
+  console.log('starter:', starter);
+  console.log('players:', players);
 
   const defaultHeaders = {
     Accept: 'application/json',
@@ -82,7 +83,7 @@ export const startGame = (players: User[]) => {
   const options = {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify(players)
+    body: JSON.stringify({ starter, players })
   };
   fetch(url, options)
     .then((response) => {

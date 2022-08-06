@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import {
+  useUser,
   withPageAuthRequired,
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
@@ -21,6 +22,8 @@ const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
 
+  const { user } = useUser();
+
   const fetchUsers = async () => {
     const usersList = await listUsers();
     if (usersList.success) {
@@ -33,53 +36,68 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUsers();
   }, []);
 
-  return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        height: '100vh'
-      }}
-    >
-      <Menu />
-      <Container maxWidth="sm">
-        {loading || !users.length ? (
-          <CircularProgress />
-        ) : (
-          <Box>
-            <Autocomplete
-              multiple
-              id="tags-outlined"
-              options={users.sort(
-                (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
-              )}
-              value={autoCompleteValue}
-              onChange={(event: any, newValue: User[]) => {
-                setAutoCompleteValue(newValue);
-              }}
-              getOptionLabel={(option) => option.name}
-              filterSelectedOptions
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Bjud in spelare"
-                  placeholder="Spelare"
-                />
-              )}
-            />
-            <Button
-              variant="contained"
-              onClick={() => startGame(autoCompleteValue)}
-            >
-              Starta spelet
-            </Button>
-          </Box>
-        )}
+  if (user && loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          flexDirection: 'column',
+          height: '100vh'
+        }}
+      >
+        <Menu />
+        <Container maxWidth="sm">
+          {loading || !users.length ? (
+            <CircularProgress />
+          ) : (
+            <Box>
+              <Autocomplete
+                multiple
+                id="tags-outlined"
+                options={users.sort(
+                  (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
+                )}
+                value={autoCompleteValue}
+                onChange={(event: any, newValue: User[]) => {
+                  setAutoCompleteValue(newValue);
+                }}
+                getOptionLabel={(option) => option.name}
+                filterSelectedOptions
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Bjud in spelare"
+                    placeholder="Spelare"
+                  />
+                )}
+              />
+              <Button
+                variant="contained"
+                onClick={() => startGame(user, autoCompleteValue)}
+              >
+                Starta spelet
+              </Button>
+            </Box>
+          )}
+        </Container>
+        <Footer />
+      </Box>
+    );
+  } else {
+    return (
+      <Container
+        maxWidth="sm"
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          flexDirection: 'row'
+        }}
+      >
+        <CircularProgress />
       </Container>
-      <Footer />
-    </Box>
-  );
+    );
+  }
 };
 
 export default withPageAuthRequired<WithPageAuthRequiredProps>(NewGamePage);
