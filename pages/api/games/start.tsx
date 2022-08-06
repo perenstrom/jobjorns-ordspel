@@ -5,6 +5,8 @@ const prisma = new PrismaClient();
 
 const startGame = async (starter: User, players: User[]) => {
   console.log('nu kör vi startGame i APIt');
+  console.log(starter);
+  console.log(players);
 
   try {
     /*
@@ -21,12 +23,18 @@ const startGame = async (starter: User, players: User[]) => {
     const createResult = await prisma.game.create({
       data: {
         letters: 'abcdefg',
-        startedBy: starter,
-        users: players
+        startedBy: {
+          connect: {
+            id: starter.id
+          }
+        },
+        users: {
+          create: players.map((player) => ({ userId: player.id }))
+        }
       }
     });
     if (createResult !== null) {
-      return { message: `Användaren ${user.name} skapades` };
+      return { message: `Spelet skapades` };
     } else {
       return { message: 'Något gick fel i skapandet av användare' };
     }
@@ -54,24 +62,35 @@ const listUsers = async () => {
   }
 };
 
-const users = async (req: NextApiRequest, res: NextApiResponse) => {
+interface PostRequestBody {
+  starter: User;
+  players: User[];
+}
+
+const start = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
-      const { starter, players } = req.body;
+      const { starter, players }: PostRequestBody = req.body;
+      console.log(req.body);
 
-      startGame(starter, players)
-        .then((result) => {
-          console.log('result', result);
-          res.status(200).json(result);
-          resolve('');
-        })
-        .catch((error) => {
-          res.status(500).end(error);
-          resolve('');
-        })
-        .finally(async () => {
-          await prisma.$disconnect();
-        });
+      if (!starter || !players) {
+        res.status(400).end('Starter eller Players saknas');
+        resolve('');
+      } else {
+        startGame(starter, players)
+          .then((result) => {
+            console.log('result', result);
+            res.status(200).json(result);
+            resolve('');
+          })
+          .catch((error) => {
+            res.status(500).end(error);
+            resolve('');
+          })
+          .finally(async () => {
+            await prisma.$disconnect();
+          });
+      }
     });
   } else if (req.method === 'GET') {
     return new Promise((resolve) => {
@@ -94,4 +113,4 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 };
 
-export default users;
+export default start;
