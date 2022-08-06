@@ -6,7 +6,7 @@ import { Tile } from 'types/types';
 import { allTiles } from 'data/defaults';
 
 const shuffleTilesPile = () => {
-  const shuffleArray = (array) => {
+  const shuffleArray = (array: any[]) => {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       const temp = array[i];
@@ -38,8 +38,12 @@ export const Board: React.FC<{}> = () => {
     let copiedTiles = tiles;
     let copiedUnusedTiles = shuffleTilesPile();
     for (let i = copiedTiles.length; i < 7; i++) {
-      copiedTiles.push(copiedUnusedTiles.pop());
+      let popped = copiedUnusedTiles.pop();
+      if (popped) {
+        copiedTiles.push(popped);
+      }
     }
+
     copiedTiles = copiedTiles.map((tile) => {
       tile.placed = 'hand';
       return tile;
@@ -86,12 +90,12 @@ export const Board: React.FC<{}> = () => {
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
     let inWordList = true; // de lagda orden måste finnas i ordlistan
 
-    let rowHandIsPlayed = [];
-    let columnHandIsPlayed = [];
-    let rowFinished = [];
-    let columnFinished = [];
-    let rowLetters = [];
-    let columnLetters = [];
+    let rowHandIsPlayed: boolean[] = [];
+    let columnHandIsPlayed: boolean[] = [];
+    let rowFinished: boolean[] = [];
+    let columnFinished: boolean[] = [];
+    let rowLetters: string[][] = [];
+    let columnLetters: string[][] = [];
     let previousRow = -1;
     let previousColumn = -1;
 
@@ -177,7 +181,7 @@ export const Board: React.FC<{}> = () => {
     let playedLetterRanges = rowLetters.concat(columnLetters);
     console.log('playedLetterRanges', playedLetterRanges);
 
-    let playedWords = [];
+    let playedWords: string[] = [];
     playedLetterRanges.forEach((range) => {
       if (range.length > 0) {
         playedWords.push(range.join('').trim());

@@ -25,18 +25,6 @@ export const Menu: React.FC<{}> = () => {
   const { user } = useUser();
 
   const [drawer, setDrawer] = useState(false);
-  // const router = useRouter();
-
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === 'keydown' &&
-      (event.key === 'Tab' || event.key === 'Shift')
-    ) {
-      return;
-    }
-
-    setDrawer(open);
-  };
 
   return (
     <AppBar position="relative" sx={{ marginBottom: '8px' }}>
@@ -50,12 +38,12 @@ export const Menu: React.FC<{}> = () => {
           color="inherit"
           aria-label="menu"
           sx={{ pr: 0 }}
-          onClick={toggleDrawer(true)}
+          onClick={() => setDrawer(true)}
         >
           <MenuIcon />
         </IconButton>
       </Toolbar>
-      <Drawer anchor="right" open={drawer} onClose={toggleDrawer(false)}>
+      <Drawer anchor="right" open={drawer} onClose={() => setDrawer(false)}>
         <List>
           {user && <ListItem>{user.name}</ListItem>}
           <ListItemButton key={'Pågående spel'}>
@@ -64,7 +52,12 @@ export const Menu: React.FC<{}> = () => {
             </ListItemIcon>
             <ListItemText primary={'Pågående spel'} />
           </ListItemButton>
-
+          <ListItemButton key={'Nytt spel'} component="a" href="/game/new">
+            <ListItemIcon>
+              <GridOnIcon />
+            </ListItemIcon>
+            <ListItemText primary={'Nytt spel'} />
+          </ListItemButton>
           <Divider />
 
           {user ? (
