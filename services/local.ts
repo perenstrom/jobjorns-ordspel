@@ -38,6 +38,40 @@ export const addUser = (user: UserProfile) => {
     });
 };
 
+export const getUser = (email: string): Promise<ResponseType<User>> => {
+  console.log('nu kör vi getUser i local');
+
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/users/' + email;
+  const options = {
+    method: 'GET',
+    headers: defaultHeaders
+  };
+  return fetch(url, options)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then((response) => {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    })
+    .catch((error) => {
+      return {
+        success: false,
+        error: error
+      };
+    });
+};
+
 export const listUsers = (): Promise<ResponseType<User[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
