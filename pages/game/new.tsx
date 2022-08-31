@@ -7,7 +7,7 @@ import {
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
-import { listUsers } from 'services/local';
+import { getUser, listUsers } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
@@ -23,6 +23,10 @@ const NewGamePage: NextPage<{}> = () => {
   const [users, setUsers] = useState<User[]>([]);
 
   const { user } = useUser();
+  if (user && user.email) {
+    const userWithId = getUser(user.email);
+    console.log('userWithId', userWithId);
+  }
 
   const fetchUsers = async () => {
     const usersList = await listUsers();
@@ -85,6 +89,7 @@ const NewGamePage: NextPage<{}> = () => {
       </Box>
     );
   } else {
+    console.log('här snurrar det bara');
     return (
       <Container
         maxWidth="sm"
