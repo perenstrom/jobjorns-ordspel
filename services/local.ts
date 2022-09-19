@@ -1,5 +1,6 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
 import { User } from '@prisma/client';
+import router from 'next/router';
 import { ResponseType } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
@@ -106,8 +107,6 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
 
 export const startGame = (starter: User, players: User[]) => {
   console.log('nu kör vi startGame i local.ts');
-  console.log('starter:', starter);
-  console.log('players:', players);
 
   const defaultHeaders = {
     Accept: 'application/json',
@@ -121,19 +120,19 @@ export const startGame = (starter: User, players: User[]) => {
   };
   fetch(url, options)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
-        response
-          .json()
-          .then((data) => console.log(data))
-          .catch((error) => {
-            console.error(error);
-          });
+        return response.json();
       } else {
-        console.error(response.status);
+        throw new Error(response.statusText);
       }
     })
+    .then((response) => {
+      router.push('/game/' + response.id);
+    })
     .catch((error) => {
-      console.error(error);
+      return {
+        success: false,
+        error: error
+      };
     });
 };
