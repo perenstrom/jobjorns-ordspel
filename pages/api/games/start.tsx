@@ -1,28 +1,31 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, User } from '@prisma/client';
+import { allTiles } from 'data/defaults';
 
 const prisma = new PrismaClient();
 
 const startGame = async (starter: User, players: User[]) => {
   console.log('nu kör vi startGame i APIt');
-  console.log(starter);
-  console.log(players);
+
+  players.push(starter);
+
+  const shuffleArray = (array: any[]) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const temp = array[i];
+      array[i] = array[j];
+      array[j] = temp;
+    }
+    return array;
+  };
+  let letters: string = shuffleArray(allTiles)
+    .map((tile) => tile.letter)
+    .join();
 
   try {
-    /*
-      id          Int      @id @default(autoincrement())
-  letters     String
-  startedAt   DateTime @default(now())
-  startedBy   User     @relation(fields: [startedById], references: [id])
-  startedById Int // relation scalar field
-
-  users UsersOnGames[]
-
-  @@map("games")
-  */
     const createResult = await prisma.game.create({
       data: {
-        letters: 'abcdefg',
+        letters: letters,
         startedBy: {
           connect: {
             id: starter.id
@@ -34,31 +37,15 @@ const startGame = async (starter: User, players: User[]) => {
       }
     });
     if (createResult !== null) {
-      return { message: `Spelet skapades` };
+      return { message: `Spelet skapades`, id: createResult.id };
     } else {
-      return { message: 'Något gick fel i skapandet av användare' };
+      throw new Error(
+        'Något gick fel i skapandet av spelomgång, createResult var null'
+      );
     }
   } catch (error) {
     console.log(error);
-    return { message: 'Det blev ett error som fångades i terminalen' };
-  }
-};
-
-const listUsers = async () => {
-  console.log('nu kör vi listUsers i APIt');
-
-  try {
-    const listUsersPrisma = await prisma.user.findMany();
-    if (listUsersPrisma === null) {
-      return { message: 'Inga användare returnerades' };
-    } else {
-      return {
-        message: 'Det gick bra, här är användarna',
-        data: listUsersPrisma
-      };
-    }
-  } catch (error) {
-    console.log(error);
+    throw new Error('Det blev ett error som fångades i terminalen');
   }
 };
 
@@ -91,22 +78,6 @@ const start = async (req: NextApiRequest, res: NextApiResponse) => {
             await prisma.$disconnect();
           });
       }
-    });
-  } else if (req.method === 'GET') {
-    return new Promise((resolve) => {
-      listUsers()
-        .then((result) => {
-          console.log('result', result);
-          res.status(200).json(result);
-          resolve('');
-        })
-        .catch((error) => {
-          res.status(500).end(error);
-          resolve('');
-        })
-        .finally(async () => {
-          await prisma.$disconnect();
-        });
     });
   } else {
     res.status(404).end();

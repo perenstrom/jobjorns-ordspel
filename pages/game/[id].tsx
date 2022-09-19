@@ -11,19 +11,17 @@ import { getUser, listUsers } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
-import Button from '@mui/material/Button';
-import { startGame } from 'services/local';
+import router from 'next/router';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [autoCompleteValue, setAutoCompleteValue] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
   const [userWithId, setUserWithId] = useState<User>();
 
   const { user } = useUser();
+
+  const gameId = router.query.id;
 
   useEffect(() => {
     const fetchUserWithId = async () => {
@@ -69,34 +67,7 @@ const NewGamePage: NextPage<{}> = () => {
           {loading || !users.length ? (
             <CircularProgress />
           ) : (
-            <Box>
-              <Autocomplete
-                multiple
-                id="tags-outlined"
-                options={users.sort(
-                  (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
-                )}
-                value={autoCompleteValue}
-                onChange={(event: any, newValue: User[]) => {
-                  setAutoCompleteValue(newValue);
-                }}
-                getOptionLabel={(option) => option.name}
-                filterSelectedOptions
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Bjud in spelare"
-                    placeholder="Spelare"
-                  />
-                )}
-              />
-              <Button
-                variant="contained"
-                onClick={() => startGame(userWithId, autoCompleteValue)}
-              >
-                Starta spelet
-              </Button>
-            </Box>
+            <Box>{gameId}</Box>
           )}
         </Container>
         <Footer />
