@@ -7,16 +7,15 @@ import {
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
-import { getUser, listUsers } from 'services/local';
+import { getUser } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
 import router from 'next/router';
+import { Board } from 'components/Board';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [loading, setLoading] = useState(true);
-  const [users, setUsers] = useState<User[]>([]);
   const [userWithId, setUserWithId] = useState<User>();
 
   const { user } = useUser();
@@ -37,22 +36,7 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUserWithId();
   }, [user]);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      const usersList = await listUsers();
-      if (usersList.success && userWithId) {
-        const filteredList = usersList.data.filter(
-          (user) => user.id !== userWithId.id
-        );
-        setUsers(filteredList);
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [userWithId]);
-
-  if (userWithId && !loading) {
+  if (userWithId) {
     return (
       <Box
         sx={{
@@ -64,11 +48,7 @@ const NewGamePage: NextPage<{}> = () => {
       >
         <Menu />
         <Container maxWidth="sm">
-          {loading || !users.length ? (
-            <CircularProgress />
-          ) : (
-            <Box>{gameId}</Box>
-          )}
+          <Board />
         </Container>
         <Footer />
       </Box>
