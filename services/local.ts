@@ -112,7 +112,7 @@ export const startGame = (starter: User, players: User[]) => {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
   };
-  const url = '/api/games/start';
+  const url = '/api/games';
   const options = {
     method: 'POST',
     headers: defaultHeaders,
