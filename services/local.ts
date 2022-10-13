@@ -1,5 +1,5 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User } from '@prisma/client';
+import { User, UsersOnGames } from '@prisma/client';
 import router from 'next/router';
 import { ResponseType } from 'types/types';
 
@@ -132,6 +132,40 @@ export const startGame = (starter: User, players: User[]) => {
     .catch((error) => {
       return {
         success: false,
+        error: error
+      };
+    });
+};
+
+export const listGames = (
+  userId: number
+): Promise<ResponseType<UsersOnGames[]>> => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games?userid=' + userId;
+  const options = {
+    method: 'GET',
+    headers: defaultHeaders
+  };
+  return fetch(url, options)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then((response) => {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    })
+    .catch((error) => {
+      return {
+        success: false as const,
         error: error
       };
     });

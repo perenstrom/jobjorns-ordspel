@@ -49,12 +49,34 @@ const startGame = async (starter: User, players: User[]) => {
   }
 };
 
+const listGames = async (userId: number) => {
+  console.log('nu kör vi listGames i APIt');
+
+  try {
+    const listGamesPrisma = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { games: true }
+    });
+    if (listGamesPrisma === null) {
+      return { message: 'Inga användare returnerades' };
+    } else {
+      console.log(listGamesPrisma);
+      return {
+        message: 'Det gick bra, här är användarens spel',
+        data: listGamesPrisma.games
+      };
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 interface PostRequestBody {
   starter: User;
   players: User[];
 }
 
-const start = async (req: NextApiRequest, res: NextApiResponse) => {
+const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
       const { starter, players }: PostRequestBody = req.body;
@@ -79,9 +101,25 @@ const start = async (req: NextApiRequest, res: NextApiResponse) => {
           });
       }
     });
+  } else if (req.method === 'GET') {
+    return new Promise((resolve) => {
+      listGames(parseInt(req.query.userid as string, 10))
+        .then((result) => {
+          console.log('result', result);
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
   } else {
     res.status(404).end();
   }
 };
 
-export default start;
+export default games;
