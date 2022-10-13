@@ -20,6 +20,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 
 import { useUser } from '@auth0/nextjs-auth0';
+import Link from 'next/link';
 
 export const Menu: React.FC<{}> = () => {
   const { user } = useUser();
@@ -46,18 +47,24 @@ export const Menu: React.FC<{}> = () => {
       <Drawer anchor="right" open={drawer} onClose={() => setDrawer(false)}>
         <List>
           {user && <ListItem>{user.name}</ListItem>}
-          <ListItemButton key={'Pågående spel'}>
-            <ListItemIcon>
-              <GridOnIcon />
-            </ListItemIcon>
-            <ListItemText primary={'Pågående spel'} />
-          </ListItemButton>
-          <ListItemButton key={'Nytt spel'} component="a" href="/game/new">
-            <ListItemIcon>
-              <GridOnIcon />
-            </ListItemIcon>
-            <ListItemText primary={'Nytt spel'} />
-          </ListItemButton>
+
+          <Link href="/" passHref>
+            <ListItemButton key={'Pågående spel'} component="a">
+              <ListItemIcon>
+                <GridOnIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Pågående spel'} />
+            </ListItemButton>
+          </Link>
+
+          <Link href="/game/new" passHref>
+            <ListItemButton key={'Nytt spel'} component="a">
+              <ListItemIcon>
+                <GridOnIcon />
+              </ListItemIcon>
+              <ListItemText primary={'Nytt spel'} />
+            </ListItemButton>
+          </Link>
           <Divider />
 
           {user ? (
