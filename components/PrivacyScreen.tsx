@@ -10,11 +10,11 @@ export const PrivacyScreen: React.FC<{}> = () => {
       initial={{ scaleX: 1 }}
       animate={{
         scaleX: 0,
-        transition: { duration: 0.5, ease: 'linear' }
+        transition: { duration: 0.25, ease: 'linear' }
       }}
       exit={{
         scaleX: 1,
-        transition: { duration: 0.5, ease: 'linear' }
+        transition: { duration: 0.25, ease: 'linear' }
       }}
       style={{
         originX: isPresent ? 0 : 1,

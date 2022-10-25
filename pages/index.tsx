@@ -24,7 +24,8 @@ const IndexPage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          height: '100vh'
+          height: '100vh',
+          backgroundColor: '#121212'
         }}
       >
         {isLoading ? (
