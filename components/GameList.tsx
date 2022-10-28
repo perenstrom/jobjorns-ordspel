@@ -1,5 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress, Container, List, ListItem } from '@mui/material';
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  CircularProgress,
+  Container,
+  Typography
+} from '@mui/material';
+import { DateTime } from 'luxon';
 import { User, UsersOnGames } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUser, listGames } from 'services/local';
@@ -45,15 +53,27 @@ export const GameList: React.FC<{}> = () => {
   if (gamesList && !loading) {
     console.log('gamesList', gamesList);
     return (
-      <List>
+      <Container maxWidth="sm">
+        <Typography variant="h3">Pågående spel</Typography>
         {gamesList.map((game) => (
-          <ListItem key={game.gameId}>
-            <Link href={`/game/${game.gameId}`}>
-              <a>Hej här är spel nr {game.gameId}</a>
-            </Link>
-          </ListItem>
+          <Link key={game.gameId} passHref href={`/game/${game.gameId}`}>
+            <CardActionArea>
+              <Card variant="outlined" sx={{ my: 2 }}>
+                <CardContent>
+                  <Typography variant="h5">{game.gameId}</Typography>
+                  <Typography>medspelare</Typography>
+                  <Typography>senaste ordet</Typography>
+                  <Typography>
+                    {DateTime.fromISO(new Date(game.createdAt).toISOString())
+                      .setLocale('sv')
+                      .toRelative()}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </CardActionArea>
+          </Link>
         ))}
-      </List>
+      </Container>
     );
   } else {
     return (
@@ -70,3 +90,19 @@ export const GameList: React.FC<{}> = () => {
     );
   }
 };
+
+/*
+
+                    {Duration.fromISO(
+                      new Date(game.createdAt).toISOString()
+                    ).toHuman({ listStyle: 'long' })}
+
+
+                    {Duration.fromISO('2022-09-12T19:10:59.633Z').toHuman({
+                      listStyle: 'long'
+                    })}
+                    
+
+
+                    {Duration.fromISO('2022-09-12T19:10:59.633Z').toHuman({ listStyle: 'long' })}
+                    */
