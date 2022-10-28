@@ -23,7 +23,7 @@ export const PrivacyScreen: React.FC<{}> = () => {
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: '#F5DA59',
+        backgroundColor: '#121212',
         zIndex: 2
       }}
     />
