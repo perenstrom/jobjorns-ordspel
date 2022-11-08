@@ -1,3 +1,5 @@
+import { Prisma } from '@prisma/client';
+
 export interface Tile {
   letter: string;
   placed: string;
@@ -14,3 +16,13 @@ export interface ErrorResponse {
 }
 
 export type ResponseType<T> = SuccessResponse<T> | ErrorResponse;
+
+export type GamesWithUsersWithUsers = Prisma.GameGetPayload<{
+  include: {
+    users: {
+      include: {
+        user: true;
+      };
+    };
+  };
+}>;

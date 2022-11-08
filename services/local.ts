@@ -1,7 +1,7 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User, UsersOnGames } from '@prisma/client';
+import { User } from '@prisma/client';
 import router from 'next/router';
-import { ResponseType } from 'types/types';
+import { ResponseType, UserWithGamesWithGamesWithUsers } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   console.log('nu kör vi addUser i local');
@@ -139,7 +139,7 @@ export const startGame = (starter: User, players: User[]) => {
 
 export const listGames = (
   userId: number
-): Promise<ResponseType<UsersOnGames[]>> => {
+): Promise<ResponseType<UserWithGamesWithGamesWithUsers>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
