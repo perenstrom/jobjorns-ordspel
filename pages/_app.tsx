@@ -35,7 +35,7 @@ function MyApp({
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AnimatePresence exitBeforeEnter>
+            <AnimatePresence mode="wait">
               <Component {...pageProps} key={router.asPath} />
             </AnimatePresence>
           </ThemeProvider>
