@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  Box,
   Card,
   CardActionArea,
   CardContent,
@@ -8,15 +9,16 @@ import {
   Typography
 } from '@mui/material';
 import { DateTime } from 'luxon';
-import { User, UsersOnGames } from '@prisma/client';
+import { User } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUser, listGames } from 'services/local';
 import Link from 'next/link';
+import { GamesWithUsersWithUsers } from 'types/types';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [userWithId, setUserWithId] = useState<User>();
-  const [gamesList, setGamesList] = useState<UsersOnGames[]>();
+  const [gamesList, setGamesList] = useState<GamesWithUsersWithUsers[]>();
 
   const { user } = useUser();
 
@@ -56,19 +58,27 @@ export const GameList: React.FC<{}> = () => {
       <Container maxWidth="sm">
         <Typography variant="h3">Pågående spel</Typography>
         {gamesList.map((game) => (
-          <Link key={game.gameId} passHref href={`/game/${game.gameId}`}>
+          <Link key={game.id} passHref href={`/game/${game.id}`}>
             <CardActionArea>
               <Card variant="outlined" sx={{ my: 2 }}>
-                <CardContent>
-                  <Typography variant="h5">{game.gameId}</Typography>
-                  <Typography>medspelare</Typography>
-                  <Typography>senaste ordet</Typography>
-                  <Typography>
-                    {DateTime.fromISO(new Date(game.createdAt).toISOString())
-                      .setLocale('sv')
-                      .toRelative()}
-                  </Typography>
-                </CardContent>
+                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                  <CardContent sx={{ flexGrow: 0 }}>
+                    <Typography variant="h5">{game.id}</Typography>
+                  </CardContent>
+                  <CardContent>
+                    <Typography>
+                      {game.users.map((user) => (
+                        <span key={user.userId}>{user.user.name}</span>
+                      ))}
+                    </Typography>
+                    <Typography>senaste ordet</Typography>
+                    <Typography>
+                      {DateTime.fromISO(new Date(game.startedAt).toISOString())
+                        .setLocale('sv')
+                        .toRelative()}
+                    </Typography>
+                  </CardContent>
+                </Box>
               </Card>
             </CardActionArea>
           </Link>

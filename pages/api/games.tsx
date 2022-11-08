@@ -53,17 +53,29 @@ const listGames = async (userId: number) => {
   console.log('nu kör vi listGames i APIt');
 
   try {
-    const listGamesPrisma = await prisma.user.findUnique({
-      where: { id: userId },
-      include: { games: true }
+    const listGamesPrisma = await prisma.game.findMany({
+      where: {
+        users: {
+          some: {
+            userId: userId
+          }
+        }
+      },
+      include: {
+        users: {
+          include: {
+            user: true
+          }
+        }
+      }
     });
     if (listGamesPrisma === null) {
       return { message: 'Inga användare returnerades' };
     } else {
-      console.log(listGamesPrisma);
+      console.log('listGamesPrisma:', listGamesPrisma);
       return {
-        message: 'Det gick bra, här är användarens spel',
-        data: listGamesPrisma.games
+        message: 'Det gick bra, här är spel med användare och allt',
+        data: listGamesPrisma
       };
     }
   } catch (error) {
