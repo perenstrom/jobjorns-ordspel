@@ -2,13 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import {
-  useUser,
   withPageAuthRequired,
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
-import { getUser } from 'services/local';
-import { User } from '@prisma/client';
+import { getGame } from 'services/local';
+import { Game } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -17,12 +16,15 @@ import { Board } from 'components/Board';
 import { Typography } from '@mui/material';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [userWithId, setUserWithId] = useState<User>();
+  const [game, setGame] = useState<Game>();
 
-  const { user } = useUser();
+  // const { user } = useUser();
 
-  const gameId = router.query.id;
+  const gameId = parseInt(router.query.id as string, 10);
 
+  console.log(game);
+
+  /*
   useEffect(() => {
     const fetchUserWithId = async () => {
       if (user && user.email) {
@@ -36,8 +38,23 @@ const NewGamePage: NextPage<{}> = () => {
 
     fetchUserWithId();
   }, [user]);
+  */
 
-  if (userWithId) {
+  useEffect(() => {
+    const fetchGame = async () => {
+      if (gameId > 0) {
+        const newGame = await getGame(gameId);
+
+        if (newGame.success) {
+          setGame(newGame.data);
+        }
+      }
+    };
+
+    fetchGame();
+  }, [gameId]);
+
+  if (game) {
     return (
       <Box
         sx={{
