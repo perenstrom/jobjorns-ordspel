@@ -2,23 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
-import { Tile } from 'types/types';
-import { allTiles } from 'data/defaults';
+import { GamesWithUsersWithUsers, Tile } from 'types/types';
 
-const shuffleTilesPile = () => {
-  const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
-    }
-    return array;
-  };
-
-  let copiedAllTiles: Tile[] = shuffleArray(allTiles);
-  console.log('här har vi shufflade tiles', copiedAllTiles);
-  return copiedAllTiles;
+const shuffleArray = <T,>(originalArray: T[]): T[] => {
+  let newArray = [...originalArray];
+  for (let i = newArray.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = newArray[i];
+    newArray[i] = newArray[j];
+    newArray[j] = temp;
+  }
+  return newArray;
 };
 
 const emptyTile: Tile = {
@@ -26,31 +20,33 @@ const emptyTile: Tile = {
   placed: 'no'
 };
 
-export const Board: React.FC<{}> = () => {
+interface BoardProps {
+  game: GamesWithUsersWithUsers;
+}
+
+export const Board = ({ game }: BoardProps) => {
   const [board, setBoard] = useState(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
-  //const [unusedTiles, setUnusedTiles] = useState<Tile[]>([]);
   const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
 
   useEffect(() => {
-    // slumpa tiles-listan och peta in de 7 första brickorna därifrån
-    let copiedTiles = tiles;
-    let copiedUnusedTiles = shuffleTilesPile();
+    let copiedTiles = [];
+    let gameTiles = game.letters.split(',');
     for (let i = copiedTiles.length; i < 7; i++) {
-      let popped = copiedUnusedTiles.pop();
+      let popped = gameTiles.pop();
       if (popped) {
-        copiedTiles.push(popped);
+        copiedTiles.push({ letter: popped, placed: 'hand' });
       }
     }
 
-    copiedTiles = copiedTiles.map((tile) => {
-      tile.placed = 'hand';
-      return tile;
-    });
     setTiles(copiedTiles);
-    // setUnusedTiles(copiedUnusedTiles);
-  }, []);
+  }, [game.letters]);
+
+  const shuffleTileHolder = () => {
+    let copiedTiles = shuffleArray(tiles);
+    setTiles(copiedTiles);
+  };
 
   const selectTile = (tile: Tile) => {
     console.log('select tile: ', tile.letter);
@@ -243,7 +239,10 @@ export const Board: React.FC<{}> = () => {
           </SingleTile>
         ))}
       </TileHolder>
-      <Button variant="outlined" onClick={() => submitWord()}>
+      <Button variant="outlined" onClick={() => shuffleTileHolder()}>
+        Blanda brickor
+      </Button>
+      <Button variant="contained" onClick={() => submitWord()}>
         Spela ordet
       </Button>
     </>
