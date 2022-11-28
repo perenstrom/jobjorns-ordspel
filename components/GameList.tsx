@@ -52,7 +52,7 @@ export const GameList: React.FC<{}> = () => {
     fetchGamesList();
   }, [userWithId]);
 
-  if (gamesList && !loading) {
+  if (gamesList && !loading && userWithId) {
     console.log('gamesList', gamesList);
     return (
       <Container maxWidth="sm">
@@ -62,14 +62,14 @@ export const GameList: React.FC<{}> = () => {
             <CardActionArea>
               <Card variant="outlined" sx={{ my: 2 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <CardContent sx={{ flexGrow: 0 }}>
-                    <Typography variant="h5">{game.id}</Typography>
-                  </CardContent>
-                  <CardContent>
+                  <CardContent sx={{ flexGrow: 1 }}>
                     <Typography>
-                      {game.users.map((user) => (
-                        <span key={user.userId}>{user.user.name}</span>
-                      ))}
+                      {game.users.map(
+                        (user) =>
+                          user.userId !== userWithId.id && (
+                            <span key={user.userId}>{user.user.name}</span>
+                          )
+                      )}
                     </Typography>
                     <Typography>senaste ordet</Typography>
                     <Typography>
@@ -77,6 +77,9 @@ export const GameList: React.FC<{}> = () => {
                         .setLocale('sv')
                         .toRelative()}
                     </Typography>
+                  </CardContent>
+                  <CardContent sx={{ flexGrow: 0 }}>
+                    <Typography>{game.id}</Typography>
                   </CardContent>
                 </Box>
               </Card>
@@ -87,32 +90,10 @@ export const GameList: React.FC<{}> = () => {
     );
   } else {
     return (
-      <Container
-        maxWidth="sm"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'row'
-        }}
-      >
+      <Container maxWidth="sm">
+        <Typography variant="h3">Pågående spel</Typography>
         <CircularProgress />
       </Container>
     );
   }
 };
-
-/*
-
-                    {Duration.fromISO(
-                      new Date(game.createdAt).toISOString()
-                    ).toHuman({ listStyle: 'long' })}
-
-
-                    {Duration.fromISO('2022-09-12T19:10:59.633Z').toHuman({
-                      listStyle: 'long'
-                    })}
-                    
-
-
-                    {Duration.fromISO('2022-09-12T19:10:59.633Z').toHuman({ listStyle: 'long' })}
-                    */

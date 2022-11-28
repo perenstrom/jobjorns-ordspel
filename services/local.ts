@@ -1,7 +1,7 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User } from '@prisma/client';
+import { Game, User } from '@prisma/client';
 import router from 'next/router';
-import { ResponseType, UserWithGamesWithGamesWithUsers } from 'types/types';
+import { ResponseType, GamesWithUsersWithUsers } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   console.log('nu kör vi addUser i local');
@@ -137,9 +137,43 @@ export const startGame = (starter: User, players: User[]) => {
     });
 };
 
+export const getGame = (id: number): Promise<ResponseType<Game>> => {
+  console.log('nu kör vi getGame i local');
+
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/' + id;
+  const options = {
+    method: 'GET',
+    headers: defaultHeaders
+  };
+  return fetch(url, options)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then((response) => {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    })
+    .catch((error) => {
+      return {
+        success: false,
+        error: error
+      };
+    });
+};
+
 export const listGames = (
   userId: number
-): Promise<ResponseType<UserWithGamesWithGamesWithUsers>> => {
+): Promise<ResponseType<GamesWithUsersWithUsers[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
