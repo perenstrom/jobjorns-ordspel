@@ -3,6 +3,8 @@ import { Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
 import { GameWithUsersWithUsers, Tile } from 'types/types';
+import { User } from '@prisma/client';
+import { submitTurn } from 'services/local';
 
 const shuffleArray = <T,>(originalArray: T[]): T[] => {
   let newArray = [...originalArray];
@@ -22,9 +24,10 @@ const emptyTile: Tile = {
 
 interface BoardProps {
   game: GameWithUsersWithUsers;
+  user: User;
 }
 
-export const Board = ({ game }: BoardProps) => {
+export const Board = ({ game, user }: BoardProps) => {
   const [board, setBoard] = useState(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [unplayedBoard, setUnplayedBoard] = useState(board);
@@ -49,23 +52,23 @@ export const Board = ({ game }: BoardProps) => {
   };
 
   const selectTile = (tile: Tile) => {
-    console.log('select tile: ', tile.letter);
     setSelectedTile(tile);
   };
 
   const placeTile = (placedTile: Tile, row: number, column: number) => {
-    const copiedBoard = unplayedBoard.map((row) => row.map((cell) => cell));
+    // const copiedBoard = unplayedBoard.map((row) => row.map((cell) => cell));
+    const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board') {
-      console.log('this tile is played and can not be removed');
+      // console.log('this tile is played and can not be removed');
     } else if (placedTile.letter !== emptyTile.letter) {
-      console.log('unplace tile', placedTile);
+      // console.log('unplace tile', placedTile);
       copiedTiles.push(placedTile);
 
       copiedBoard[row][column] = emptyTile;
       setSelectedTile(placedTile);
     } else if (selectedTile.letter !== emptyTile.letter) {
-      console.log('place tile: ', selectedTile);
+      // console.log('place tile: ', selectedTile);
 
       copiedBoard[row][column] = selectedTile;
 
@@ -81,6 +84,8 @@ export const Board = ({ game }: BoardProps) => {
   };
 
   const submitWord = () => {
+    const copiedBoard = [...unplayedBoard];
+
     // criteria:
     let sameDirection = true; // alla placerade brickor ska vara i samma riktning
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
@@ -95,7 +100,7 @@ export const Board = ({ game }: BoardProps) => {
     let previousRow = -1;
     let previousColumn = -1;
 
-    unplayedBoard.forEach((row, indexRow) =>
+    copiedBoard.forEach((row, indexRow) =>
       row.forEach((cell, indexColumn) => {
         if (typeof rowHandIsPlayed[indexRow] === 'undefined') {
           rowHandIsPlayed[indexRow] = false;
@@ -132,7 +137,7 @@ export const Board = ({ game }: BoardProps) => {
             previousColumn !== indexColumn &&
             previousColumn !== -1
           ) {
-            console.log('här failar sameDirection', cell);
+            // console.log('här failar sameDirection', cell);
             sameDirection = false;
           }
           previousRow = indexRow;
@@ -175,7 +180,7 @@ export const Board = ({ game }: BoardProps) => {
     });
 
     let playedLetterRanges = rowLetters.concat(columnLetters);
-    console.log('playedLetterRanges', playedLetterRanges);
+    // console.log('playedLetterRanges', playedLetterRanges);
 
     let playedWords: string[] = [];
     playedLetterRanges.forEach((range) => {
@@ -183,17 +188,22 @@ export const Board = ({ game }: BoardProps) => {
         playedWords.push(range.join('').trim());
       }
     });
-    console.log('playedWords', playedWords);
+    // console.log('playedWords', playedWords);
 
+    let longestPlayedWord = '';
     playedWords.forEach((word) => {
+      if (word.length > longestPlayedWord.length) {
+        longestPlayedWord = word;
+      }
+
       let singleWordInList = wordList.includes(word.toLowerCase());
-      console.log('singleWordInList', word, singleWordInList);
+      // console.log('singleWordInList', word, singleWordInList);
       if (singleWordInList === false) {
         inWordList = false;
       }
 
       let singleCoherentWord = word.indexOf(' ') === -1;
-      console.log('singleCoherentWord', word, singleCoherentWord);
+      // console.log('singleCoherentWord', word, singleCoherentWord);
       if (singleCoherentWord === false) {
         coherentWord = false;
       }
@@ -201,7 +211,12 @@ export const Board = ({ game }: BoardProps) => {
 
     if (sameDirection && coherentWord && inWordList) {
       console.log('Ordet spelas!');
-      const playedBoard = unplayedBoard.map((row) =>
+
+      const currentBoard = JSON.stringify(copiedBoard);
+
+      submitTurn(game.id, user.id, longestPlayedWord, currentBoard);
+
+      const playedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
             cell.placed = 'board';

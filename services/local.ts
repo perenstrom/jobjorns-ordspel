@@ -206,3 +206,44 @@ export const listGames = (
       };
     });
 };
+
+export const submitTurn = (
+  gameId: number,
+  userId: number,
+  latestPlayedWord: string,
+  latestPlayedBoard: string
+) => {
+  console.log('nu kör vi submitTurn i local.ts');
+  console.log('gameId', gameId);
+  console.log('userId', userId);
+  console.log('latestPlayedWord', latestPlayedWord);
+  console.log('latestPlayedBoard', latestPlayedBoard);
+
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/' + gameId;
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({ userId, latestPlayedWord, latestPlayedBoard })
+  };
+  fetch(url, options)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then((response) => {
+      console.log('hej hopp vad ska hända här då', response);
+    })
+    .catch((error) => {
+      return {
+        success: false,
+        error: error
+      };
+    });
+};
