@@ -13,12 +13,12 @@ import { User } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUser, listGames } from 'services/local';
 import Link from 'next/link';
-import { GamesWithUsersWithUsers } from 'types/types';
+import { GameWithUsersWithUsers } from 'types/types';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [userWithId, setUserWithId] = useState<User>();
-  const [gamesList, setGamesList] = useState<GamesWithUsersWithUsers[]>();
+  const [gamesList, setGamesList] = useState<GameWithUsersWithUsers[]>();
 
   const { user } = useUser();
 
