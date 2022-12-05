@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
-import { GamesWithUsersWithUsers, Tile } from 'types/types';
+import { GameWithUsersWithUsers, Tile } from 'types/types';
 
 const shuffleArray = <T,>(originalArray: T[]): T[] => {
   let newArray = [...originalArray];
@@ -21,7 +21,7 @@ const emptyTile: Tile = {
 };
 
 interface BoardProps {
-  game: GamesWithUsersWithUsers;
+  game: GameWithUsersWithUsers;
 }
 
 export const Board = ({ game }: BoardProps) => {

@@ -1,7 +1,7 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { Game, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import router from 'next/router';
-import { ResponseType, GamesWithUsersWithUsers } from 'types/types';
+import { ResponseType, GameWithUsersWithUsers } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   console.log('nu kör vi addUser i local');
@@ -137,7 +137,9 @@ export const startGame = (starter: User, players: User[]) => {
     });
 };
 
-export const getGame = (id: number): Promise<ResponseType<Game>> => {
+export const getGame = (
+  id: number
+): Promise<ResponseType<GameWithUsersWithUsers>> => {
   console.log('nu kör vi getGame i local');
 
   const defaultHeaders = {
@@ -173,7 +175,7 @@ export const getGame = (id: number): Promise<ResponseType<Game>> => {
 
 export const listGames = (
   userId: number
-): Promise<ResponseType<GamesWithUsersWithUsers[]>> => {
+): Promise<ResponseType<GameWithUsersWithUsers[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
