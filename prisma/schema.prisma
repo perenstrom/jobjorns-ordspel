@@ -39,6 +39,7 @@ model UsersOnGames {
   createdAt         DateTime @default(now())
   latestPlayedWord  String?
   latestPlayedBoard String?
+  latestPlayedTime  DateTime @default(now())
 
   @@id([userId, gameId])
 }
