@@ -27,24 +27,48 @@ interface BoardProps {
   user: User;
 }
 
-export const Board = ({ game, user }: BoardProps) => {
-  const [board, setBoard] = useState(defaultBoard);
+export const Board = ({ game, user: currentUser }: BoardProps) => {
+  const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
-  const [unplayedBoard, setUnplayedBoard] = useState(board);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
+  const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
 
   useEffect(() => {
-    let copiedTiles = [];
+    let newTiles: Tile[] = [];
     let gameTiles = game.letters.split(',');
-    for (let i = copiedTiles.length; i < 7; i++) {
+    for (let i = newTiles.length; i < 7; i++) {
       let popped = gameTiles.pop();
       if (popped) {
-        copiedTiles.push({ letter: popped, placed: 'hand' });
+        newTiles.push({ letter: popped, placed: 'hand' });
       }
     }
 
-    setTiles(copiedTiles);
-  }, [game.letters]);
+    const currentUserGame = game.users.find((x) => x.userId === currentUser.id);
+
+    if (currentUserGame?.latestPlayedBoard) {
+      setPlayerHasSubmitted(true);
+
+      let currentBoard: Tile[][] = JSON.parse(
+        currentUserGame.latestPlayedBoard
+      );
+
+      currentBoard.forEach((row) =>
+        row.forEach((cell) => {
+          if (cell.placed === 'hand' || cell.placed === 'submitted') {
+            console.log(cell);
+            const index = newTiles.findIndex((x) => x.letter === cell.letter);
+            if (index > -1) {
+              newTiles.splice(index, 1);
+            }
+          }
+        })
+      );
+
+      setUnplayedBoard(currentBoard);
+    }
+
+    setTiles(newTiles);
+  }, [game, currentUser]);
 
   const shuffleTileHolder = () => {
     let copiedTiles = shuffleArray(tiles);
@@ -59,7 +83,7 @@ export const Board = ({ game, user }: BoardProps) => {
     // const copiedBoard = unplayedBoard.map((row) => row.map((cell) => cell));
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
-    if (placedTile.placed === 'board') {
+    if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
       // console.log('this tile is played and can not be removed');
     } else if (placedTile.letter !== emptyTile.letter) {
       // console.log('unplace tile', placedTile);
@@ -212,19 +236,19 @@ export const Board = ({ game, user }: BoardProps) => {
     if (sameDirection && coherentWord && inWordList) {
       console.log('Ordet spelas!');
 
-      const currentBoard = JSON.stringify(copiedBoard);
-
-      submitTurn(game.id, user.id, longestPlayedWord, currentBoard);
-
-      const playedBoard = copiedBoard.map((row) =>
+      const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
-            cell.placed = 'board';
+            cell.placed = 'submitted';
           }
           return cell;
         })
       );
-      setBoard(playedBoard);
+      const currentBoard = JSON.stringify(submittedBoard);
+
+      submitTurn(game.id, currentUser.id, longestPlayedWord, currentBoard);
+
+      setUnplayedBoard(submittedBoard);
     }
   };
 
@@ -257,9 +281,13 @@ export const Board = ({ game, user }: BoardProps) => {
       <Button variant="outlined" onClick={() => shuffleTileHolder()}>
         Blanda brickor
       </Button>
-      <Button variant="contained" onClick={() => submitWord()}>
-        Spela ordet
-      </Button>
+      {playerHasSubmitted ? (
+        <Button disabled>Spela ordet</Button>
+      ) : (
+        <Button variant="contained" onClick={() => submitWord()}>
+          Spela ordet
+        </Button>
+      )}
     </>
   );
 };
@@ -281,8 +309,10 @@ const SingleTile = styled('div', {
   shouldForwardProp: (prop) => prop !== 'isSelected'
 })<TileProps>((props) => ({
   backgroundColor: props.isSelected
-    ? props.theme.palette.success.dark
-    : props.theme.palette.primary.dark,
+    ? props.theme.palette.primary.light
+    : props.theme.palette.primary.main,
+
+  color: props.isSelected ? 'black' : 'white',
   maxWidth: '100%',
   width: 'calc(100% - 2px)',
   aspectRatio: '1',
@@ -313,9 +343,11 @@ const BoardCell = styled('div', {
 })<BoardCellProps>((props) => ({
   backgroundColor:
     props.isPlaced === 'board'
-      ? props.theme.palette.secondary.dark
-      : props.isPlaced === 'hand'
       ? props.theme.palette.primary.dark
+      : props.isPlaced === 'hand'
+      ? props.theme.palette.primary.main
+      : props.isPlaced === 'submitted'
+      ? props.theme.palette.success.dark
       : props.theme.palette.grey[800],
 
   boxShadow: props.isPlaced !== 'no' ? '1px 1px 0px #fff' : '0',
