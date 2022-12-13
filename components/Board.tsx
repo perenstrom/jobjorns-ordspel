@@ -282,7 +282,9 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         Blanda brickor
       </Button>
       {playerHasSubmitted ? (
-        <Button disabled>Spela ordet</Button>
+        <Button variant="contained" disabled>
+          Spela ordet
+        </Button>
       ) : (
         <Button variant="contained" onClick={() => submitWord()}>
           Spela ordet
