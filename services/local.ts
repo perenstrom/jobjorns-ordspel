@@ -1,5 +1,5 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User } from '@prisma/client';
+import { User, UsersOnGames } from '@prisma/client';
 import router from 'next/router';
 import { ResponseType, GameWithUsersWithUsers } from 'types/types';
 
@@ -238,6 +238,7 @@ export const submitTurn = (
       }
     })
     .then((response) => {
+      checkIfTurnEnd(gameId);
       console.log('hej hopp vad ska hända här då', response);
     })
     .catch((error) => {
@@ -246,4 +247,47 @@ export const submitTurn = (
         error: error
       };
     });
+};
+
+export const checkIfTurnEnd = async (gameId: number) => {
+  console.log('nu kör vi checkIfTurnEnd i local.ts');
+  console.log('gameId', gameId);
+
+  const fetchGame = async () => {
+    if (gameId > 0) {
+      const newGame = await getGame(gameId);
+
+      if (newGame.success) {
+        return newGame.data;
+      }
+    }
+  };
+  let game = await fetchGame();
+  if (game) {
+    let allUsersPlayed = true;
+    let winningUser: UsersOnGames = game.users[0];
+
+    game.users.map((user) => {
+      console.log('nu mappar vi igenom users', user.userId);
+      if (!user.latestPlayedWord) {
+        allUsersPlayed = false;
+      } else if (
+        winningUser &&
+        winningUser.latestPlayedWord &&
+        user.latestPlayedWord &&
+        winningUser.latestPlayedWord?.length < user.latestPlayedWord.length
+      ) {
+        console.log('ny vinnare!');
+        winningUser = user;
+      }
+    });
+
+    console.log('winningUser', winningUser);
+    console.log('allUsersPlayed', allUsersPlayed);
+    if (allUsersPlayed && winningUser) {
+      console.log('vi har en tur-vinnare');
+    }
+  }
+
+  console.log(game);
 };
