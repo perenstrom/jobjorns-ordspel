@@ -238,8 +238,12 @@ export const submitTurn = (
       }
     })
     .then((response) => {
-      checkIfTurnEnd(gameId);
+      let turnEnd = checkIfTurnEnd(gameId);
       console.log('hej hopp vad ska hända här då', response);
+      return {
+        success: true,
+        data: { turnEnd: turnEnd, response: response }
+      };
     })
     .catch((error) => {
       return {
@@ -263,6 +267,7 @@ export const checkIfTurnEnd = async (gameId: number) => {
     }
   };
   let game = await fetchGame();
+
   if (game) {
     let allUsersPlayed = true;
     let winningUser: UsersOnGames = game.users[0];
@@ -286,7 +291,15 @@ export const checkIfTurnEnd = async (gameId: number) => {
     console.log('allUsersPlayed', allUsersPlayed);
     if (allUsersPlayed && winningUser) {
       console.log('vi har en tur-vinnare');
+
+      // lägg till ny turn i APIt och sen här
+
+      return true;
+    } else {
+      return false;
     }
+  } else {
+    return false;
   }
 
   console.log(game);

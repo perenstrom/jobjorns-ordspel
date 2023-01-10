@@ -24,6 +24,8 @@ model Game {
   startedAt   DateTime @default(now())
   startedBy   User     @relation(fields: [startedById], references: [id])
   startedById Int // relation scalar field
+  board       String?
+  latestWord  String?
 
   users UsersOnGames[]
 

@@ -246,8 +246,13 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       );
       const currentBoard = JSON.stringify(submittedBoard);
 
-      submitTurn(game.id, currentUser.id, longestPlayedWord, currentBoard);
-
+      let turnResult = submitTurn(
+        game.id,
+        currentUser.id,
+        longestPlayedWord,
+        currentBoard
+      );
+      console.log(turnResult);
       setUnplayedBoard(submittedBoard);
     }
   };
