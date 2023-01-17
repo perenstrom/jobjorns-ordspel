@@ -33,13 +33,13 @@ const getGame = async (gameId: number) => {
   }
 };
 
-const submitTurn = async (
+const submitMove = async (
   gameId: number,
   userId: number,
   latestPlayedWord: string,
   latestPlayedBoard: string
 ) => {
-  console.log('nu kör vi submitTurn i APIt');
+  console.log('nu kör vi submitMove i APIt');
 
   try {
     const updateResult = await prisma.usersOnGames.update({
@@ -68,24 +68,102 @@ const submitTurn = async (
   }
 };
 
-interface PostRequestBody {
+const submitTurn = async (
+  gameId: number,
+  letters: string,
+  board: string,
+  latestWord: string
+) => {
+  console.log('nu kör vi (nya) submitTurn i APIt!');
+  console.log({ letters, board, latestWord });
+
+  try {
+    const updateResult = await prisma.game.update({
+      data: {
+        letters,
+        board,
+        latestWord,
+        users: {
+          updateMany: {
+            where: {
+              gameId
+            },
+            data: {
+              latestPlayedBoard: '',
+              latestPlayedWord: ''
+            }
+          }
+        }
+      },
+      where: {
+        id: gameId
+      }
+    });
+    if (updateResult !== null) {
+      return { message: 'Ny tur sparades' };
+    } else {
+      throw new Error(
+        'Något gick fel i sparandet av ny tur, updateResult var null'
+      );
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error('Det blev ett error som fångades i terminalen');
+  }
+};
+
+interface PostRequestBodyMove {
+  variant: 'move';
   userId: number;
   latestPlayedWord: string;
   latestPlayedBoard: string;
 }
+interface PostRequestBodyTurn {
+  variant: 'turn';
+  letters: string;
+  board: string;
+  latestWord: string;
+}
 
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method === 'POST') {
+  if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
-      const { userId, latestPlayedWord, latestPlayedBoard }: PostRequestBody =
-        req.body;
+      const {
+        userId,
+        latestPlayedWord,
+        latestPlayedBoard
+      }: PostRequestBodyMove = req.body;
       console.log(req.body);
 
-      submitTurn(
+      submitMove(
         parseInt(req.query.id as string, 10),
         userId,
         latestPlayedWord,
         latestPlayedBoard
+      )
+        .then((result) => {
+          console.log('result', result);
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'turn') {
+    return new Promise((resolve) => {
+      const { letters, board, latestWord }: PostRequestBodyTurn = req.body;
+      console.log(req.body);
+
+      submitTurn(
+        parseInt(req.query.id as string, 10),
+        letters,
+        board,
+        latestWord
       )
         .then((result) => {
           console.log('result', result);
