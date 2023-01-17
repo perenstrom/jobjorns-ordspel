@@ -45,7 +45,10 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
 
     const currentUserGame = game.users.find((x) => x.userId === currentUser.id);
 
-    if (currentUserGame?.latestPlayedBoard) {
+    if (
+      currentUserGame?.latestPlayedBoard &&
+      currentUserGame.latestPlayedBoard.length > 0
+    ) {
       setPlayerHasSubmitted(true);
 
       let currentBoard: Tile[][] = JSON.parse(
@@ -64,6 +67,9 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         })
       );
 
+      setUnplayedBoard(currentBoard);
+    } else if (game.board && game.board.length > 0) {
+      let currentBoard: Tile[][] = JSON.parse(game.board);
       setUnplayedBoard(currentBoard);
     }
 

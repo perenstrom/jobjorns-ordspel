@@ -227,7 +227,12 @@ export const submitTurn = (
   const options = {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ userId, latestPlayedWord, latestPlayedBoard })
+    body: JSON.stringify({
+      variant: 'move',
+      userId,
+      latestPlayedWord,
+      latestPlayedBoard
+    })
   };
   fetch(url, options)
     .then((response) => {
@@ -289,17 +294,74 @@ export const checkIfTurnEnd = async (gameId: number) => {
 
     console.log('winningUser', winningUser);
     console.log('allUsersPlayed', allUsersPlayed);
-    if (allUsersPlayed && winningUser) {
+    if (
+      allUsersPlayed &&
+      winningUser &&
+      winningUser.latestPlayedWord &&
+      winningUser.latestPlayedWord.length > 0
+    ) {
       console.log('vi har en tur-vinnare');
 
-      // lägg till ny turn i APIt och sen här
+      // här måste vi uppdatera letters...
 
-      return true;
+      console.log('game.letters', game.letters);
+
+      let letters = game.letters.split(',');
+      let playedLetters = winningUser.latestPlayedWord.split('');
+
+      playedLetters.forEach((letter) => {
+        let index = letters.indexOf(letter);
+        if (index > -1) {
+          letters.splice(index, 1);
+        }
+      });
+
+      let newLetters = letters.join(',');
+      console.log('newLetters', newLetters);
+
+      const defaultHeaders = {
+        Accept: 'application/json',
+        'Content-Type': 'application/json;charset=UTF-8'
+      };
+      const url = '/api/games/' + gameId;
+      const options = {
+        method: 'POST',
+        headers: defaultHeaders,
+        body: JSON.stringify({
+          variant: 'turn',
+          letters: newLetters,
+          board: winningUser.latestPlayedBoard,
+          latestWord: winningUser.latestPlayedWord
+        })
+      };
+      fetch(url, options)
+        .then((response) => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error(response.statusText);
+          }
+        })
+        .then((response) => {
+          return {
+            success: true,
+            data: { response: response }
+          };
+        })
+        .catch((error) => {
+          return {
+            success: false,
+            error: error
+          };
+        });
     } else {
       return false;
     }
   } else {
-    return false;
+    return {
+      success: false,
+      error: 'Game hittades inte'
+    };
   }
 
   console.log(game);
