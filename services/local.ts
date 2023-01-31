@@ -207,18 +207,12 @@ export const listGames = (
     });
 };
 
-export const submitTurn = (
+export const submitMove = async (
   gameId: number,
   userId: number,
   latestPlayedWord: string,
   latestPlayedBoard: string
 ) => {
-  console.log('nu kör vi submitTurn i local.ts');
-  console.log('gameId', gameId);
-  console.log('userId', userId);
-  console.log('latestPlayedWord', latestPlayedWord);
-  console.log('latestPlayedBoard', latestPlayedBoard);
-
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -234,51 +228,28 @@ export const submitTurn = (
       latestPlayedBoard
     })
   };
-  fetch(url, options)
-    .then((response) => {
-      if (response.status === 200) {
-        return response.json();
-      } else {
-        throw new Error(response.statusText);
-      }
-    })
-    .then((response) => {
-      let turnEnd = checkIfTurnEnd(gameId);
-      console.log('hej hopp vad ska hända här då', response);
-      return {
-        success: true,
-        data: { turnEnd: turnEnd, response: response }
-      };
-    })
-    .catch((error) => {
-      return {
-        success: false,
-        error: error
-      };
-    });
+
+  try {
+    console.log(
+      '1. här i submitMove tryar vi att await en fetch och en runTurnEnd'
+    );
+    const moveResult = await (await fetch(url, options)).json();
+    const turnResult = await runTurnEnd(gameId);
+    return { success: true, data: { move: moveResult, turn: turnResult } };
+  } catch (error) {
+    return { success: false, response: error };
+  }
 };
 
-export const checkIfTurnEnd = async (gameId: number) => {
-  console.log('nu kör vi checkIfTurnEnd i local.ts');
-  console.log('gameId', gameId);
+export const runTurnEnd = async (gameId: number) => {
+  console.log('2. här kör vi runTurnEnd');
+  const game = await getGame(gameId);
 
-  const fetchGame = async () => {
-    if (gameId > 0) {
-      const newGame = await getGame(gameId);
-
-      if (newGame.success) {
-        return newGame.data;
-      }
-    }
-  };
-  let game = await fetchGame();
-
-  if (game) {
+  if (game.success) {
     let allUsersPlayed = true;
-    let winningUser: UsersOnGames = game.users[0];
+    let winningUser: UsersOnGames = game.data.users[0];
 
-    game.users.map((user) => {
-      console.log('nu mappar vi igenom users', user.userId);
+    game.data.users.map((user) => {
       if (!user.latestPlayedWord) {
         allUsersPlayed = false;
       } else if (
@@ -287,26 +258,23 @@ export const checkIfTurnEnd = async (gameId: number) => {
         user.latestPlayedWord &&
         winningUser.latestPlayedWord?.length < user.latestPlayedWord.length
       ) {
-        console.log('ny vinnare!');
+        console.log('3. ny vinnare!', user.user.name);
         winningUser = user;
       }
     });
 
-    console.log('winningUser', winningUser);
-    console.log('allUsersPlayed', allUsersPlayed);
+    console.log('4. allUsersPlayed', allUsersPlayed);
     if (
       allUsersPlayed &&
       winningUser &&
       winningUser.latestPlayedWord &&
-      winningUser.latestPlayedWord.length > 0
+      winningUser.latestPlayedWord.length > 0 &&
+      winningUser.latestPlayedBoard &&
+      winningUser.latestPlayedBoard.length > 0
     ) {
-      console.log('vi har en tur-vinnare');
+      console.log('5. vi har en tur-vinnare');
 
-      // här måste vi uppdatera letters...
-
-      console.log('game.letters', game.letters);
-
-      let letters = game.letters.split(',');
+      let letters = game.data.letters.split(',');
       let playedLetters = winningUser.latestPlayedWord.split('');
 
       playedLetters.forEach((letter) => {
@@ -317,52 +285,55 @@ export const checkIfTurnEnd = async (gameId: number) => {
       });
 
       let newLetters = letters.join(',');
-      console.log('newLetters', newLetters);
+      console.log('6. newLetters', newLetters);
 
-      const defaultHeaders = {
-        Accept: 'application/json',
-        'Content-Type': 'application/json;charset=UTF-8'
-      };
-      const url = '/api/games/' + gameId;
-      const options = {
-        method: 'POST',
-        headers: defaultHeaders,
-        body: JSON.stringify({
-          variant: 'turn',
-          letters: newLetters,
-          board: winningUser.latestPlayedBoard,
-          latestWord: winningUser.latestPlayedWord
-        })
-      };
-      fetch(url, options)
-        .then((response) => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            throw new Error(response.statusText);
-          }
-        })
-        .then((response) => {
-          return {
-            success: true,
-            data: { response: response }
-          };
-        })
-        .catch((error) => {
-          return {
-            success: false,
-            error: error
-          };
-        });
+      try {
+        console.log('7. här tryar vi submitTurnEnd');
+        const result = await submitTurnEnd(
+          gameId,
+          newLetters,
+          winningUser.latestPlayedBoard,
+          winningUser.latestPlayedWord
+        );
+        return { success: true, response: result };
+      } catch (error) {
+        return { success: false, response: error };
+      }
     } else {
       return false;
     }
   } else {
-    return {
-      success: false,
-      error: 'Game hittades inte'
-    };
+    return { success: false, response: 'Game hittades inte' };
   }
+};
 
-  console.log(game);
+export const submitTurnEnd = async (
+  gameId: number,
+  letters: string,
+  board: string,
+  latestWord: string
+) => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/' + gameId;
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({
+      variant: 'turn',
+      letters,
+      board,
+      latestWord
+    })
+  };
+
+  try {
+    console.log('8. här tryar vi en fetch i submitTurnEnd');
+    const result = await (await fetch(url, options)).json();
+    return { success: true, response: result };
+  } catch (error) {
+    return { success: false, response: error };
+  }
 };

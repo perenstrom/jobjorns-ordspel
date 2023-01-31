@@ -4,7 +4,7 @@ import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
 import { GameWithUsersWithUsers, Tile } from 'types/types';
 import { User } from '@prisma/client';
-import { submitTurn } from 'services/local';
+import { submitMove } from 'services/local';
 
 const shuffleArray = <T,>(originalArray: T[]): T[] => {
   let newArray = [...originalArray];
@@ -37,7 +37,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     let newTiles: Tile[] = [];
     let gameTiles = game.letters.split(',');
     for (let i = newTiles.length; i < 7; i++) {
-      let popped = gameTiles.pop();
+      let popped = gameTiles.shift();
       if (popped) {
         newTiles.push({ letter: popped, placed: 'hand' });
       }
@@ -113,7 +113,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     setUnplayedBoard(copiedBoard);
   };
 
-  const submitWord = () => {
+  const submitWord = async () => {
     const copiedBoard = [...unplayedBoard];
 
     // criteria:
@@ -252,13 +252,16 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       );
       const currentBoard = JSON.stringify(submittedBoard);
 
-      let turnResult = submitTurn(
+      let moveResult = await submitMove(
         game.id,
         currentUser.id,
         longestPlayedWord,
         currentBoard
       );
-      console.log(turnResult);
+      console.log('9. moveResult', moveResult);
+
+      setPlayerHasSubmitted(true);
+
       setUnplayedBoard(submittedBoard);
     }
   };
