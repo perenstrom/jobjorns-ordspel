@@ -182,7 +182,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
     return new Promise((resolve) => {
       getGame(parseInt(req.query.id as string, 10))
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })
