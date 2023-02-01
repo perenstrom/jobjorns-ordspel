@@ -58,7 +58,6 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       currentBoard.forEach((row) =>
         row.forEach((cell) => {
           if (cell.placed === 'hand' || cell.placed === 'submitted') {
-            console.log(cell);
             const index = newTiles.findIndex((x) => x.letter === cell.letter);
             if (index > -1) {
               newTiles.splice(index, 1);
@@ -86,20 +85,16 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
   };
 
   const placeTile = (placedTile: Tile, row: number, column: number) => {
-    // const copiedBoard = unplayedBoard.map((row) => row.map((cell) => cell));
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
-      // console.log('this tile is played and can not be removed');
+      // man borde få någon form av feedback när man trycker på en redan placerad bricka - kanske att den skakar till lite?
     } else if (placedTile.letter !== emptyTile.letter) {
-      // console.log('unplace tile', placedTile);
       copiedTiles.push(placedTile);
 
       copiedBoard[row][column] = emptyTile;
       setSelectedTile(placedTile);
     } else if (selectedTile.letter !== emptyTile.letter) {
-      // console.log('place tile: ', selectedTile);
-
       copiedBoard[row][column] = selectedTile;
 
       const index = copiedTiles.indexOf(selectedTile);
@@ -167,7 +162,6 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
             previousColumn !== indexColumn &&
             previousColumn !== -1
           ) {
-            // console.log('här failar sameDirection', cell);
             sameDirection = false;
           }
           previousRow = indexRow;
@@ -210,7 +204,6 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     });
 
     let playedLetterRanges = rowLetters.concat(columnLetters);
-    // console.log('playedLetterRanges', playedLetterRanges);
 
     let playedWords: string[] = [];
     playedLetterRanges.forEach((range) => {
@@ -218,7 +211,6 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         playedWords.push(range.join('').trim());
       }
     });
-    // console.log('playedWords', playedWords);
 
     let longestPlayedWord = '';
     playedWords.forEach((word) => {
@@ -227,21 +219,17 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       }
 
       let singleWordInList = wordList.includes(word.toLowerCase());
-      // console.log('singleWordInList', word, singleWordInList);
       if (singleWordInList === false) {
         inWordList = false;
       }
 
       let singleCoherentWord = word.indexOf(' ') === -1;
-      // console.log('singleCoherentWord', word, singleCoherentWord);
       if (singleCoherentWord === false) {
         coherentWord = false;
       }
     });
 
     if (sameDirection && coherentWord && inWordList) {
-      console.log('Ordet spelas!');
-
       const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
@@ -258,7 +246,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         longestPlayedWord,
         currentBoard
       );
-      console.log('9. moveResult', moveResult);
+      console.log(moveResult);
 
       setPlayerHasSubmitted(true);
 
