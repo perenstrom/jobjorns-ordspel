@@ -11,8 +11,6 @@ import { addUser } from 'services/local';
 const IndexPage: NextPage<{}> = () => {
   const { user, isLoading } = useUser(); // härifrån finns också error att ta ut
 
-  console.log('user', user);
-
   if (typeof user !== 'undefined' && isLoading === false) {
     addUser(user);
   }

@@ -4,8 +4,6 @@ import router from 'next/router';
 import { ResponseType, GameWithUsersWithUsers } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
-  console.log('nu kör vi addUser i local');
-
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -20,9 +18,9 @@ export const addUser = (user: UserProfile) => {
       email: user.email
     })
   };
+  // här behöver vi deala med resultatet på ett rimligare sätt
   fetch(url, options)
     .then((response) => {
-      console.log(response);
       if (response.status === 200) {
         response
           .json()
@@ -40,8 +38,6 @@ export const addUser = (user: UserProfile) => {
 };
 
 export const getUser = (email: string): Promise<ResponseType<User>> => {
-  console.log('nu kör vi getUser i local');
-
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -106,8 +102,6 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
 };
 
 export const startGame = (starter: User, players: User[]) => {
-  console.log('nu kör vi startGame i local.ts');
-
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -140,8 +134,6 @@ export const startGame = (starter: User, players: User[]) => {
 export const getGame = (
   id: number
 ): Promise<ResponseType<GameWithUsersWithUsers>> => {
-  console.log('nu kör vi getGame i local');
-
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -230,9 +222,6 @@ export const submitMove = async (
   };
 
   try {
-    console.log(
-      '1. här i submitMove tryar vi att await en fetch och en runTurnEnd'
-    );
     const moveResult = await (await fetch(url, options)).json();
     const turnResult = await runTurnEnd(gameId);
     return { success: true, data: { move: moveResult, turn: turnResult } };
@@ -242,7 +231,6 @@ export const submitMove = async (
 };
 
 export const runTurnEnd = async (gameId: number) => {
-  console.log('2. här kör vi runTurnEnd');
   const game = await getGame(gameId);
 
   if (game.success) {
@@ -258,12 +246,10 @@ export const runTurnEnd = async (gameId: number) => {
         user.latestPlayedWord &&
         winningUser.latestPlayedWord?.length < user.latestPlayedWord.length
       ) {
-        console.log('3. ny vinnare!', user.user.name);
         winningUser = user;
       }
     });
 
-    console.log('4. allUsersPlayed', allUsersPlayed);
     if (
       allUsersPlayed &&
       winningUser &&
@@ -272,8 +258,6 @@ export const runTurnEnd = async (gameId: number) => {
       winningUser.latestPlayedBoard &&
       winningUser.latestPlayedBoard.length > 0
     ) {
-      console.log('5. vi har en tur-vinnare');
-
       let letters = game.data.letters.split(',');
       let playedLetters = winningUser.latestPlayedWord.split('');
 
@@ -285,14 +269,17 @@ export const runTurnEnd = async (gameId: number) => {
       });
 
       let newLetters = letters.join(',');
-      console.log('6. newLetters', newLetters);
+
+      let winningBoard = winningUser.latestPlayedBoard.replaceAll(
+        'submitted',
+        'board'
+      );
 
       try {
-        console.log('7. här tryar vi submitTurnEnd');
         const result = await submitTurnEnd(
           gameId,
           newLetters,
-          winningUser.latestPlayedBoard,
+          winningBoard,
           winningUser.latestPlayedWord
         );
         return { success: true, response: result };
@@ -330,7 +317,6 @@ export const submitTurnEnd = async (
   };
 
   try {
-    console.log('8. här tryar vi en fetch i submitTurnEnd');
     const result = await (await fetch(url, options)).json();
     return { success: true, response: result };
   } catch (error) {
