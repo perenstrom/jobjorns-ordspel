@@ -4,7 +4,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getGame = async (gameId: number) => {
-  console.log('nu kör vi getGame i APIt');
 
   try {
     const getGamePrisma = await prisma.game.findUnique({
@@ -22,14 +21,13 @@ const getGame = async (gameId: number) => {
     if (getGamePrisma === null) {
       return { message: 'Inget spel returnerades' };
     } else {
-      console.log('getGamePrisma:', getGamePrisma);
       return {
         message: 'Det gick bra, här är spelet med användare och allt',
         data: getGamePrisma
       };
     }
   } catch (error) {
-    console.log(error);
+    return { message: 'Det blev ett error: ' + error };
   }
 };
 
@@ -39,7 +37,6 @@ const submitMove = async (
   latestPlayedWord: string,
   latestPlayedBoard: string
 ) => {
-  console.log('nu kör vi submitMove i APIt');
 
   try {
     const updateResult = await prisma.usersOnGames.update({
@@ -63,8 +60,7 @@ const submitMove = async (
       );
     }
   } catch (error) {
-    console.log(error);
-    throw new Error('Det blev ett error som fångades i terminalen');
+    throw new Error('Det blev ett error: ' + error);
   }
 };
 
@@ -74,9 +70,6 @@ const submitTurn = async (
   board: string,
   latestWord: string
 ) => {
-  console.log('nu kör vi (nya) submitTurn i APIt!');
-  console.log({ letters, board, latestWord });
-
   try {
     const updateResult = await prisma.game.update({
       data: {
@@ -107,8 +100,7 @@ const submitTurn = async (
       );
     }
   } catch (error) {
-    console.log(error);
-    throw new Error('Det blev ett error som fångades i terminalen');
+    return { message: 'Det blev ett error: ' + error };
   }
 };
 
@@ -133,7 +125,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
         latestPlayedWord,
         latestPlayedBoard
       }: PostRequestBodyMove = req.body;
-      console.log(req.body);
 
       submitMove(
         parseInt(req.query.id as string, 10),
@@ -142,7 +133,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
         latestPlayedBoard
       )
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })
@@ -157,7 +147,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   } else if (req.method === 'POST' && req.body.variant == 'turn') {
     return new Promise((resolve) => {
       const { letters, board, latestWord }: PostRequestBodyTurn = req.body;
-      console.log(req.body);
 
       submitTurn(
         parseInt(req.query.id as string, 10),
@@ -166,7 +155,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
         latestWord
       )
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })
