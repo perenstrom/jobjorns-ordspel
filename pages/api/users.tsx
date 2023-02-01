@@ -10,8 +10,6 @@ interface User {
 const prisma = new PrismaClient();
 
 const addUser = async (user: User) => {
-  console.log('nu kör vi addUser i APIt');
-
   try {
     const findSingleUser = await prisma.user.findUnique({
       where: { email: user.email }
@@ -34,14 +32,11 @@ const addUser = async (user: User) => {
       return { message: 'Användaren finns redan' };
     }
   } catch (error) {
-    console.log(error);
-    return { message: 'Det blev ett error som fångades i terminalen' };
+    return { message: 'Det blev ett error: ' + error };
   }
 };
 
 const listUsers = async () => {
-  console.log('nu kör vi listUsers i APIt');
-
   try {
     const listUsersPrisma = await prisma.user.findMany();
     if (listUsersPrisma === null) {
@@ -53,7 +48,7 @@ const listUsers = async () => {
       };
     }
   } catch (error) {
-    console.log(error);
+    return { message: 'Det blev ett error: ' + error };
   }
 };
 
@@ -68,7 +63,6 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
         email
       })
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })
@@ -84,7 +78,6 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
     return new Promise((resolve) => {
       listUsers()
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })

@@ -44,7 +44,6 @@ export const GameList: React.FC<{}> = () => {
         if (newGamesList.success) {
           setGamesList(newGamesList.data);
           setLoading(false);
-          console.log(newGamesList.data);
         }
       }
     };
@@ -53,7 +52,6 @@ export const GameList: React.FC<{}> = () => {
   }, [userWithId]);
 
   if (gamesList && !loading && userWithId) {
-    console.log('gamesList', gamesList);
     return (
       <Container maxWidth="sm">
         <Typography variant="h3">Pågående spel</Typography>

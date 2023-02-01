@@ -5,8 +5,6 @@ import { allTiles } from 'data/defaults';
 const prisma = new PrismaClient();
 
 const startGame = async (starter: User, players: User[]) => {
-  console.log('nu kör vi startGame i APIt');
-
   players.push(starter);
 
   const shuffleArray = (array: any[]) => {
@@ -44,13 +42,11 @@ const startGame = async (starter: User, players: User[]) => {
       );
     }
   } catch (error) {
-    console.log(error);
-    throw new Error('Det blev ett error som fångades i terminalen');
+    throw new Error('Det blev ett error: ' + error);
   }
 };
 
 const listGames = async (userId: number) => {
-  console.log('nu kör vi listGames i APIt');
 
   try {
     const listGamesPrisma = await prisma.game.findMany({
@@ -72,14 +68,13 @@ const listGames = async (userId: number) => {
     if (listGamesPrisma === null) {
       return { message: 'Inga användare returnerades' };
     } else {
-      console.log('listGamesPrisma:', listGamesPrisma);
       return {
         message: 'Det gick bra, här är spel med användare och allt',
         data: listGamesPrisma
       };
     }
   } catch (error) {
-    console.log(error);
+    throw new Error('Det blev ett error: ' + error);
   }
 };
 
@@ -92,7 +87,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
       const { starter, players }: PostRequestBody = req.body;
-      console.log(req.body);
 
       if (!starter || !players) {
         res.status(400).end('Starter eller Players saknas');
@@ -100,7 +94,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       } else {
         startGame(starter, players)
           .then((result) => {
-            console.log('result', result);
             res.status(200).json(result);
             resolve('');
           })
@@ -117,7 +110,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
     return new Promise((resolve) => {
       listGames(parseInt(req.query.userid as string, 10))
         .then((result) => {
-          console.log('result', result);
           res.status(200).json(result);
           resolve('');
         })
