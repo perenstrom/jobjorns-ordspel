@@ -66,7 +66,6 @@ const NewGamePage: NextPage<{}> = () => {
       >
         <Menu />
         <Container maxWidth="sm">
-          <Typography variant="h2">Spel {gameId}</Typography>
           <Board game={game} user={userWithId} />
         </Container>
         <Footer />

@@ -71,7 +71,7 @@ export const GameList: React.FC<{}> = () => {
                           )
                       )}
                     </Typography>
-                    <Typography>senaste ordet</Typography>
+                    <Typography>{game.latestWord}</Typography>
                     <Typography>
                       {DateTime.fromISO(new Date(game.startedAt).toISOString())
                         .setLocale('sv')
