@@ -38,7 +38,6 @@ export const Menu: React.FC<{}> = () => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ pr: 0 }}
           onClick={() => setDrawer(true)}
         >
           <MenuIcon />
