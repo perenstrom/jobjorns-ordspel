@@ -224,9 +224,13 @@ export const submitMove = async (
   try {
     const moveResult = await (await fetch(url, options)).json();
     const turnResult = await runTurnEnd(gameId);
-    return { success: true, data: { move: moveResult, turn: turnResult } };
+
+    return { move: moveResult, turn: turnResult };
   } catch (error) {
-    return { success: false, response: error };
+    return {
+      move: { success: false, response: error },
+      turn: { success: false, response: error }
+    };
   }
 };
 
@@ -282,7 +286,11 @@ export const runTurnEnd = async (gameId: number) => {
           winningBoard,
           winningUser.latestPlayedWord
         );
-        return { success: true, response: result };
+        if (result.success) {
+          return { success: true, response: result.response };
+        } else {
+          throw new Error(result.response);
+        }
       } catch (error) {
         return { success: false, response: error };
       }
@@ -318,7 +326,8 @@ export const submitTurnEnd = async (
 
   try {
     const result = await (await fetch(url, options)).json();
-    return { success: true, response: result };
+
+    return result;
   } catch (error) {
     return { success: false, response: error };
   }
