@@ -295,7 +295,7 @@ export const runTurnEnd = async (gameId: number) => {
         return { success: false, response: error };
       }
     } else {
-      return false;
+      return false as const;
     }
   } else {
     return { success: false, response: 'Game hittades inte' };
