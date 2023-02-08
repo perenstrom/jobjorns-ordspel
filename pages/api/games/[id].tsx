@@ -4,7 +4,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getGame = async (gameId: number) => {
-
   try {
     const getGamePrisma = await prisma.game.findUnique({
       where: {
@@ -37,7 +36,6 @@ const submitMove = async (
   latestPlayedWord: string,
   latestPlayedBoard: string
 ) => {
-
   try {
     const updateResult = await prisma.usersOnGames.update({
       data: {
@@ -53,14 +51,14 @@ const submitMove = async (
       }
     });
     if (updateResult !== null) {
-      return { message: 'Draget sparades' };
+      return { success: true, response: 'Draget sparades' };
     } else {
       throw new Error(
         'Något gick fel i sparandet av draget, updateResult var null'
       );
     }
   } catch (error) {
-    throw new Error('Det blev ett error: ' + error);
+    return { success: false, response: 'Det blev ett error: ' + error };
   }
 };
 
@@ -93,14 +91,14 @@ const submitTurn = async (
       }
     });
     if (updateResult !== null) {
-      return { message: 'Ny tur sparades' };
+      return { success: true, response: 'Ny tur sparades' };
     } else {
       throw new Error(
         'Något gick fel i sparandet av ny tur, updateResult var null'
       );
     }
   } catch (error) {
-    return { message: 'Det blev ett error: ' + error };
+    return { success: false, response: 'Det blev ett error: ' + error };
   }
 };
 
