@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, styled } from '@mui/material';
+import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
 import { GameWithUsersWithUsers, Tile } from 'types/types';
@@ -27,11 +27,27 @@ interface BoardProps {
   user: User;
 }
 
+type Alert = {
+  severity: AlertColor;
+  message: string;
+};
+
 export const Board = ({ game, user: currentUser }: BoardProps) => {
   const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
   const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
+  const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [backdrop, setBackdrop] = useState<boolean>(false);
+
+  const addAlerts = (newAlerts: Alert[]) => {
+    console.log({ newAlerts });
+    setAlerts([...alerts, ...newAlerts]);
+    setBackdrop(true);
+  };
+  const handleBackdropClose = () => {
+    setBackdrop(false);
+  };
 
   useEffect(() => {
     let newTiles: Tile[] = [];
@@ -112,6 +128,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     const copiedBoard = [...unplayedBoard];
 
     // criteria:
+    let tilesPlayed = false; // minst en bricka måste läggas
     let sameDirection = true; // alla placerade brickor ska vara i samma riktning
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
     let inWordList = true; // de lagda orden måste finnas i ordlistan
@@ -147,6 +164,8 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         }
 
         if (cell.placed === 'hand') {
+          tilesPlayed = true;
+
           rowHandIsPlayed[indexRow] = true;
           columnHandIsPlayed[indexColumn] = true;
 
@@ -208,12 +227,16 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     let playedWords: string[] = [];
     playedLetterRanges.forEach((range) => {
       if (range.length > 0) {
-        playedWords.push(range.join('').trim());
+        let word = range.join('').trim();
+        if (word.length > 1) {
+          playedWords.push(word);
+        }
       }
     });
 
     let longestPlayedWord = '';
     playedWords.forEach((word) => {
+      console.log({ word });
       if (word.length > longestPlayedWord.length) {
         longestPlayedWord = word;
       }
@@ -229,7 +252,9 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       }
     });
 
-    if (sameDirection && coherentWord && inWordList) {
+    console.log({ tilesPlayed, sameDirection, coherentWord, inWordList });
+
+    if (tilesPlayed && sameDirection && coherentWord && inWordList) {
       const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
@@ -248,14 +273,62 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
       );
       console.log(moveResult);
 
-      setPlayerHasSubmitted(true);
+      if (moveResult.move.success) {
+        setPlayerHasSubmitted(true);
 
-      setUnplayedBoard(submittedBoard);
+        setUnplayedBoard(submittedBoard);
+      }
+
+      if (moveResult.turn && moveResult.turn.success) {
+        // här ska vi hantera en ny tur
+      }
+    } else {
+      let newAlerts: Alert[] = [];
+      if (!tilesPlayed) {
+        newAlerts.push({
+          severity: 'error',
+          message: 'Minst en bricka måste läggas.'
+        });
+      }
+      if (!sameDirection) {
+        newAlerts.push({
+          severity: 'error',
+          message: 'Alla brickor måste placeras i samma rad/kolumn.'
+        });
+      }
+      if (!coherentWord) {
+        newAlerts.push({
+          severity: 'error',
+          message: 'Det lagda ordet får inte ha mellanrum i sig.'
+        });
+      }
+      if (!inWordList) {
+        newAlerts.push({
+          severity: 'error',
+          message: 'Alla ord måste finnas i ordlistan.'
+        });
+      }
+      addAlerts(newAlerts);
     }
   };
 
   return (
     <>
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={backdrop}
+        onClick={handleBackdropClose}
+      >
+        {alerts.map((alert, index) => (
+          <Alert
+            key={index}
+            severity={alert.severity}
+            sx={{ width: '50vh', margin: '3px' }}
+          >
+            {alert.message}
+          </Alert>
+        ))}
+      </Backdrop>
       <BoardGrid>
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
