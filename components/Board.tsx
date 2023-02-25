@@ -25,6 +25,7 @@ const emptyTile: Tile = {
 interface BoardProps {
   game: GameWithUsersWithUsers;
   user: User;
+  fetchGame: (gameId: number) => void;
 }
 
 type Alert = {
@@ -32,7 +33,7 @@ type Alert = {
   message: string;
 };
 
-export const Board = ({ game, user: currentUser }: BoardProps) => {
+export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
@@ -46,6 +47,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
     setBackdrop(true);
   };
   const handleBackdropClose = () => {
+    setAlerts([]);
     setBackdrop(false);
   };
 
@@ -254,6 +256,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
 
     console.log({ tilesPlayed, sameDirection, coherentWord, inWordList });
 
+    let newAlerts: Alert[] = [];
     if (tilesPlayed && sameDirection && coherentWord && inWordList) {
       const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
@@ -277,13 +280,22 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
         setPlayerHasSubmitted(true);
 
         setUnplayedBoard(submittedBoard);
+        newAlerts.push({
+          severity: 'success',
+          message: 'Du lade ett ord!'
+        });
       }
 
       if (moveResult.turn && moveResult.turn.success) {
-        // här ska vi hantera en ny tur
+        fetchGame(game.id);
+        setPlayerHasSubmitted(false);
+
+        newAlerts.push({
+          severity: 'success',
+          message: 'Du var den sista spelaren, nu börjar en ny tur.'
+        });
       }
     } else {
-      let newAlerts: Alert[] = [];
       if (!tilesPlayed) {
         newAlerts.push({
           severity: 'error',
@@ -308,14 +320,18 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
           message: 'Alla ord måste finnas i ordlistan.'
         });
       }
-      addAlerts(newAlerts);
     }
+    addAlerts(newAlerts);
   };
 
   return (
     <>
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{
+          color: '#fff',
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          flexDirection: 'column'
+        }}
         open={backdrop}
         onClick={handleBackdropClose}
       >
@@ -323,7 +339,7 @@ export const Board = ({ game, user: currentUser }: BoardProps) => {
           <Alert
             key={index}
             severity={alert.severity}
-            sx={{ width: '50vh', margin: '3px' }}
+            sx={{ width: '65vh', margin: '3px' }}
           >
             {alert.message}
           </Alert>
