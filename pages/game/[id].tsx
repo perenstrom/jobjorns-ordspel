@@ -38,18 +38,18 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUserWithId();
   }, [user]);
 
-  useEffect(() => {
-    const fetchGame = async () => {
-      if (gameId > 0) {
-        const newGame = await getGame(gameId);
+  const fetchGame = async (gameId: number) => {
+    if (gameId > 0) {
+      const newGame = await getGame(gameId);
 
-        if (newGame.success) {
-          setGame(newGame.data);
-        }
+      if (newGame.success) {
+        setGame(newGame.data);
       }
-    };
+    }
+  };
 
-    fetchGame();
+  useEffect(() => {
+    fetchGame(gameId);
   }, [gameId]);
 
   if (game && userWithId) {
@@ -65,7 +65,7 @@ const NewGamePage: NextPage<{}> = () => {
       >
         <Menu />
         <Container maxWidth="sm">
-          <Board game={game} user={userWithId} />
+          <Board game={game} user={userWithId} fetchGame={fetchGame} />
         </Container>
         <Footer />
       </Box>
