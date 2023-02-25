@@ -34,7 +34,7 @@ type Alert = {
 };
 
 export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
-  const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard());
+  const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard);
   const [tiles, setTiles] = useState<Tile[]>([]);
   const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
   const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
