@@ -1,24 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, User } from '@prisma/client';
-import { allTiles } from 'data/defaults';
+import { allLetters } from 'data/defaults';
 
 const prisma = new PrismaClient();
 
 const startGame = async (starter: User, players: User[]) => {
   players.push(starter);
 
-  const shuffleArray = (array: any[]) => {
-    for (let i = array.length - 1; i > 0; i--) {
+  const shuffleArray = <T,>(array: T[]) => {
+    const newArray = [...array];
+    for (let i = newArray.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      const temp = array[i];
-      array[i] = array[j];
-      array[j] = temp;
+      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
     }
-    return array;
+    return newArray;
   };
-  let letters: string = shuffleArray(allTiles)
-    .map((tile) => tile.letter)
-    .join();
+  let letters: string = shuffleArray(allLetters()).join();
 
   try {
     const createResult = await prisma.game.create({
@@ -47,7 +44,6 @@ const startGame = async (starter: User, players: User[]) => {
 };
 
 const listGames = async (userId: number) => {
-
   try {
     const listGamesPrisma = await prisma.game.findMany({
       where: {

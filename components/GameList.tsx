@@ -84,6 +84,9 @@ export const GameList: React.FC<{}> = () => {
             </CardActionArea>
           </Link>
         ))}
+        {gamesList.length == 0 && (
+          <Typography>Du har inga pågående spel.</Typography>
+        )}
       </Container>
     );
   } else {
