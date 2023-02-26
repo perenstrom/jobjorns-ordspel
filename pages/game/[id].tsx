@@ -15,6 +15,8 @@ import CircularProgress from '@mui/material/CircularProgress';
 import router from 'next/router';
 import { Board } from 'components/Board';
 import { User } from '@prisma/client';
+import { allLettersData } from 'data/defaults';
+import { Tile } from 'components/Tile';
 
 const NewGamePage: NextPage<{}> = () => {
   const [game, setGame] = useState<GameWithUsersWithUsers>();
@@ -65,8 +67,25 @@ const NewGamePage: NextPage<{}> = () => {
       >
         <Menu />
         <Container maxWidth="sm">
-          <Board game={game} user={userWithId} fetchGame={fetchGame} />
+          <>
+            <Board game={game} user={userWithId} fetchGame={fetchGame} />
+            {allLettersData.map((item) => {
+              return (
+                <div
+                  style={{ height: '100px', display: 'inline-block' }}
+                  key={item.letter}
+                >
+                  <Tile
+                    tile={{ letter: item.letter, placed: 'no' }}
+                    status="test"
+                    onClick={() => {}}
+                  />
+                </div>
+              );
+            })}
+          </>
         </Container>
+
         <Footer />
       </Box>
     );

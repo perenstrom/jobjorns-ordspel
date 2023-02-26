@@ -19,7 +19,7 @@ export const defaultBoard = () => {
   return outer;
 };
 
-const allLettersData = [
+export const allLettersData = [
   { letter: 'A', count: 1, points: 9 },
   { letter: 'E', count: 1, points: 8 },
   { letter: 'R', count: 1, points: 8 },
@@ -54,3 +54,6 @@ export const allLetters = () =>
   allLettersData.flatMap((letterData) =>
     Array<string>(letterData.count).fill(letterData.letter)
   );
+
+export const points = (letter: string) =>
+  allLettersData.find((tile) => tile.letter == letter)?.points;

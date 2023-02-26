@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
-import { GameWithUsersWithUsers, Tile } from 'types/types';
+import { GameWithUsersWithUsers, Tile as TypeTile } from 'types/types';
 import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
+import { Tile } from './Tile';
 
 const shuffleArray = <T,>(originalArray: T[]): T[] => {
   let newArray = [...originalArray];
@@ -17,7 +18,7 @@ const shuffleArray = <T,>(originalArray: T[]): T[] => {
   return newArray;
 };
 
-const emptyTile: Tile = {
+const emptyTile: TypeTile = {
   letter: '',
   placed: 'no'
 };
@@ -34,9 +35,11 @@ type Alert = {
 };
 
 export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
-  const [unplayedBoard, setUnplayedBoard] = useState<Tile[][]>(defaultBoard());
-  const [tiles, setTiles] = useState<Tile[]>([]);
-  const [selectedTile, setSelectedTile] = useState<Tile>(emptyTile);
+  const [unplayedBoard, setUnplayedBoard] = useState<TypeTile[][]>(
+    defaultBoard()
+  );
+  const [tiles, setTiles] = useState<TypeTile[]>([]);
+  const [selectedTile, setSelectedTile] = useState<TypeTile>(emptyTile);
   const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [backdrop, setBackdrop] = useState<boolean>(false);
@@ -52,7 +55,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   };
 
   useEffect(() => {
-    let newTiles: Tile[] = [];
+    let newTiles: TypeTile[] = [];
     let gameTiles = game.letters.split(',');
     for (let i = newTiles.length; i < 7; i++) {
       let popped = gameTiles.shift();
@@ -69,7 +72,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     ) {
       setPlayerHasSubmitted(true);
 
-      let currentBoard: Tile[][] = JSON.parse(
+      let currentBoard: TypeTile[][] = JSON.parse(
         currentUserGame.latestPlayedBoard
       );
 
@@ -86,7 +89,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       setUnplayedBoard(currentBoard);
     } else if (game.board && game.board.length > 0) {
-      let currentBoard: Tile[][] = JSON.parse(game.board);
+      let currentBoard: TypeTile[][] = JSON.parse(game.board);
       setUnplayedBoard(currentBoard);
     }
 
@@ -98,11 +101,12 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setTiles(copiedTiles);
   };
 
-  const selectTile = (tile: Tile) => {
+  const selectTile = (tile: TypeTile) => {
     setSelectedTile(tile);
+    console.log('tile was selected:', tile);
   };
 
-  const placeTile = (placedTile: Tile, row: number, column: number) => {
+  const placeTile = (placedTile: TypeTile, row: number, column: number) => {
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
@@ -348,25 +352,23 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       <BoardGrid>
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
-            <BoardCell
-              isPlaced={cell.placed}
-              onClick={() => placeTile(cell, indexRow, indexColumn)}
+            <Tile
               key={indexRow * 100 + indexColumn}
-            >
-              {cell.letter}
-            </BoardCell>
+              tile={cell}
+              status={cell.placed}
+              onClick={() => placeTile(cell, indexRow, indexColumn)}
+            />
           ))
         )}
       </BoardGrid>
       <TileHolder>
         {tiles.map((tile, index) => (
-          <SingleTile
-            isSelected={tile === selectedTile}
+          <Tile
+            tile={tile}
+            status={selectedTile == tile ? 'selected' : 'hand'}
             key={index}
             onClick={() => selectTile(tile)}
-          >
-            {tile.letter}
-          </SingleTile>
+          />
         ))}
       </TileHolder>
       <Button variant="outlined" onClick={() => shuffleTileHolder()}>
@@ -394,64 +396,12 @@ const TileHolder = styled('div')((props) => ({
   width: '100%'
 }));
 
-interface TileProps {
-  readonly isSelected: boolean;
-}
-
-const SingleTile = styled('div', {
-  shouldForwardProp: (prop) => prop !== 'isSelected'
-})<TileProps>((props) => ({
-  backgroundColor: props.isSelected
-    ? props.theme.palette.primary.light
-    : props.theme.palette.primary.main,
-
-  color: props.isSelected ? 'black' : 'white',
-  maxWidth: '100%',
-  width: 'calc(100% - 2px)',
-  aspectRatio: '1',
-  fontSize: '2rem',
-
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: props.theme.spacing(0.5),
-  boxShadow: '1px 1px 0px #fff, 2px 2px 0px #fff'
-}));
-
 const BoardGrid = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(11, 1fr)',
   gridTemplateRows: 'repeat(11, 1fr)',
   gap: props.theme.spacing(0.5),
   justifyItems: 'stretch',
-  width: '100%'
-}));
-
-interface BoardCellProps {
-  readonly isPlaced: string;
-}
-
-const BoardCell = styled('div', {
-  shouldForwardProp: (prop) => prop !== 'isPlaced'
-})<BoardCellProps>((props) => ({
-  backgroundColor:
-    props.isPlaced === 'board'
-      ? props.theme.palette.primary.dark
-      : props.isPlaced === 'hand'
-      ? props.theme.palette.primary.main
-      : props.isPlaced === 'submitted'
-      ? props.theme.palette.success.dark
-      : props.theme.palette.grey[800],
-
-  boxShadow: props.isPlaced !== 'no' ? '1px 1px 0px #fff' : '0',
-  width: props.isPlaced !== 'no' ? 'calc(100% - 1px)' : '100%',
-
-  maxWidth: '100%',
-  aspectRatio: '1',
-  fontSize: '1rem',
-
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: props.theme.spacing(0.5)
+  width: '100%',
+  aspectRatio: '1/1'
 }));
