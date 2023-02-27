@@ -2,23 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
 import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
-import { GameWithUsersWithUsers, Tile as TypeTile } from 'types/types';
+import { GameWithUsersWithUsers, Tile as TileType } from 'types/types';
 import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
 import { Tile } from './Tile';
+import { shuffleArray } from 'services/helpers';
 
-const shuffleArray = <T,>(originalArray: T[]): T[] => {
-  let newArray = [...originalArray];
-  for (let i = newArray.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = newArray[i];
-    newArray[i] = newArray[j];
-    newArray[j] = temp;
-  }
-  return newArray;
-};
-
-const emptyTile: TypeTile = {
+const emptyTile: TileType = {
   letter: '',
   placed: 'no'
 };
@@ -35,11 +25,11 @@ type Alert = {
 };
 
 export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
-  const [unplayedBoard, setUnplayedBoard] = useState<TypeTile[][]>(
+  const [unplayedBoard, setUnplayedBoard] = useState<TileType[][]>(
     defaultBoard()
   );
-  const [tiles, setTiles] = useState<TypeTile[]>([]);
-  const [selectedTile, setSelectedTile] = useState<TypeTile>(emptyTile);
+  const [tiles, setTiles] = useState<TileType[]>([]);
+  const [selectedTile, setSelectedTile] = useState<TileType>(emptyTile);
   const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [backdrop, setBackdrop] = useState<boolean>(false);
@@ -56,7 +46,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   };
 
   useEffect(() => {
-    let newTiles: TypeTile[] = [];
+    let newTiles: TileType[] = [];
     let gameTiles = game.letters.split(',');
     for (let i = newTiles.length; i < 7; i++) {
       let popped = gameTiles.shift();
@@ -73,7 +63,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     ) {
       setPlayerHasSubmitted(true);
 
-      let currentBoard: TypeTile[][] = JSON.parse(
+      let currentBoard: TileType[][] = JSON.parse(
         currentUserGame.latestPlayedBoard
       );
 
@@ -90,7 +80,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       setUnplayedBoard(currentBoard);
     } else if (game.board && game.board.length > 0) {
-      let currentBoard: TypeTile[][] = JSON.parse(game.board);
+      let currentBoard: TileType[][] = JSON.parse(game.board);
       setUnplayedBoard(currentBoard);
     }
 
@@ -102,12 +92,12 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setTiles(copiedTiles);
   };
 
-  const selectTile = (tile: TypeTile) => {
+  const selectTile = (tile: TileType) => {
     setSelectedTile(tile);
     console.log('tile was selected:', tile);
   };
 
-  const placeTile = (placedTile: TypeTile, row: number, column: number) => {
+  const placeTile = (placedTile: TileType, row: number, column: number) => {
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {

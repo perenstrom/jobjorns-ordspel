@@ -67,7 +67,6 @@ const NewGamePage: NextPage<{}> = () => {
         <Container maxWidth="sm">
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
         </Container>
-
         <Footer />
       </Box>
     );
