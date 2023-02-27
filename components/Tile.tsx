@@ -84,7 +84,7 @@ export const Tile = ({
           <text
             x="47.5%"
             y="52.5%"
-            fontSize="4.5vw"
+            fontSize="3em"
             fill="#FFFFFF"
             textAnchor="middle"
             dominantBaseline="middle"
@@ -94,7 +94,7 @@ export const Tile = ({
           <text
             x="80%"
             y="30%"
-            fontSize="2vw"
+            fontSize="1em"
             fill="#FFFFFF"
             textAnchor="middle"
             alignmentBaseline="central"

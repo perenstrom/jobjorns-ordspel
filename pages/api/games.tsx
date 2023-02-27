@@ -1,20 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient, User } from '@prisma/client';
 import { allLetters } from 'data/defaults';
+import { shuffleArray } from 'services/helpers';
 
 const prisma = new PrismaClient();
 
 const startGame = async (starter: User, players: User[]) => {
   players.push(starter);
 
-  const shuffleArray = <T,>(array: T[]) => {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-  };
   let letters: string = shuffleArray(allLetters()).join();
 
   try {
