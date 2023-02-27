@@ -43,6 +43,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [playerHasSubmitted, setPlayerHasSubmitted] = useState<boolean>(false);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [backdrop, setBackdrop] = useState<boolean>(false);
+  const [shakingTiles, setShakingTiles] = useState<number[]>([]);
 
   const addAlerts = (newAlerts: Alert[]) => {
     console.log({ newAlerts });
@@ -110,7 +111,22 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
-      // man borde få någon form av feedback när man trycker på en redan placerad bricka - kanske att den skakar till lite?
+      const newShakingTiles = [...shakingTiles];
+      newShakingTiles.push(row * 100 + column);
+      setShakingTiles(newShakingTiles);
+
+      setTimeout(() => {
+        setShakingTiles((shakingTiles) => {
+          const newShakingTiles = [...shakingTiles];
+          const index = newShakingTiles.findIndex(
+            (x) => x == row * 100 + column
+          );
+          if (index > -1) {
+            newShakingTiles.splice(index, 1);
+          }
+          return newShakingTiles;
+        });
+      }, 300);
     } else if (placedTile.letter !== emptyTile.letter) {
       copiedTiles.push(placedTile);
 
@@ -354,6 +370,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           row.map((cell, indexColumn) => (
             <Tile
               key={indexRow * 100 + indexColumn}
+              shake={shakingTiles.includes(indexRow * 100 + indexColumn)}
               tile={cell}
               status={cell.placed}
               onClick={() => placeTile(cell, indexRow, indexColumn)}
