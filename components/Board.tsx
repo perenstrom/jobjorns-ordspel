@@ -1,13 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
-import wordList from 'data/swedish.json';
 import { defaultBoard } from 'data/defaults';
 import { GameWithUsersWithUsers, Tile as TileType } from 'types/types';
 import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
 import { Tile } from './Tile';
 import { shuffleArray } from 'services/helpers';
-import { checkTilesPlayed } from 'services/game';
+import {
+  checkCoherentWord,
+  checkInWordList,
+  checkSameDirection,
+  checkTilesPlayed,
+  getPlayedWords
+} from 'services/game';
 
 const emptyTile: TileType = {
   letter: '',
@@ -37,7 +42,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
 
   const addAlerts = (newAlerts: Alert[]) => {
-    console.log({ newAlerts });
     setAlerts([...alerts, ...newAlerts]);
     setBackdrop(true);
   };
@@ -95,7 +99,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
   const selectTile = (tile: TileType) => {
     setSelectedTile(tile);
-    console.log('tile was selected:', tile);
   };
 
   const placeTile = (placedTile: TileType, row: number, column: number) => {
@@ -142,129 +145,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     // criteria:
     let tilesPlayed = checkTilesPlayed(copiedBoard); // minst en bricka måste läggas
-
-    let sameDirection = true; // alla placerade brickor ska vara i samma riktning
-    let coherentWord = true; // placerade brickor får inte ha ett mellanrum
-    let inWordList = true; // de lagda orden måste finnas i ordlistan
-
-    let rowHandIsPlayed: boolean[] = [];
-    let columnHandIsPlayed: boolean[] = [];
-    let rowFinished: boolean[] = [];
-    let columnFinished: boolean[] = [];
-    let rowLetters: string[][] = [];
-    let columnLetters: string[][] = [];
-    let previousRow = -1;
-    let previousColumn = -1;
-
-    copiedBoard.forEach((row, indexRow) =>
-      row.forEach((cell, indexColumn) => {
-        if (typeof rowHandIsPlayed[indexRow] === 'undefined') {
-          rowHandIsPlayed[indexRow] = false;
-        }
-        if (typeof columnHandIsPlayed[indexColumn] === 'undefined') {
-          columnHandIsPlayed[indexColumn] = false;
-        }
-        if (typeof rowFinished[indexRow] === 'undefined') {
-          rowFinished[indexRow] = false;
-        }
-        if (typeof columnFinished[indexColumn] === 'undefined') {
-          columnFinished[indexColumn] = false;
-        }
-        if (typeof rowLetters[indexRow] === 'undefined') {
-          rowLetters[indexRow] = [];
-        }
-        if (typeof columnLetters[indexColumn] === 'undefined') {
-          columnLetters[indexColumn] = [];
-        }
-
-        if (cell.placed === 'hand') {
-          rowHandIsPlayed[indexRow] = true;
-          columnHandIsPlayed[indexColumn] = true;
-
-          rowLetters[indexRow].push(cell.letter);
-          columnLetters[indexColumn].push(cell.letter);
-
-          rowFinished[indexRow] = false;
-          columnFinished[indexColumn] = false;
-
-          if (
-            previousRow !== indexRow &&
-            previousRow !== -1 &&
-            previousColumn !== indexColumn &&
-            previousColumn !== -1
-          ) {
-            sameDirection = false;
-          }
-          previousRow = indexRow;
-          previousColumn = indexColumn;
-        } else if (cell.placed === 'no') {
-          if (rowHandIsPlayed[indexRow] === false) {
-            rowLetters[indexRow].length = 0;
-          } else {
-            rowFinished[indexRow] = true;
-            rowLetters[indexRow].push(' ');
-          }
-
-          if (columnHandIsPlayed[indexColumn] === false) {
-            columnLetters[indexColumn].length = 0;
-          } else {
-            columnFinished[indexColumn] = true;
-            columnLetters[indexColumn].push(' ');
-          }
-        } else {
-          if (!rowFinished[indexRow]) {
-            rowLetters[indexRow].push(cell.letter);
-          }
-          if (!columnFinished[indexColumn]) {
-            columnLetters[indexColumn].push(cell.letter);
-          }
-        }
-      })
-    );
-
-    rowHandIsPlayed.forEach((value, index) => {
-      if (value === false) {
-        rowLetters[index].length = 0;
-      }
-    });
-
-    columnHandIsPlayed.forEach((value, index) => {
-      if (value === false) {
-        columnLetters[index].length = 0;
-      }
-    });
-
-    let playedLetterRanges = rowLetters.concat(columnLetters);
-
-    let playedWords: string[] = [];
-    playedLetterRanges.forEach((range) => {
-      if (range.length > 0) {
-        let word = range.join('').trim();
-        if (word.length > 1) {
-          playedWords.push(word);
-        }
-      }
-    });
-
-    let longestPlayedWord = '';
-    playedWords.forEach((word) => {
-      console.log({ word });
-      if (word.length > longestPlayedWord.length) {
-        longestPlayedWord = word;
-      }
-
-      let singleWordInList = wordList.includes(word.toLowerCase());
-      if (singleWordInList === false) {
-        inWordList = false;
-      }
-
-      let singleCoherentWord = word.indexOf(' ') === -1;
-      if (singleCoherentWord === false) {
-        coherentWord = false;
-      }
-    });
-
-    console.log({ tilesPlayed, sameDirection, coherentWord, inWordList });
+    let sameDirection = checkSameDirection(copiedBoard); // alla placerade brickor ska vara i samma riktning
+    let coherentWord = checkCoherentWord(copiedBoard); // placerade brickor får inte ha ett mellanrum
+    let inWordList = checkInWordList(copiedBoard); // de lagda orden måste finnas i ordlistan
 
     let newAlerts: Alert[] = [];
     if (tilesPlayed && sameDirection && coherentWord && inWordList) {
@@ -278,13 +161,14 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       );
       const currentBoard = JSON.stringify(submittedBoard);
 
+      let playedWords = getPlayedWords(copiedBoard).join(', ');
+
       let moveResult = await submitMove(
         game.id,
         currentUser.id,
-        longestPlayedWord,
+        playedWords,
         currentBoard
       );
-      console.log(moveResult);
 
       if (moveResult.move.success) {
         setPlayerHasSubmitted(true);
@@ -292,7 +176,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         setUnplayedBoard(submittedBoard);
         newAlerts.push({
           severity: 'success',
-          message: 'Du lade ett ord!'
+          message: `Du lade ${playedWords}!`
         });
       }
 
