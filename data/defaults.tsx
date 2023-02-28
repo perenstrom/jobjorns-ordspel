@@ -54,6 +54,3 @@ export const allLetters = () =>
   allLettersData.flatMap((letterData) =>
     Array<string>(letterData.count).fill(letterData.letter)
   );
-
-export const points = (letter: string) =>
-  allLettersData.find((tile) => tile.letter == letter)?.points;

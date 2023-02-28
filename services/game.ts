@@ -1,3 +1,4 @@
+import { allLettersData } from 'data/defaults';
 import wordList from 'data/swedish.json';
 import { Tile } from 'types/types';
 
@@ -165,4 +166,18 @@ export const checkInWordList = (board: Tile[][]) => {
   });
 
   return inWordList;
+};
+
+export const points = (letter: string) => {
+  let point = allLettersData.find((tile) => tile.letter == letter)?.points;
+  if (typeof point === 'undefined') {
+    point = 0;
+  }
+  return point;
+};
+
+export const wordPoints = (word: string) => {
+  return [...word]
+    .map((letter) => points(letter))
+    .reduce((accumulated, current) => accumulated + current, 0);
 };
