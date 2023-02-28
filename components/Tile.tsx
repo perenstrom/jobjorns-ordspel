@@ -82,7 +82,7 @@ export const Tile = ({
             ry="0"
           />
           <text
-            x="47.5%"
+            x="42.5%"
             y="52.5%"
             fontSize="3em"
             fill="#FFFFFF"
@@ -92,9 +92,9 @@ export const Tile = ({
             {tile.letter}
           </text>
           <text
-            x="80%"
+            x="75%"
             y="30%"
-            fontSize="1em"
+            fontSize="1.5em"
             fill="#FFFFFF"
             textAnchor="middle"
             alignmentBaseline="central"
