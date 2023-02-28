@@ -7,6 +7,7 @@ import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
 import { Tile } from './Tile';
 import { shuffleArray } from 'services/helpers';
+import { checkTilesPlayed } from 'services/game';
 
 const emptyTile: TileType = {
   letter: '',
@@ -140,7 +141,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     const copiedBoard = [...unplayedBoard];
 
     // criteria:
-    let tilesPlayed = false; // minst en bricka måste läggas
+    let tilesPlayed = checkTilesPlayed(copiedBoard); // minst en bricka måste läggas
+
     let sameDirection = true; // alla placerade brickor ska vara i samma riktning
     let coherentWord = true; // placerade brickor får inte ha ett mellanrum
     let inWordList = true; // de lagda orden måste finnas i ordlistan
@@ -176,8 +178,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         }
 
         if (cell.placed === 'hand') {
-          tilesPlayed = true;
-
           rowHandIsPlayed[indexRow] = true;
           columnHandIsPlayed[indexColumn] = true;
 
