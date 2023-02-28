@@ -1,4 +1,4 @@
-import { points } from 'data/defaults';
+import { points } from 'services/game';
 
 import { blue, cyan, green, grey, red, teal } from '@mui/material/colors';
 import { Tile as TypeTile } from 'types/types';
@@ -27,7 +27,6 @@ export const Tile = ({
   } else if (status == 'board') {
     fillColor = blue;
   } else {
-    console.log('okänd status:', status);
     fillColor = red;
   }
 
