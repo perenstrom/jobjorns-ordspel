@@ -14,20 +14,22 @@ model User {
   picture      String?
   games        UsersOnGames[]
   startedGames Game[]
+  moves        Move[]
 
   @@map("users")
 }
 
 model Game {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   letters     String
-  startedAt   DateTime @default(now())
-  startedBy   User     @relation(fields: [startedById], references: [id])
+  startedAt   DateTime       @default(now())
+  startedBy   User           @relation(fields: [startedById], references: [id])
   startedById Int // relation scalar field
   board       String?
   latestWord  String?
-
-  users UsersOnGames[]
+  users       UsersOnGames[]
+  currentTurn Int
+  turns       Turn[]         @relation("turns")
 
   @@map("games")
 }
@@ -44,4 +46,26 @@ model UsersOnGames {
   latestPlayedTime  DateTime @default(now())
 
   @@id([userId, gameId])
+}
+
+model Turn {
+  id         Int      @id @default(autoincrement())
+  game       Game     @relation("turns", fields: [gameId], references: [id])
+  gameId     Int // relation scalar field (used in the `@relation` attribute above)
+  turnNumber Int
+  moves      Move[]   @relation("moves")
+  turnStart  DateTime @default(now())
+}
+
+model Move {
+  id           Int      @id @default(autoincrement())
+  turn         Turn     @relation("moves", fields: [turnId], references: [id])
+  turnId       Int
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int // relation scalar field (used in the `@relation` attribute above)
+  playedWord   String
+  playedBoard  String
+  playedTime   DateTime @default(now())
+  playedPoints Int
+  won          Boolean  @default(false)
 }
