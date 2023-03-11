@@ -8,7 +8,7 @@ import {
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
 import { getGame, getUser } from 'services/local';
-import { GameWithUsersWithUsers } from 'types/types';
+import { GameWithEverything } from 'types/types';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -17,7 +17,7 @@ import { Board } from 'components/Board';
 import { User } from '@prisma/client';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [game, setGame] = useState<GameWithUsersWithUsers>();
+  const [game, setGame] = useState<GameWithEverything>();
   const [userWithId, setUserWithId] = useState<User>();
 
   const { user } = useUser();

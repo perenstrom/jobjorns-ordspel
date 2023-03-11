@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
+import { wordPoints } from 'services/game';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,11 @@ const getGame = async (gameId: number) => {
         users: {
           include: {
             user: true
+          }
+        },
+        turns: {
+          include: {
+            moves: true
           }
         }
       }
@@ -33,28 +39,47 @@ const getGame = async (gameId: number) => {
 const submitMove = async (
   gameId: number,
   userId: number,
-  latestPlayedWord: string,
-  latestPlayedBoard: string
+  turnNumber: number,
+  playedWord: string,
+  playedBoard: string
 ) => {
   try {
-    const updateResult = await prisma.usersOnGames.update({
+    const createMove = await prisma.move.create({
       data: {
-        latestPlayedWord: latestPlayedWord,
-        latestPlayedBoard: latestPlayedBoard,
-        latestPlayedTime: new Date()
-      },
-      where: {
-        userId_gameId: {
-          userId: userId,
-          gameId: gameId
-        }
+        turn: {
+          connectOrCreate: {
+            where: {
+              gameId_turnNumber: {
+                gameId: gameId,
+                turnNumber: turnNumber
+              }
+            },
+            create: {
+              game: {
+                connect: {
+                  id: gameId
+                }
+              },
+              turnNumber: turnNumber
+            }
+          }
+        },
+        user: {
+          connect: {
+            id: userId
+          }
+        },
+        playedWord: playedWord,
+        playedBoard: playedBoard,
+        playedPoints: wordPoints(playedWord)
       }
     });
-    if (updateResult !== null) {
+
+    if (createMove !== null) {
       return { success: true, response: 'Draget sparades' };
     } else {
       throw new Error(
-        'Något gick fel i sparandet av draget, updateResult var null'
+        'Något gick fel i sparandet av draget, createMove var null'
       );
     }
   } catch (error) {
@@ -74,16 +99,8 @@ const submitTurn = async (
         letters,
         board,
         latestWord,
-        users: {
-          updateMany: {
-            where: {
-              gameId
-            },
-            data: {
-              latestPlayedBoard: '',
-              latestPlayedWord: ''
-            }
-          }
+        currentTurn: {
+          increment: 1
         }
       },
       where: {
@@ -105,8 +122,9 @@ const submitTurn = async (
 interface PostRequestBodyMove {
   variant: 'move';
   userId: number;
-  latestPlayedWord: string;
-  latestPlayedBoard: string;
+  turnNumber: number;
+  playedWord: string;
+  playedBoard: string;
 }
 interface PostRequestBodyTurn {
   variant: 'turn';
@@ -120,15 +138,17 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
     return new Promise((resolve) => {
       const {
         userId,
-        latestPlayedWord,
-        latestPlayedBoard
+        turnNumber,
+        playedWord,
+        playedBoard
       }: PostRequestBodyMove = req.body;
 
       submitMove(
         parseInt(req.query.id as string, 10),
         userId,
-        latestPlayedWord,
-        latestPlayedBoard
+        turnNumber,
+        playedWord,
+        playedBoard
       )
         .then((result) => {
           res.status(200).json(result);

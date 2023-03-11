@@ -11,7 +11,7 @@ const startGame = async (starter: User, players: User[]) => {
   let letters: string = shuffleArray(allLetters()).join();
 
   try {
-    const createResult = await prisma.game.create({
+    const createGame = await prisma.game.create({
       data: {
         letters: letters,
         startedBy: {
@@ -19,13 +19,15 @@ const startGame = async (starter: User, players: User[]) => {
             id: starter.id
           }
         },
+        currentTurn: 1,
         users: {
           create: players.map((player) => ({ userId: player.id }))
         }
       }
     });
-    if (createResult !== null) {
-      return { message: `Spelet skapades`, id: createResult.id };
+
+    if (createGame !== null) {
+      return { message: `Spelet skapades`, id: createGame.id };
     } else {
       throw new Error(
         'Något gick fel i skapandet av spelomgång, createResult var null'
