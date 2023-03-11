@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
 import { defaultBoard } from 'data/defaults';
-import { GameWithUsersWithUsers, Tile as TileType } from 'types/types';
+import { GameWithEverything, Tile as TileType } from 'types/types';
 import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
 import { Tile } from './Tile';
@@ -20,7 +20,7 @@ const emptyTile: TileType = {
 };
 
 interface BoardProps {
-  game: GameWithUsersWithUsers;
+  game: GameWithEverything;
   user: User;
   fetchGame: (gameId: number) => void;
 }
@@ -60,17 +60,15 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       }
     }
 
-    const currentUserGame = game.users.find((x) => x.userId === currentUser.id);
+    const latestTurn = game.turns.at(-1);
+    const latestUserMove = latestTurn?.moves.find(
+      (move) => move.userId === currentUser.id
+    );
 
-    if (
-      currentUserGame?.latestPlayedBoard &&
-      currentUserGame.latestPlayedBoard.length > 0
-    ) {
+    if (latestTurn?.turnNumber == game.currentTurn && latestUserMove) {
       setPlayerHasSubmitted(true);
 
-      let currentBoard: TileType[][] = JSON.parse(
-        currentUserGame.latestPlayedBoard
-      );
+      let currentBoard: TileType[][] = JSON.parse(latestUserMove.playedBoard);
 
       currentBoard.forEach((row) =>
         row.forEach((cell) => {
@@ -151,6 +149,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     let newAlerts: Alert[] = [];
     if (tilesPlayed && sameDirection && coherentWord && inWordList) {
+      let playedWords = await getPlayedWords(copiedBoard).join(', ');
+
       const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
           if (cell.placed === 'hand') {
@@ -161,11 +161,10 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       );
       const currentBoard = JSON.stringify(submittedBoard);
 
-      let playedWords = getPlayedWords(copiedBoard).join(', ');
-
       let moveResult = await submitMove(
         game.id,
         currentUser.id,
+        game.currentTurn,
         playedWords,
         currentBoard
       );

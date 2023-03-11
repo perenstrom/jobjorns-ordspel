@@ -17,11 +17,16 @@ export interface ErrorResponse {
 
 export type ResponseType<T> = SuccessResponse<T> | ErrorResponse;
 
-export type GameWithUsersWithUsers = Prisma.GameGetPayload<{
+export type GameWithEverything = Prisma.GameGetPayload<{
   include: {
     users: {
       include: {
         user: true;
+      };
+    };
+    turns: {
+      include: {
+        moves: true;
       };
     };
   };

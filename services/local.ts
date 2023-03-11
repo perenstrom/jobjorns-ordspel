@@ -1,7 +1,7 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User, UsersOnGames } from '@prisma/client';
+import { User } from '@prisma/client';
 import router from 'next/router';
-import { ResponseType, GameWithUsersWithUsers } from 'types/types';
+import { ResponseType, GameWithEverything, Tile } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   const defaultHeaders = {
@@ -133,7 +133,7 @@ export const startGame = (starter: User, players: User[]) => {
 
 export const getGame = (
   id: number
-): Promise<ResponseType<GameWithUsersWithUsers>> => {
+): Promise<ResponseType<GameWithEverything>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -167,7 +167,7 @@ export const getGame = (
 
 export const listGames = (
   userId: number
-): Promise<ResponseType<GameWithUsersWithUsers[]>> => {
+): Promise<ResponseType<GameWithEverything[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -202,8 +202,9 @@ export const listGames = (
 export const submitMove = async (
   gameId: number,
   userId: number,
-  latestPlayedWord: string,
-  latestPlayedBoard: string
+  turnNumber: number,
+  playedWord: string,
+  playedBoard: string
 ) => {
   const defaultHeaders = {
     Accept: 'application/json',
@@ -216,8 +217,9 @@ export const submitMove = async (
     body: JSON.stringify({
       variant: 'move',
       userId,
-      latestPlayedWord,
-      latestPlayedBoard
+      turnNumber,
+      playedWord,
+      playedBoard
     })
   };
 
@@ -238,43 +240,43 @@ export const runTurnEnd = async (gameId: number) => {
   const game = await getGame(gameId);
 
   if (game.success) {
-    let allUsersPlayed = true;
-    let winningUser: UsersOnGames = game.data.users[0];
+    let playersCount = game.data.users.length;
+    let lastTurn = game.data.turns.at(-1);
+    let playedCount = lastTurn?.moves.length;
 
-    game.data.users.map((user) => {
-      if (!user.latestPlayedWord) {
-        allUsersPlayed = false;
-      } else if (
-        winningUser &&
-        winningUser.latestPlayedWord &&
-        user.latestPlayedWord &&
-        winningUser.latestPlayedWord?.length < user.latestPlayedWord.length
-      ) {
-        winningUser = user;
-      }
-    });
+    if (playersCount == playedCount && playersCount > 0 && lastTurn) {
+      let winningMove = lastTurn.moves[0];
+      lastTurn.moves.map((move) => {
+        if (
+          move.playedPoints > winningMove.playedPoints ||
+          (move.playedPoints == winningMove.playedPoints &&
+            move.playedTime < winningMove.playedTime)
+        ) {
+          winningMove = move;
+        }
+      });
 
-    if (
-      allUsersPlayed &&
-      winningUser &&
-      winningUser.latestPlayedWord &&
-      winningUser.latestPlayedWord.length > 0 &&
-      winningUser.latestPlayedBoard &&
-      winningUser.latestPlayedBoard.length > 0
-    ) {
+      updateWinningMove(winningMove.id);
+
       let letters = game.data.letters.split(',');
-      let playedLetters = winningUser.latestPlayedWord.split('');
-
+      let playedLetters: string[] = [];
+      let playedBoard: Tile[][] = JSON.parse(winningMove.playedBoard);
+      playedBoard.map((row) =>
+        row.map((cell) => {
+          if (cell.placed === 'submitted') {
+            playedLetters.push(cell.letter);
+          }
+        })
+      );
       playedLetters.forEach((letter) => {
         let index = letters.indexOf(letter);
         if (index > -1) {
           letters.splice(index, 1);
         }
       });
-
       let newLetters = letters.join(',');
 
-      let winningBoard = winningUser.latestPlayedBoard.replaceAll(
+      let winningBoard = winningMove.playedBoard.replaceAll(
         'submitted',
         'board'
       );
@@ -284,7 +286,7 @@ export const runTurnEnd = async (gameId: number) => {
           gameId,
           newLetters,
           winningBoard,
-          winningUser.latestPlayedWord
+          winningMove.playedWord
         );
         if (result.success) {
           return { success: true, response: result.response };
@@ -321,6 +323,29 @@ export const submitTurnEnd = async (
       letters,
       board,
       latestWord
+    })
+  };
+
+  try {
+    const result = await (await fetch(url, options)).json();
+
+    return result;
+  } catch (error) {
+    return { success: false, response: error };
+  }
+};
+
+export const updateWinningMove = async (moveId: number) => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/moves/' + moveId;
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({
+      moveId
     })
   };
 
