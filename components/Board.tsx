@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, AlertColor, Backdrop, Button, styled } from '@mui/material';
+import {
+  Alert,
+  AlertColor,
+  Backdrop,
+  Button,
+  Stack,
+  styled
+} from '@mui/material';
 import { defaultBoard } from 'data/defaults';
 import { GameWithEverything, Tile as TileType } from 'types/types';
 import { User } from '@prisma/client';
@@ -139,6 +146,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   };
 
   const submitWord = async () => {
+    setPlayerHasSubmitted(true);
     const copiedBoard = [...unplayedBoard];
 
     // criteria:
@@ -170,13 +178,17 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       );
 
       if (moveResult.move.success) {
-        setPlayerHasSubmitted(true);
-
         setUnplayedBoard(submittedBoard);
         newAlerts.push({
           severity: 'success',
           message: `Du lade ${playedWords}!`
         });
+      } else {
+        newAlerts.push({
+          severity: 'error',
+          message: `Något gick fel med draget, försök igen`
+        });
+        setPlayerHasSubmitted(false);
       }
 
       if (moveResult.turn && moveResult.turn.success) {
@@ -213,6 +225,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           message: 'Alla ord måste finnas i ordlistan.'
         });
       }
+
+      setPlayerHasSubmitted(false);
     }
     addAlerts(newAlerts);
   };
@@ -261,18 +275,20 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           />
         ))}
       </TileHolder>
-      <Button variant="outlined" onClick={() => shuffleTileHolder()}>
-        Blanda brickor
-      </Button>
-      {playerHasSubmitted ? (
-        <Button variant="contained" disabled>
-          Spela ordet
+      <Stack direction="row" spacing={1}>
+        <Button variant="outlined" onClick={() => shuffleTileHolder()}>
+          Blanda brickor
         </Button>
-      ) : (
-        <Button variant="contained" onClick={() => submitWord()}>
-          Spela ordet
-        </Button>
-      )}
+        {playerHasSubmitted ? (
+          <Button variant="contained" disabled>
+            Spela ordet
+          </Button>
+        ) : (
+          <Button variant="contained" onClick={() => submitWord()}>
+            Spela ordet
+          </Button>
+        )}
+      </Stack>
     </>
   );
 };
