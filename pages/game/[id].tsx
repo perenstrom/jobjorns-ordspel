@@ -15,6 +15,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import router from 'next/router';
 import { Board } from 'components/Board';
 import { User } from '@prisma/client';
+import { ScoreList } from 'components/ScoreList';
 
 const NewGamePage: NextPage<{}> = () => {
   const [game, setGame] = useState<GameWithEverything>();
@@ -66,6 +67,7 @@ const NewGamePage: NextPage<{}> = () => {
         <Menu />
         <Container maxWidth="sm">
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
+          <ScoreList game={game} />
         </Container>
         <Footer />
       </Box>

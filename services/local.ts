@@ -241,7 +241,7 @@ export const runTurnEnd = async (gameId: number) => {
 
   if (game.success) {
     let playersCount = game.data.users.length;
-    let lastTurn = game.data.turns.at(-1);
+    let lastTurn = game.data.turns[0];
     let playedCount = lastTurn?.moves.length;
 
     if (playersCount == playedCount && playersCount > 0 && lastTurn) {
