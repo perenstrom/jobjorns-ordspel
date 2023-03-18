@@ -60,7 +60,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       }
     }
 
-    const latestTurn = game.turns.at(-1);
+    const latestTurn = game.turns[0];
     const latestUserMove = latestTurn?.moves.find(
       (move) => move.userId === currentUser.id
     );

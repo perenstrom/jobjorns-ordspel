@@ -12,13 +12,23 @@ const getGame = async (gameId: number) => {
       },
       include: {
         users: {
+          orderBy: {
+            userId: 'asc'
+          },
           include: {
             user: true
           }
         },
         turns: {
+          orderBy: {
+            turnNumber: 'desc'
+          },
           include: {
-            moves: true
+            moves: {
+              orderBy: {
+                userId: 'asc'
+              }
+            }
           }
         }
       }
