@@ -7,16 +7,19 @@ import {
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
-import { getUser, listUsers } from 'services/local';
+import { getUser, listUsers, startGame } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import CircularProgress from '@mui/material/CircularProgress';
 import {
   Avatar,
+  Button,
   Card,
   CardActionArea,
   CardContent,
+  Grid,
+  Stack,
   Typography
 } from '@mui/material';
 import crypto from 'crypto';
@@ -24,17 +27,17 @@ import crypto from 'crypto';
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<number[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [userWithId, setUserWithId] = useState<User>();
 
   const { user } = useUser();
 
-  const toggleUser = (userId: number) => {
+  const toggleUser = (user: User) => {
     let newSelectedUsers = [...selectedUsers];
 
-    const index = newSelectedUsers.indexOf(userId);
+    const index = newSelectedUsers.indexOf(user);
     if (index === -1) {
-      newSelectedUsers.push(userId);
+      newSelectedUsers.push(user);
     } else {
       newSelectedUsers.splice(index, 1);
     }
@@ -77,48 +80,58 @@ const NewGamePage: NextPage<{}> = () => {
     return 'https://www.gravatar.com/avatar/' + hash + '?d=retro';
   };
 
+  const styleSelected = (user: User) => {
+    const index = selectedUsers.indexOf(user);
+    if (index === -1) {
+      return {};
+    } else {
+      return {
+        borderColor: 'whitesmoke',
+        filter: 'drop-shadow(0px 0px 3px white)'
+      };
+    }
+  };
+
   if (userWithId && !loading) {
     return (
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
+          alignContent: 'center',
           flexDirection: 'column',
           minHeight: '100vh',
           backgroundColor: '#121212'
         }}
       >
         <Menu />
-        <Container
-          sx={{
-            display: 'flex',
-            alignContent: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap'
-          }}
-        >
-          {users.map((user, index) => (
-            <CardActionArea
-              onClick={() => toggleUser(user.id)}
-              key={index}
-              sx={{
-                m: 1,
-                width: 'calc(64px + 40px + 20ch)',
-                display: 'inline-block'
-              }}
+        <Container maxWidth="md">
+          <Grid container spacing={2}>
+            {users.map((user, index) => (
+              <Grid item sm={6} md={4} key={index} style={{ width: '100%' }}>
+                <CardActionArea onClick={() => toggleUser(user)}>
+                  <Card variant="outlined" style={styleSelected(user)}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <CardContent sx={{ flexGrow: 0 }}>
+                        <Avatar src={gravatar(user.email)} style={{}} />
+                      </CardContent>
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Typography>{user.name}</Typography>
+                      </CardContent>
+                    </Box>
+                  </Card>
+                </CardActionArea>
+              </Grid>
+            ))}
+          </Grid>
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              onClick={() => startGame(userWithId, selectedUsers)}
             >
-              <Card variant="outlined">
-                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <CardContent sx={{ flexGrow: 0 }}>
-                    <Avatar src={gravatar(user.email)} />
-                  </CardContent>
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography>{user.name}</Typography>
-                  </CardContent>
-                </Box>
-              </Card>
-            </CardActionArea>
-          ))}
+              Starta spelet
+            </Button>
+          </Stack>
         </Container>
         <Footer />
       </Box>
