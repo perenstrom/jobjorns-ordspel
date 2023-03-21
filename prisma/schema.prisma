@@ -28,7 +28,7 @@ model Game {
   board       String?
   latestWord  String?
   users       UsersOnGames[]
-  currentTurn Int
+  currentTurn Int            @default(1)
   turns       Turn[]         @relation("turns")
 
   @@map("games")
