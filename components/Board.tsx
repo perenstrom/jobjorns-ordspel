@@ -20,6 +20,7 @@ import {
   checkTilesPlayed,
   getPlayedWords
 } from 'services/game';
+import Ably from 'ably';
 
 const emptyTile: TileType = {
   letter: '',
@@ -56,6 +57,30 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setAlerts([]);
     setBackdrop(false);
   };
+
+  useEffect(() => {
+    const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_SUBSCRIBE_KEY;
+    if (ablyApiKey) {
+      const ably = new Ably.Realtime.Promise(ablyApiKey);
+      ably.connection.on(() => {});
+
+      const channel = ably.channels.get('quickstart');
+      channel.subscribe((message: Ably.Types.Message) => {
+        if (message.name == 'turn' && message.data.gameId == game.id) {
+          fetchGame(game.id);
+          setBackdrop(true);
+          setAlerts([{ severity: 'info', message: 'Nu börjar en ny tur!' }]);
+          setPlayerHasSubmitted(false);
+        }
+      });
+
+      return () => {
+        channel.unsubscribe();
+      };
+    } else {
+      console.log({ ablyApiKey });
+    }
+  }, [fetchGame, game.id]);
 
   useEffect(() => {
     let newTiles: TileType[] = [];
@@ -157,7 +182,13 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     let newAlerts: Alert[] = [];
     if (tilesPlayed && sameDirection && coherentWord && inWordList) {
-      let playedWords = await getPlayedWords(copiedBoard).join(', ');
+      newAlerts.push({
+        severity: 'info',
+        message: `Vänta, draget spelas...`
+      });
+      addAlerts(newAlerts);
+
+      let playedWords = getPlayedWords(copiedBoard).join(', ');
 
       const submittedBoard = copiedBoard.map((row) =>
         row.map((cell) => {
@@ -192,9 +223,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       }
 
       if (moveResult.turn && moveResult.turn.success) {
-        fetchGame(game.id);
-        setPlayerHasSubmitted(false);
-
         newAlerts.push({
           severity: 'success',
           message: 'Du var den sista spelaren, nu börjar en ny tur.'
