@@ -62,7 +62,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_SUBSCRIBE_KEY;
     if (ablyApiKey) {
       const ably = new Ably.Realtime.Promise(ablyApiKey);
-      ably.connection.on(() => {});
+      ably.connection.on((stateChange: Ably.Types.ConnectionStateChange) => {
+        console.log(stateChange);
+      });
 
       const channel = ably.channels.get('quickstart');
       channel.subscribe((message: Ably.Types.Message) => {
