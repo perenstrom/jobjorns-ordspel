@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { wordPoints } from 'services/game';
+import Ably from 'ably';
 
 const prisma = new PrismaClient();
 
@@ -118,6 +119,16 @@ const submitTurn = async (
       }
     });
     if (updateResult !== null) {
+      // For the full code sample see here: https://github.com/ably/quickstart-js
+      const ablyApiKey = process.env.ABLY_API_KEY;
+      if (ablyApiKey) {
+        const ably = new Ably.Realtime.Promise(ablyApiKey);
+        await ably.connection.once('connected');
+        const channel = ably.channels.get('quickstart');
+        await channel.publish('turn', { gameId: gameId });
+        ably.close();
+      }
+
       return { success: true, response: 'Ny tur sparades' };
     } else {
       throw new Error(
