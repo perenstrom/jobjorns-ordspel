@@ -18,7 +18,8 @@ import {
   checkInWordList,
   checkSameDirection,
   checkTilesPlayed,
-  getPlayedWords
+  getPlayedWords,
+  wordPoints
 } from 'services/game';
 import Ably from 'ably';
 
@@ -48,6 +49,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [backdrop, setBackdrop] = useState<boolean>(false);
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
+  const [placedTiles, setPlacedTiles] = useState<number[]>([]);
+  const [currentPoints, setCurrentPoints] = useState<number>(0);
 
   const addAlerts = (newAlerts: Alert[]) => {
     setAlerts([...alerts, ...newAlerts]);
@@ -124,6 +127,11 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setTiles(newTiles);
   }, [game, currentUser]);
 
+  useEffect(() => {
+    let points = wordPoints(getPlayedWords(unplayedBoard).join(', '));
+    setCurrentPoints(points);
+  }, [unplayedBoard]);
+
   const shuffleTileHolder = () => {
     let copiedTiles = shuffleArray(tiles);
     setTiles(copiedTiles);
@@ -137,6 +145,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
     if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
+      // försök att trycka på en redan lagd bricka
       const newShakingTiles = [...shakingTiles];
       newShakingTiles.push(row * 100 + column);
       setShakingTiles(newShakingTiles);
@@ -154,18 +163,33 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         });
       }, 300);
     } else if (placedTile.letter !== emptyTile.letter) {
-      copiedTiles.push(placedTile);
+      // plocka bort en lagd bricka
 
+      copiedTiles.push(placedTile);
       copiedBoard[row][column] = emptyTile;
       setSelectedTile(placedTile);
-    } else if (selectedTile.letter !== emptyTile.letter) {
-      copiedBoard[row][column] = selectedTile;
 
+      setPlacedTiles((placedTiles) => {
+        const newPlacedTiles = [...placedTiles];
+        const index = newPlacedTiles.findIndex((x) => x == row * 100 + column);
+        if (index > -1) {
+          newPlacedTiles.splice(index, 1);
+        }
+        return newPlacedTiles;
+      });
+    } else if (selectedTile.letter !== emptyTile.letter) {
+      // lägg en bricka
+
+      copiedBoard[row][column] = selectedTile;
       const index = copiedTiles.indexOf(selectedTile);
       if (index > -1) {
         copiedTiles.splice(index, 1);
       }
       setSelectedTile(emptyTile);
+
+      const newPlacedTiles = [...placedTiles];
+      newPlacedTiles.push(row * 100 + column);
+      setPlacedTiles(newPlacedTiles);
     }
 
     setTiles(copiedTiles);
@@ -227,15 +251,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         ]);
         setPlayerHasSubmitted(false);
       }
-
-      /*
-      if (moveResult.turn && moveResult.turn.success) {
-        newAlerts.push({
-          severity: 'success',
-          message: 'Du var den sista spelaren, nu börjar en ny tur.'
-        });
-      }
-      */
     } else {
       if (!tilesPlayed) {
         newAlerts.push({
@@ -298,6 +313,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
               shake={shakingTiles.includes(indexRow * 100 + indexColumn)}
               tile={cell}
               status={cell.placed}
+              last={indexRow * 100 + indexColumn == Math.max(...placedTiles)}
+              currentPoints={currentPoints}
               onClick={() => placeTile(cell, indexRow, indexColumn)}
             />
           ))
