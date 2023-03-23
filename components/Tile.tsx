@@ -4,16 +4,21 @@ import { blue, cyan, green, grey, red, teal } from '@mui/material/colors';
 import { Tile as TypeTile } from 'types/types';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
+import { Badge } from '@mui/material';
 
 export const Tile = ({
   tile,
   status,
   shake = false,
+  last = false,
+  currentPoints = 0,
   onClick
 }: {
   tile: TypeTile;
   status: string;
   shake?: boolean;
+  last?: boolean;
+  currentPoints?: number;
   onClick: () => void;
 }) => {
   let fillColor;
@@ -50,6 +55,14 @@ export const Tile = ({
     animationIterationCount: props.shake ? 2 : 0
   }));
 
+  const totalPoints = () => {
+    if (last) {
+      return currentPoints;
+    } else {
+      return 0;
+    }
+  };
+
   if (status == 'no') {
     return (
       <div
@@ -64,45 +77,54 @@ export const Tile = ({
   } else {
     return (
       <ShakingWrapper shake={shake}>
-        <svg
-          viewBox="0 0 100 100"
-          width="100%"
-          height="100%"
-          onClick={() => onClick()}
-          style={{ display: 'block' }}
+        <Badge
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          color="success"
+          badgeContent={totalPoints()}
         >
-          <rect
-            x="0"
-            y="0"
-            width="92%"
-            height="92%"
-            fill={fillColor[500]}
-            rx="0"
-            ry="0"
-          />
-          <text
-            x="42.5%"
-            y="52.5%"
-            fontSize="3em"
-            fill="#FFFFFF"
-            textAnchor="middle"
-            dominantBaseline="middle"
+          <svg
+            viewBox="0 0 100 100"
+            width="100%"
+            height="100%"
+            onClick={() => onClick()}
+            style={{ display: 'block' }}
           >
-            {tile.letter}
-          </text>
-          <text
-            x="75%"
-            y="30%"
-            fontSize="1.5em"
-            fill="#FFFFFF"
-            textAnchor="middle"
-            alignmentBaseline="central"
-          >
-            {points(tile.letter)}
-          </text>
-          <polygon points="92,0 100,8 100,100 92,92" fill={fillColor[800]} />
-          <polygon points="0,92 8,100 100,100 92,92" fill={fillColor[300]} />
-        </svg>
+            <rect
+              x="0"
+              y="0"
+              width="92%"
+              height="92%"
+              fill={fillColor[500]}
+              rx="0"
+              ry="0"
+            />
+            <text
+              x="42.5%"
+              y="52.5%"
+              fontSize="3em"
+              fill="#FFFFFF"
+              textAnchor="middle"
+              dominantBaseline="middle"
+            >
+              {tile.letter}
+            </text>
+            <text
+              x="75%"
+              y="30%"
+              fontSize="1.5em"
+              fill="#FFFFFF"
+              textAnchor="middle"
+              alignmentBaseline="central"
+            >
+              {points(tile.letter)}
+            </text>
+            <polygon points="92,0 100,8 100,100 92,92" fill={fillColor[800]} />
+            <polygon points="0,92 8,100 100,100 92,92" fill={fillColor[300]} />
+          </svg>
+        </Badge>
       </ShakingWrapper>
     );
   }
