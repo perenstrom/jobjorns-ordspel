@@ -212,24 +212,30 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       if (moveResult.move.success) {
         setUnplayedBoard(submittedBoard);
-        newAlerts.push({
-          severity: 'success',
-          message: `Du lade ${playedWords}!`
-        });
+        setAlerts([
+          {
+            severity: 'success',
+            message: `Du lade ${playedWords}!`
+          }
+        ]);
       } else {
-        newAlerts.push({
-          severity: 'error',
-          message: `Något gick fel med draget, försök igen`
-        });
+        setAlerts([
+          {
+            severity: 'error',
+            message: `Något gick fel med draget, försök igen`
+          }
+        ]);
         setPlayerHasSubmitted(false);
       }
 
+      /*
       if (moveResult.turn && moveResult.turn.success) {
         newAlerts.push({
           severity: 'success',
           message: 'Du var den sista spelaren, nu börjar en ny tur.'
         });
       }
+      */
     } else {
       if (!tilesPlayed) {
         newAlerts.push({
@@ -257,8 +263,8 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       }
 
       setPlayerHasSubmitted(false);
+      addAlerts(newAlerts);
     }
-    addAlerts(newAlerts);
   };
 
   return (
