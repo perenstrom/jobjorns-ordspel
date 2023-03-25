@@ -125,6 +125,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     }
 
     setTiles(newTiles);
+    setPlacedTiles([]);
   }, [game, currentUser]);
 
   useEffect(() => {
@@ -236,6 +237,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       if (moveResult.move.success) {
         setUnplayedBoard(submittedBoard);
+        setPlacedTiles([]);
         setAlerts([
           {
             severity: 'success',
