@@ -124,14 +124,21 @@ export const getPlayedWords = (board: Tile[][]) => {
   let playedLetterRanges = rowLetters.concat(columnLetters);
 
   let playedWords: string[] = [];
+  let singleLetterWords: string[] = [];
   playedLetterRanges.forEach((range) => {
     if (range.length > 0) {
       let word = range.join('').trim();
       if (word.length > 1) {
         playedWords.push(word);
+      } else if (word.length == 1) {
+        singleLetterWords.push(word);
       }
     }
   });
+
+  if (playedWords.length == 0 && singleLetterWords.length > 0) {
+    playedWords.push(singleLetterWords[0]);
+  }
 
   return playedWords;
 };
