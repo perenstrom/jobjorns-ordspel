@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import { wordPoints } from 'services/game';
 import Ably from 'ably';
+import { Tile } from 'types/types';
 
 const prisma = new PrismaClient();
 
@@ -87,14 +88,151 @@ const submitMove = async (
     });
 
     if (createMove !== null) {
-      return { success: true, response: 'Draget sparades' };
+      console.log('createMove gick bra');
+
+      let turnEndResult = await runTurnEnd(gameId);
+      if (turnEndResult.success) {
+        return {
+          success: true,
+          move: { response: 'Draget sparades' },
+          turn: { response: turnEndResult.turn.response },
+          updateMove: { response: turnEndResult.updateMove.response }
+        };
+      } else {
+        return {
+          success: false,
+          move: { response: 'Draget sparades' },
+          turn: { response: turnEndResult.turn.response },
+          updateMove: { response: turnEndResult.updateMove.response }
+        };
+      }
     } else {
       throw new Error(
         'Något gick fel i sparandet av draget, createMove var null'
       );
     }
   } catch (error) {
-    return { success: false, response: 'Det blev ett error: ' + error };
+    return {
+      success: false,
+      move: { response: 'Det blev ett error: ' + error },
+      turn: { response: 'Funktionen kördes ej' },
+      updateMove: { response: 'Funktionen kördes ej' }
+    };
+  }
+};
+
+export const runTurnEnd = async (gameId: number) => {
+  const game = await getGame(gameId);
+
+  if (game.data) {
+    let playersCount = game.data.users.length;
+    let lastTurn = game.data.turns[0];
+    let playedCount = lastTurn?.moves.length;
+
+    if (playersCount == playedCount && playersCount > 0 && lastTurn) {
+      let winningMove = lastTurn.moves[0];
+      lastTurn.moves.map((move) => {
+        if (
+          move.playedPoints > winningMove.playedPoints ||
+          (move.playedPoints == winningMove.playedPoints &&
+            move.playedTime < winningMove.playedTime)
+        ) {
+          winningMove = move;
+        }
+      });
+
+      let updateMove = await updateWinningMove(winningMove.id);
+      if (updateMove.success == false) {
+        throw new Error(updateMove.response);
+      }
+
+      let letters = game.data.letters.split(',');
+      let playedLetters: string[] = [];
+      let playedBoard: Tile[][] = JSON.parse(winningMove.playedBoard);
+      playedBoard.map((row) =>
+        row.map((cell) => {
+          if (cell.placed === 'submitted') {
+            playedLetters.push(cell.letter);
+          }
+        })
+      );
+      playedLetters.forEach((letter) => {
+        let index = letters.indexOf(letter);
+        if (index > -1) {
+          letters.splice(index, 1);
+        }
+      });
+
+      let newLetters = letters.join(',');
+
+      let winningBoard = winningMove.playedBoard.replaceAll(
+        'submitted',
+        'board'
+      );
+
+      try {
+        const turnResult = await submitTurn(
+          gameId,
+          newLetters,
+          winningBoard,
+          winningMove.playedWord
+        );
+        if (turnResult.success && updateMove.success) {
+          return {
+            success: true as const,
+            turn: { response: turnResult.response },
+            updateMove: { response: updateMove.response }
+          };
+        } else {
+          throw new Error(turnResult.response);
+        }
+      } catch (error) {
+        return {
+          success: false as const,
+          turn: { response: error },
+          updateMove: { response: updateMove.response }
+        };
+      }
+    } else {
+      return {
+        success: true as const,
+        turn: { response: 'Inte sista turen' },
+        updateMove: { response: 'Inte sista turen' }
+      };
+    }
+  } else {
+    return {
+      success: false as const,
+      turn: { response: 'Game hittades inte' },
+      updateMove: { response: 'Game hittades inte' }
+    };
+  }
+};
+
+const updateWinningMove = async (moveId: number) => {
+  try {
+    const updateMove = await prisma.move.update({
+      where: {
+        id: moveId
+      },
+      data: {
+        won: true
+      }
+    });
+
+    if (updateMove === null) {
+      return { success: false as const, response: 'Inget drag returnerades' };
+    } else {
+      return {
+        success: true as const,
+        response: updateMove
+      };
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
   }
 };
 
@@ -129,14 +267,17 @@ const submitTurn = async (
         ably.close();
       }
 
-      return { success: true, response: 'Ny tur sparades' };
+      return { success: true as const, response: 'Ny tur sparades' };
     } else {
       throw new Error(
         'Något gick fel i sparandet av ny tur, updateResult var null'
       );
     }
   } catch (error) {
-    return { success: false, response: 'Det blev ett error: ' + error };
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
   }
 };
 
@@ -155,6 +296,8 @@ interface PostRequestBodyTurn {
 }
 
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
+  let t1 = performance.now();
+  console.log(t1, 'nu körs games/[id] request handlern', req.method);
   if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
       const {
