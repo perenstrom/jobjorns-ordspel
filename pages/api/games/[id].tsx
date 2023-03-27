@@ -296,8 +296,6 @@ interface PostRequestBodyTurn {
 }
 
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
-  let t1 = performance.now();
-  console.log(t1, 'nu körs games/[id] request handlern', req.method);
   if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
       const {
