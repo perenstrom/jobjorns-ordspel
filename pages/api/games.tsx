@@ -50,8 +50,23 @@ const listGames = async (userId: number) => {
       },
       include: {
         users: {
+          orderBy: {
+            userId: 'asc'
+          },
           include: {
             user: true
+          }
+        },
+        turns: {
+          orderBy: {
+            turnNumber: 'desc'
+          },
+          include: {
+            moves: {
+              orderBy: {
+                userId: 'asc'
+              }
+            }
           }
         }
       }

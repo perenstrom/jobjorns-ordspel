@@ -22,7 +22,7 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import crypto from 'crypto';
+import { gravatar } from 'services/helpers';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -74,12 +74,6 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUsers();
   }, [userWithId]);
 
-  const gravatar = (email: string) => {
-    const hash = crypto.createHash('md5').update(email).digest('hex');
-
-    return 'https://www.gravatar.com/avatar/' + hash + '?d=retro';
-  };
-
   const styleSelected = (user: User) => {
     const index = selectedUsers.indexOf(user);
     if (index === -1) {
@@ -113,7 +107,7 @@ const NewGamePage: NextPage<{}> = () => {
                   <Card variant="outlined" style={styleSelected(user)}>
                     <Box sx={{ display: 'flex', flexDirection: 'row' }}>
                       <CardContent sx={{ flexGrow: 0 }}>
-                        <Avatar src={gravatar(user.email)} style={{}} />
+                        <Avatar src={gravatar(user.email)} />
                       </CardContent>
                       <CardContent sx={{ flexGrow: 1 }}>
                         <Typography>{user.name}</Typography>
