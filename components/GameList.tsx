@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  CircularProgress,
-  Container,
-  Typography
-} from '@mui/material';
-import { DateTime } from 'luxon';
+import { CircularProgress, Container, Grid, Typography } from '@mui/material';
 import { User } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUser, listGames } from 'services/local';
-import Link from 'next/link';
 import { GameWithEverything } from 'types/types';
+import { GameListCard } from './GameListCard';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [userWithId, setUserWithId] = useState<User>();
-  const [gamesList, setGamesList] = useState<GameWithEverything[]>();
+  const [gamesList, setGamesList] = useState<GameWithEverything[]>([]);
+  const [gamesListReady, setGamesListReady] = useState<GameWithEverything[]>(
+    []
+  );
+  const [gamesListWaiting, setGamesListWaiting] = useState<
+    GameWithEverything[]
+  >([]);
 
   const { user } = useUser();
 
@@ -40,8 +37,25 @@ export const GameList: React.FC<{}> = () => {
     const fetchGamesList = async () => {
       if (userWithId && userWithId.id) {
         const newGamesList = await listGames(userWithId.id);
+        let newGamesListWaiting: GameWithEverything[] = [];
+        let newGamesListReady: GameWithEverything[] = [];
 
         if (newGamesList.success) {
+          newGamesList.data.map((game) => {
+            if (
+              game.turns[0] &&
+              game.turns[0].moves.findIndex(
+                (move) => move.userId == userWithId.id
+              ) > -1
+            ) {
+              newGamesListWaiting.push(game);
+            } else {
+              newGamesListReady.push(game);
+            }
+          });
+
+          setGamesListWaiting(newGamesListWaiting);
+          setGamesListReady(newGamesListReady);
           setGamesList(newGamesList.data);
           setLoading(false);
         }
@@ -53,37 +67,27 @@ export const GameList: React.FC<{}> = () => {
 
   if (gamesList && !loading && userWithId) {
     return (
-      <Container maxWidth="sm">
-        <Typography variant="h3">Pågående spel</Typography>
-        {gamesList.map((game) => (
-          <Link key={game.id} passHref href={`/game/${game.id}`}>
-            <CardActionArea>
-              <Card variant="outlined" sx={{ my: 2 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row' }}>
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography>
-                      {game.users.map(
-                        (user) =>
-                          user.userId !== userWithId.id && (
-                            <span key={user.userId}>{user.user.name}</span>
-                          )
-                      )}
-                    </Typography>
-                    <Typography>{game.latestWord}</Typography>
-                    <Typography>
-                      {DateTime.fromISO(new Date(game.startedAt).toISOString())
-                        .setLocale('sv')
-                        .toRelative()}
-                    </Typography>
-                  </CardContent>
-                  <CardContent sx={{ flexGrow: 0 }}>
-                    <Typography>{game.id}</Typography>
-                  </CardContent>
-                </Box>
-              </Card>
-            </CardActionArea>
-          </Link>
-        ))}
+      <Container maxWidth="md">
+        {gamesListReady.length > 0 && (
+          <Typography variant="h3" sx={{ m: 2 }}>
+            Väntar på ditt drag
+          </Typography>
+        )}
+        <Grid container spacing={2}>
+          {gamesListReady.map((game) => (
+            <GameListCard key={game.id} game={game} userWithId={userWithId} />
+          ))}
+        </Grid>
+        {gamesListWaiting.length > 0 && (
+          <Typography variant="h3" sx={{ m: 2 }}>
+            Väntar på andras drag
+          </Typography>
+        )}
+        <Grid container spacing={2}>
+          {gamesListWaiting.map((game) => (
+            <GameListCard key={game.id} game={game} userWithId={userWithId} />
+          ))}
+        </Grid>
         {gamesList.length == 0 && (
           <Typography>Du har inga pågående spel.</Typography>
         )}
@@ -91,8 +95,7 @@ export const GameList: React.FC<{}> = () => {
     );
   } else {
     return (
-      <Container maxWidth="sm">
-        <Typography variant="h3">Pågående spel</Typography>
+      <Container maxWidth="sm" style={{ textAlign: 'center' }}>
         <CircularProgress />
       </Container>
     );

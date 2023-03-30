@@ -21,8 +21,9 @@ const IndexPage: NextPage<{}> = () => {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
+          alignContent: 'center',
           flexDirection: 'column',
-          height: '100vh',
+          minHeight: '100vh',
           backgroundColor: '#121212'
         }}
       >
@@ -40,9 +41,7 @@ const IndexPage: NextPage<{}> = () => {
         ) : user ? (
           <>
             <Menu />
-            <Container maxWidth="sm">
-              <GameList />
-            </Container>
+            <GameList />
           </>
         ) : (
           <Splash />
