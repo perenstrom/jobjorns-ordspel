@@ -110,6 +110,8 @@ saker som borde vara med i denna vyn:
                   maxWidth: '50%',
                   minHeight: '50px',
                   display: 'flex',
+                  boxModel: 'content-box',
+                  paddingRight: '1rem',
                   alignItems: 'center'
                 }}
               >
@@ -140,6 +142,7 @@ saker som borde vara med i denna vyn:
                   </AvatarGroup>
                 </div>
               </Box>
+
               <Box
                 sx={{
                   flexBasis: '50%',
@@ -147,7 +150,37 @@ saker som borde vara med i denna vyn:
                   maxWidth: '50%',
                   minHeight: '50px',
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  boxModel: 'content-box',
+                  paddingLeft: '1rem',
+                  borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
+                }}
+              >
+                <AbcIcon style={{ marginRight: '1rem' }} />
+                {latestWinningWord.length > 0 ? (
+                  <Typography
+                    style={{
+                      display: 'inline-block'
+                    }}
+                  >
+                    {latestWinningWord}
+                  </Typography>
+                ) : (
+                  <Typography color={grey[500]}>
+                    {'(inget ord lagt)'}
+                  </Typography>
+                )}
+              </Box>
+              <Box
+                sx={{
+                  flexBasis: '50%',
+                  flexGrow: 0,
+                  maxWidth: '50%',
+                  minHeight: '50px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  boxModel: 'content-box',
+                  paddingRight: '1rem'
                 }}
               >
                 <DoneIcon style={{ marginRight: '1rem' }} />
@@ -181,32 +214,10 @@ saker som borde vara med i denna vyn:
                   maxWidth: '50%',
                   minHeight: '50px',
                   display: 'flex',
-                  alignItems: 'center'
-                }}
-              >
-                <AbcIcon style={{ marginRight: '1rem' }} />
-                {latestWinningWord.length > 0 ? (
-                  <Typography
-                    style={{
-                      display: 'inline-block'
-                    }}
-                  >
-                    {latestWinningWord}
-                  </Typography>
-                ) : (
-                  <Typography color={grey[500]}>
-                    {'(inget ord lagt)'}
-                  </Typography>
-                )}
-              </Box>
-              <Box
-                sx={{
-                  flexBasis: '50%',
-                  flexGrow: 0,
-                  maxWidth: '50%',
-                  minHeight: '50px',
-                  display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  boxModel: 'content-box',
+                  paddingLeft: '1rem',
+                  borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
                 }}
               >
                 <AccessTimeIcon style={{ marginRight: '1rem' }} />
