@@ -7,23 +7,43 @@ import {
   WithPageAuthRequiredProps
 } from '@auth0/nextjs-auth0';
 import { Footer } from 'components/Footer';
-import { getUser, listUsers } from 'services/local';
+import { getUser, listUsers, startGame } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Autocomplete from '@mui/material/Autocomplete';
-import TextField from '@mui/material/TextField';
 import CircularProgress from '@mui/material/CircularProgress';
-import Button from '@mui/material/Button';
-import { startGame } from 'services/local';
+import {
+  Avatar,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  Grid,
+  Stack,
+  Typography
+} from '@mui/material';
+import { gravatar } from 'services/helpers';
 
 const NewGamePage: NextPage<{}> = () => {
-  const [autoCompleteValue, setAutoCompleteValue] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [userWithId, setUserWithId] = useState<User>();
 
   const { user } = useUser();
+
+  const toggleUser = (user: User) => {
+    let newSelectedUsers = [...selectedUsers];
+
+    const index = newSelectedUsers.indexOf(user);
+    if (index === -1) {
+      newSelectedUsers.push(user);
+    } else {
+      newSelectedUsers.splice(index, 1);
+    }
+
+    setSelectedUsers(newSelectedUsers);
+  };
 
   useEffect(() => {
     const fetchUserWithId = async () => {
@@ -54,51 +74,58 @@ const NewGamePage: NextPage<{}> = () => {
     fetchUsers();
   }, [userWithId]);
 
+  const styleSelected = (user: User) => {
+    const index = selectedUsers.indexOf(user);
+    if (index === -1) {
+      return {};
+    } else {
+      return {
+        borderColor: 'whitesmoke',
+        filter: 'drop-shadow(0px 0px 3px white)'
+      };
+    }
+  };
+
   if (userWithId && !loading) {
     return (
       <Box
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
+          alignContent: 'center',
           flexDirection: 'column',
-          height: '100vh',
+          minHeight: '100vh',
           backgroundColor: '#121212'
         }}
       >
         <Menu />
-        <Container maxWidth="sm">
-          {loading || !users.length ? (
-            <CircularProgress />
-          ) : (
-            <Box>
-              <Autocomplete
-                multiple
-                id="tags-outlined"
-                options={users.sort(
-                  (a, b) => -b.name.localeCompare(a.name, ['sv', 'en'])
-                )}
-                value={autoCompleteValue}
-                onChange={(event: any, newValue: User[]) => {
-                  setAutoCompleteValue(newValue);
-                }}
-                getOptionLabel={(option) => option.name}
-                filterSelectedOptions
-                renderInput={(params) => (
-                  <TextField
-                    {...params}
-                    label="Bjud in spelare"
-                    placeholder="Spelare"
-                  />
-                )}
-              />
-              <Button
-                variant="contained"
-                onClick={() => startGame(userWithId, autoCompleteValue)}
-              >
-                Starta spelet
-              </Button>
-            </Box>
-          )}
+        <Container maxWidth="md">
+          <Grid container spacing={2}>
+            {users.map((user, index) => (
+              <Grid item sm={6} md={4} key={index} style={{ width: '100%' }}>
+                <CardActionArea onClick={() => toggleUser(user)}>
+                  <Card variant="outlined" style={styleSelected(user)}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row' }}>
+                      <CardContent sx={{ flexGrow: 0 }}>
+                        <Avatar src={gravatar(user.email)} />
+                      </CardContent>
+                      <CardContent sx={{ flexGrow: 1 }}>
+                        <Typography>{user.name}</Typography>
+                      </CardContent>
+                    </Box>
+                  </Card>
+                </CardActionArea>
+              </Grid>
+            ))}
+          </Grid>
+          <Stack direction="row" spacing={1} sx={{ my: 1 }}>
+            <Button
+              variant="contained"
+              onClick={() => startGame(userWithId, selectedUsers)}
+            >
+              Starta spelet
+            </Button>
+          </Stack>
         </Container>
         <Footer />
       </Box>
