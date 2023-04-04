@@ -69,7 +69,7 @@ export const GameList: React.FC<{}> = () => {
     return (
       <Container maxWidth="md">
         {gamesListReady.length > 0 && (
-          <Typography variant="h3" sx={{ m: 2 }}>
+          <Typography variant="h4" sx={{ my: 3 }}>
             Väntar på ditt drag
           </Typography>
         )}
@@ -79,7 +79,7 @@ export const GameList: React.FC<{}> = () => {
           ))}
         </Grid>
         {gamesListWaiting.length > 0 && (
-          <Typography variant="h3" sx={{ m: 2 }}>
+          <Typography variant="h4" sx={{ my: 3 }}>
             Väntar på andras drag
           </Typography>
         )}
