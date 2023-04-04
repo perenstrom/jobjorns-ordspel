@@ -284,6 +284,44 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     }
   };
 
+  const passTurn = async () => {
+    setPlayerHasSubmitted(true);
+    const copiedBoard = [...unplayedBoard];
+
+    let newAlerts: Alert[] = [];
+    newAlerts.push({
+      severity: 'info',
+      message: `Vänta, draget spelas...`
+    });
+    addAlerts(newAlerts);
+
+    let moveResult = await submitMove(
+      game.id,
+      currentUser.id,
+      game.currentTurn,
+      '',
+      JSON.stringify(copiedBoard)
+    );
+    if (moveResult.move.success) {
+      setUnplayedBoard(copiedBoard);
+      setPlacedTiles([]);
+      setAlerts([
+        {
+          severity: 'success',
+          message: `Du passade!`
+        }
+      ]);
+    } else {
+      setAlerts([
+        {
+          severity: 'error',
+          message: `Något gick fel med draget, försök igen`
+        }
+      ]);
+      setPlayerHasSubmitted(false);
+    }
+  };
+
   return (
     <>
       <Backdrop
@@ -338,13 +376,23 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           Blanda brickor
         </Button>
         {playerHasSubmitted ? (
-          <Button variant="contained" disabled>
-            Spela ordet
-          </Button>
+          <>
+            <Button variant="outlined" disabled>
+              Passa
+            </Button>
+            <Button variant="contained" disabled>
+              Spela ordet
+            </Button>
+          </>
         ) : (
-          <Button variant="contained" onClick={() => submitWord()}>
-            Spela ordet
-          </Button>
+          <>
+            <Button variant="outlined" onClick={() => passTurn()}>
+              Passa
+            </Button>
+            <Button variant="contained" onClick={() => submitWord()}>
+              Spela ordet
+            </Button>
+          </>
         )}
       </Stack>
     </>
