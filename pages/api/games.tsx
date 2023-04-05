@@ -4,7 +4,9 @@ import { allLetters } from 'data/defaults';
 import { shuffleArray } from 'services/helpers';
 import { GameWithEverything } from 'types/types';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error']
+});
 
 const startGame = async (starter: User, players: User[]) => {
   let newPlayers = [...players, starter];
@@ -50,6 +52,7 @@ type GameWithEverythingRaw = {
   userId: number;
   userAccepted: boolean;
   createdAt: Date;
+  sub: string;
   name: string;
   email: string;
   picture: string;
@@ -80,6 +83,7 @@ const listGames = async (userId: number) => {
         "GameParticipants"."userId" as "userId",
         "GameParticipants"."userAccepted",
         "GameParticipants"."createdAt",
+        "users"."sub",
         "users"."name",
         "users"."email",
         "users"."picture",
@@ -128,6 +132,7 @@ const listGames = async (userId: number) => {
           gameId: gameRaw.gameId,
           createdAt: gameRaw.createdAt,
           user: {
+            sub: gameRaw.sub,
             id: gameRaw.userId,
             name: gameRaw.name,
             email: gameRaw.email,
