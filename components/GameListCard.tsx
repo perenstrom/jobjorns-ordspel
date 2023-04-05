@@ -21,8 +21,7 @@ import AbcIcon from '@mui/icons-material/Abc';
 import { grey } from '@mui/material/colors';
 
 export const GameListCard = ({
-  game,
-  userWithId
+  game
 }: {
   game: GameWithEverything;
   userWithId: User;
@@ -39,6 +38,7 @@ saker som borde vara med i denna vyn:
 
 */
 
+  /*
   let hasPlayed: boolean;
   if (game.turns[0]) {
     hasPlayed =
@@ -47,13 +47,14 @@ saker som borde vara med i denna vyn:
   } else {
     hasPlayed = false;
   }
-  console.log({ hasPlayed });
+  */
+  //console.log({ hasPlayed });
 
   let usersWhoPlayed: number[] = [];
   if (game.turns[0]) {
     usersWhoPlayed = game.turns[0]?.moves.map((move) => move.userId);
   }
-  console.log({ usersWhoPlayed });
+  //console.log({ usersWhoPlayed });
 
   let usersWhoPlayedNot: number[] = [];
   game.users.map((user) => {
@@ -61,7 +62,7 @@ saker som borde vara med i denna vyn:
       usersWhoPlayedNot.push(user.userId);
     }
   });
-  console.log({ usersWhoPlayedNot });
+  //console.log({ usersWhoPlayedNot });
 
   let latestWinningWord: string = '';
   let newLatestWinningWord = game.turns[1]?.moves.find(
@@ -70,7 +71,7 @@ saker som borde vara med i denna vyn:
   if (newLatestWinningWord) {
     latestWinningWord = newLatestWinningWord;
   }
-  console.log({ latestWinningWord });
+  //console.log({ latestWinningWord });
 
   let latestTurnStartTime: Date;
   if (game.turns[0]) {
@@ -78,19 +79,13 @@ saker som borde vara med i denna vyn:
   } else {
     latestTurnStartTime = game.startedAt;
   }
-  console.log({ latestTurnStartTime });
+  //console.log({ latestTurnStartTime });
 
-  let currentTurn = game.currentTurn;
-  console.log({ currentTurn });
+  //let currentTurn = game.currentTurn;
+  //console.log({ currentTurn });
 
   return (
-    <Grid
-      item
-      sm={12}
-      md={6}
-      key={game.id}
-      style={{ width: '100%', height: '100%' }}
-    >
+    <Grid item sm={12} md={6} style={{ width: '100%', height: '100%' }}>
       <Link key={game.id} passHref href={`/game/${game.id}`}>
         <CardActionArea>
           <Card variant="outlined">
@@ -130,9 +125,9 @@ saker som borde vara med i denna vyn:
                     style={{ flexDirection: 'row-reverse' }}
                     spacing="small"
                   >
-                    {usersWhoPlayedNot.map((userId) => (
+                    {usersWhoPlayedNot.map((userId, index) => (
                       <Avatar
-                        key={userId}
+                        key={index}
                         src={gravatar(
                           game.users.find((user) => user.userId == userId)?.user
                             .email
@@ -190,9 +185,9 @@ saker som borde vara med i denna vyn:
                   }}
                 >
                   <AvatarGroup max={4} style={{ flexDirection: 'row-reverse' }}>
-                    {usersWhoPlayed.map((userId) => (
+                    {usersWhoPlayed.map((userId, index) => (
                       <Avatar
-                        key={userId}
+                        key={index}
                         src={gravatar(
                           game.users.find((user) => user.userId == userId)?.user
                             .email
