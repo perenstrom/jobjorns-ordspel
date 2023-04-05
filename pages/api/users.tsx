@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 
 interface User {
+  sub: string;
   name: string;
   picture: string;
   email: string;
@@ -12,12 +13,13 @@ const prisma = new PrismaClient();
 const addUser = async (user: User) => {
   try {
     const findSingleUser = await prisma.user.findUnique({
-      where: { email: user.email }
+      where: { sub: user.sub }
     });
 
     if (findSingleUser === null) {
       const createResult = await prisma.user.create({
         data: {
+          sub: user.sub,
           name: user.name,
           email: user.email,
           picture: user.picture
@@ -55,9 +57,10 @@ const listUsers = async () => {
 const users = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
-      const { name, picture, email }: User = req.body;
+      const { sub, name, picture, email }: User = req.body;
 
       addUser({
+        sub,
         name,
         picture,
         email

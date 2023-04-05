@@ -13,6 +13,7 @@ export const addUser = (user: UserProfile) => {
     method: 'POST',
     headers: defaultHeaders,
     body: JSON.stringify({
+      sub: user.sub,
       name: user.name,
       picture: user.picture,
       email: user.email
