@@ -74,8 +74,8 @@ export const GameList: React.FC<{}> = () => {
           </Typography>
         )}
         <Grid container spacing={2}>
-          {gamesListReady.map((game) => (
-            <GameListCard key={game.id} game={game} userWithId={userWithId} />
+          {gamesListReady.map((game, index) => (
+            <GameListCard key={index} game={game} userWithId={userWithId} />
           ))}
         </Grid>
         {gamesListWaiting.length > 0 && (
@@ -84,8 +84,8 @@ export const GameList: React.FC<{}> = () => {
           </Typography>
         )}
         <Grid container spacing={2}>
-          {gamesListWaiting.map((game) => (
-            <GameListCard key={game.id} game={game} userWithId={userWithId} />
+          {gamesListWaiting.map((game, index) => (
+            <GameListCard key={index} game={game} userWithId={userWithId} />
           ))}
         </Grid>
         {gamesList.length == 0 && (
