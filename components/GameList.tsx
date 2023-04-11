@@ -82,9 +82,6 @@ export const GameList: React.FC<{}> = () => {
     fetchGamesList();
   }, [user]);
 
-  console.log(gamesList);
-  console.log(loading);
-
   if (gamesList.length == 0 && !loading) {
     return (
       <Container maxWidth="md">

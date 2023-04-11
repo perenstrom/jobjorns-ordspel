@@ -44,6 +44,44 @@ export const checkSameDirection = (board: Tile[][]) => {
   return sameDirection;
 };
 
+export const checkAdjacentPlacement = (board: Tile[][]) => {
+  const copiedBoard = [...board];
+
+  let adjacentPlacement = false; // placerade brickor får inte skapa en ö
+  let noOtherTiles = true; // om det inte finns några andra brickor på spelplanen är det OK med en ö
+
+  let adjacentTiles: { row: number; column: number }[] = [];
+  copiedBoard.forEach((row, indexRow) =>
+    row.forEach((cell, indexColumn) => {
+      if (cell.placed === 'submitted') {
+        adjacentTiles.push({ row: indexRow - 1, column: indexColumn }); // den ovanför
+        adjacentTiles.push({ row: indexRow, column: indexColumn - 1 }); // den till vänster
+        adjacentTiles.push({ row: indexRow, column: indexColumn + 1 }); // den till höger
+        adjacentTiles.push({ row: indexRow + 1, column: indexColumn }); // den under
+      } else if (cell.placed === 'board') {
+        noOtherTiles = false;
+      }
+    })
+  );
+
+  adjacentTiles.forEach((tile) => {
+    if (
+      typeof copiedBoard[tile.row] !== 'undefined' &&
+      typeof copiedBoard[tile.row][tile.column] !== 'undefined' &&
+      copiedBoard[tile.row][tile.column].placed === 'board'
+    ) {
+      console.log(
+        tile.row,
+        tile.column,
+        copiedBoard[tile.row][tile.column].placed
+      );
+      adjacentPlacement = true;
+    }
+  });
+
+  return adjacentPlacement || noOtherTiles;
+};
+
 export const getPlayedWords = (board: Tile[][]) => {
   const copiedBoard = [...board];
 
