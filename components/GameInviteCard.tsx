@@ -34,7 +34,6 @@ export const GameInviteCard = ({
   };
 
   const handleDeclineInvite = () => {
-    console.log('decline invite');
     declineInvite(game.id, userWithId.id);
 
     setFade(true);
