@@ -22,17 +22,23 @@ export const Tile = ({
   onClick: () => void;
 }) => {
   let fillColor;
+  let textColor;
   // hand, submitted, board, selected
   if (status == 'selected') {
     fillColor = cyan;
+    textColor = '#ffffff';
   } else if (status == 'hand') {
     fillColor = teal;
+    textColor = '#ffffff';
   } else if (status == 'submitted') {
     fillColor = green;
+    textColor = '#ffffff';
   } else if (status == 'board') {
     fillColor = blue;
+    textColor = '#ffffff';
   } else {
     fillColor = red;
+    textColor = '#ffffff';
   }
 
   const tileAnimation = keyframes`
@@ -104,8 +110,8 @@ export const Tile = ({
             <text
               x="42.5%"
               y="52.5%"
-              fontSize="3em"
-              fill="#FFFFFF"
+              fontSize="4em"
+              fill={textColor}
               textAnchor="middle"
               dominantBaseline="middle"
             >
@@ -114,8 +120,8 @@ export const Tile = ({
             <text
               x="75%"
               y="30%"
-              fontSize="1.5em"
-              fill="#FFFFFF"
+              fontSize="2em"
+              fill={textColor}
               textAnchor="middle"
               alignmentBaseline="central"
             >

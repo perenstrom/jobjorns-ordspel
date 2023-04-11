@@ -99,7 +99,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     const latestTurn = game.turns[0];
     const latestUserMove = latestTurn?.moves.find(
-      (move) => move.userId === currentUser.id
+      (move) => move.userSub === currentUser.id
     );
 
     if (latestTurn?.turnNumber == game.currentTurn && latestUserMove) {
@@ -337,7 +337,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           <Alert
             key={index}
             severity={alert.severity}
-            sx={{ width: '65vh', margin: '3px' }}
+            sx={{ width: '65vw', margin: '3px' }}
           >
             {alert.message}
           </Alert>
@@ -403,7 +403,7 @@ const TileHolder = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
   margin: props.theme.spacing(1, 0),
-  gap: props.theme.spacing(0.5),
+  gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%'
 }));
@@ -436,7 +436,7 @@ const BoardGrid = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(11, 1fr)',
   gridTemplateRows: 'repeat(11, 1fr)',
-  gap: props.theme.spacing(0.5),
+  gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%'
 }));

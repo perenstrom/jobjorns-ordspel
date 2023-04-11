@@ -8,7 +8,7 @@ export const theme = createTheme({
     mode: 'dark'
   },
   typography: {
-    fontSize: 16
+    fontSize: 12
   },
   components: {
     MuiCssBaseline: {

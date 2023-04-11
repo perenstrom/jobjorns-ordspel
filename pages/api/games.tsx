@@ -24,7 +24,10 @@ const startGame = async (starter: User, players: User[]) => {
         },
         currentTurn: 1,
         users: {
-          create: newPlayers.map((player) => ({ userId: player.id }))
+          create: newPlayers.map((player) => ({
+            userSub: player.sub,
+            userAccepted: player.sub == starter.sub
+          }))
         }
       }
     });
@@ -45,13 +48,14 @@ type GameWithEverythingRaw = {
   gameId: number;
   letters: string;
   startedAt: Date;
-  startedById: number;
+  startedBySub: string;
   board: string;
   latestWord: string;
   currentTurn: number;
-  userId: number;
+  userSub: string;
   userAccepted: boolean;
   createdAt: Date;
+  userId: number;
   sub: string;
   name: string;
   email: string;
@@ -60,7 +64,7 @@ type GameWithEverythingRaw = {
   turnNumber: number;
   turnStart: Date;
   moveId: number;
-  moveUserId: number;
+  moveUserSub: string;
   playedWord: string;
   playedBoard: string;
   playedTime: Date;
@@ -68,7 +72,7 @@ type GameWithEverythingRaw = {
   won: boolean;
 };
 
-const listGames = async (userId: number) => {
+const listGames = async (userSub: string) => {
   console.log('nu kör vi listGamesRaw');
   try {
     const listGamesPrisma: GameWithEverythingRaw[] = await prisma.$queryRaw`
@@ -76,13 +80,14 @@ const listGames = async (userId: number) => {
         "games"."id" AS "gameId",
         "games"."letters",
         "games"."startedAt",
-        "games"."startedById",
+        "games"."startedBySub",
         "games"."board",
         "games"."latestWord",
         "games"."currentTurn",
-        "GameParticipants"."userId" as "userId",
+        "GameParticipants"."userSub" as "userSub",
         "GameParticipants"."userAccepted",
         "GameParticipants"."createdAt",
+        "users"."id" as "userId",
         "users"."sub",
         "users"."name",
         "users"."email",
@@ -91,7 +96,7 @@ const listGames = async (userId: number) => {
         "Turn"."turnNumber",
         "Turn"."turnStart",
         "Move"."id" as "moveId",
-        "Move"."userId" as "moveUserId",
+        "Move"."userSub" as "moveUserSub",
         "Move"."playedWord",
         "Move"."playedBoard",
         "Move"."playedTime",
@@ -100,11 +105,11 @@ const listGames = async (userId: number) => {
       FROM "UsersOnGames" AS "UsersOwnGames"
       JOIN "games" ON "games"."id" = "UsersOwnGames"."gameId"
       JOIN "UsersOnGames" AS "GameParticipants" ON "GameParticipants"."gameId" = "games"."id"
-      JOIN "users" ON "users"."id" = "GameParticipants"."userId"
+      JOIN "users" ON "users"."sub" = "GameParticipants"."userSub"
       JOIN "Turn" ON "Turn"."gameId" = "games"."id"
       JOIN "Move" ON "Move"."turnId" = "Turn"."id"
-      WHERE "UsersOwnGames"."userId" = ${userId}
-      ORDER BY "games"."id" DESC, "GameParticipants"."userId" ASC, "users"."id" ASC, "Turn"."turnNumber" DESC, "Move"."userId" ASC`;
+      WHERE "UsersOwnGames"."userSub" = ${userSub}
+      ORDER BY "games"."id" DESC, "GameParticipants"."userSub" ASC, "users"."id" ASC, "Turn"."turnNumber" DESC, "Move"."userSub" ASC`;
 
     if (listGamesPrisma === null || typeof listGamesPrisma === 'undefined') {
       return { message: 'Inga spel returnerades' };
@@ -115,7 +120,7 @@ const listGames = async (userId: number) => {
           id: gameRaw.gameId,
           letters: gameRaw.letters,
           startedAt: gameRaw.startedAt,
-          startedById: gameRaw.startedById,
+          startedBySub: gameRaw.startedBySub,
           board: gameRaw.board,
           latestWord: gameRaw.latestWord,
           currentTurn: gameRaw.currentTurn,
@@ -127,13 +132,13 @@ const listGames = async (userId: number) => {
         }
 
         let user: UsersOnGames & { user: User } = {
-          userId: gameRaw.userId,
+          userSub: gameRaw.userSub,
           userAccepted: gameRaw.userAccepted,
           gameId: gameRaw.gameId,
           createdAt: gameRaw.createdAt,
           user: {
-            sub: gameRaw.sub,
             id: gameRaw.userId,
+            sub: gameRaw.userSub,
             name: gameRaw.name,
             email: gameRaw.email,
             picture: gameRaw.picture
@@ -142,7 +147,7 @@ const listGames = async (userId: number) => {
         if (
           games
             .find((g) => g.id === game.id)
-            ?.users.find((u) => u.userId === user.userId) === undefined
+            ?.users.find((u) => u.userSub === user.userSub) === undefined
         ) {
           games.find((g) => g.id === game.id)?.users.push(user);
         }
@@ -165,7 +170,7 @@ const listGames = async (userId: number) => {
         let move: Move = {
           id: gameRaw.moveId,
           turnId: gameRaw.turnId,
-          userId: gameRaw.moveUserId,
+          userSub: gameRaw.moveUserSub,
           playedWord: gameRaw.playedWord,
           playedBoard: gameRaw.playedBoard,
           playedTime: gameRaw.playedTime,
@@ -225,7 +230,7 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
     });
   } else if (req.method === 'GET') {
     return new Promise((resolve) => {
-      listGames(parseInt(req.query.userid as string, 10))
+      listGames(req.query.usersub as string)
         .then((result) => {
           res.status(200).json(result);
           resolve('');

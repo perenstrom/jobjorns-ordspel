@@ -71,7 +71,7 @@ const NewGamePage: NextPage<{}> = () => {
         }}
       >
         <Menu />
-        <Container maxWidth="sm">
+        <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
           <ScoreList game={game} />
         </Container>

@@ -64,7 +64,7 @@ const NewGamePage: NextPage<{}> = () => {
       const usersList = await listUsers();
       if (usersList.success && userWithId) {
         const filteredList = usersList.data.filter(
-          (user) => user.id !== userWithId.id
+          (user) => user.sub !== userWithId.sub
         );
         setUsers(filteredList);
         setLoading(false);

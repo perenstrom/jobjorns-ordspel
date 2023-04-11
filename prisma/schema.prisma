@@ -21,35 +21,35 @@ model User {
 }
 
 model Game {
-  id          Int            @id @default(autoincrement())
-  letters     String
-  startedAt   DateTime       @default(now())
-  startedBy   User           @relation(fields: [startedById], references: [id])
-  startedById Int // relation scalar field
-  board       String?
-  latestWord  String?
-  users       UsersOnGames[]
-  currentTurn Int            @default(1)
-  turns       Turn[]         @relation("turns")
+  id           Int            @id @default(autoincrement())
+  letters      String
+  startedAt    DateTime       @default(now())
+  startedBy    User           @relation(fields: [startedBySub], references: [sub])
+  startedBySub String // relation scalar field
+  board        String?
+  latestWord   String?
+  users        UsersOnGames[]
+  currentTurn  Int            @default(1)
+  turns        Turn[]         @relation("turns")
 
   @@map("games")
 }
 
 model UsersOnGames {
-  user         User     @relation(fields: [userId], references: [id])
-  userId       Int // relation scalar field (used in the `@relation` attribute above)
+  user         User     @relation(fields: [userSub], references: [sub])
+  userSub      String // relation scalar field
   userAccepted Boolean  @default(false)
   game         Game     @relation(fields: [gameId], references: [id])
-  gameId       Int // relation scalar field (used in the `@relation` attribute above)
+  gameId       Int // relation scalar field
   createdAt    DateTime @default(now())
 
-  @@id([userId, gameId])
+  @@id([userSub, gameId])
 }
 
 model Turn {
   id         Int      @unique @default(autoincrement())
   game       Game     @relation("turns", fields: [gameId], references: [id])
-  gameId     Int // relation scalar field (used in the `@relation` attribute above)
+  gameId     Int // relation scalar field
   turnNumber Int
   moves      Move[]   @relation("moves")
   turnStart  DateTime @default(now())
@@ -61,8 +61,8 @@ model Move {
   id           Int      @id @default(autoincrement())
   turn         Turn     @relation("moves", fields: [turnId], references: [id])
   turnId       Int
-  user         User     @relation(fields: [userId], references: [id])
-  userId       Int // relation scalar field (used in the `@relation` attribute above)
+  user         User     @relation(fields: [userSub], references: [sub])
+  userSub      String // relation scalar field
   playedWord   String
   playedBoard  String
   playedTime   DateTime @default(now())

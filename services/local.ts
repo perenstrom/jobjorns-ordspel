@@ -168,13 +168,13 @@ export const getGame = (
 };
 
 export const listGames = (
-  userId: number
+  userSub: string
 ): Promise<ResponseType<GameWithEverything[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
   };
-  const url = '/api/games?userid=' + userId;
+  const url = '/api/games?usersub=' + userSub;
   const options = {
     method: 'GET',
     headers: defaultHeaders
@@ -203,7 +203,7 @@ export const listGames = (
 
 export const submitMove = async (
   gameId: number,
-  userId: number,
+  userSub: number,
   turnNumber: number,
   playedWord: string,
   playedBoard: string
@@ -218,7 +218,7 @@ export const submitMove = async (
     headers: defaultHeaders,
     body: JSON.stringify({
       variant: 'move',
-      userId,
+      userSub,
       turnNumber,
       playedWord,
       playedBoard
@@ -233,6 +233,52 @@ export const submitMove = async (
     return {
       move: { success: false, response: error },
       turn: { success: false, response: error }
+    };
+  }
+};
+
+export const acceptInvite = async (gameId: number, userSub: number) => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/' + gameId;
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({ variant: 'accept', userSub })
+  };
+
+  try {
+    const acceptResult = await (await fetch(url, options)).json();
+
+    return { accept: acceptResult };
+  } catch (error) {
+    return {
+      accept: { success: false, response: error }
+    };
+  }
+};
+
+export const declineInvite = async (gameId: number, userSub: number) => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/games/' + gameId;
+  const options = {
+    method: 'POST',
+    headers: defaultHeaders,
+    body: JSON.stringify({ variant: 'decline', userSub })
+  };
+
+  try {
+    const declineResult = await (await fetch(url, options)).json();
+
+    return { decline: declineResult };
+  } catch (error) {
+    return {
+      decline: { success: false, response: error }
     };
   }
 };
