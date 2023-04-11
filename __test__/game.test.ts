@@ -1,5 +1,6 @@
 import {
   checkAdjacentPlacement,
+  checkCoherentWord,
   checkSameDirection,
   checkTilesPlayed
 } from 'services/game';
@@ -950,4 +951,238 @@ test('checkAdjacentPlacement', () => {
   expect(checkAdjacentPlacement(checkAdjacentPlacementTestData[1])).toBe(true);
   expect(checkAdjacentPlacement(checkAdjacentPlacementTestData[2])).toBe(false);
   expect(checkAdjacentPlacement(checkAdjacentPlacementTestData[3])).toBe(true);
+});
+
+const checkCoherentWordTestData = [
+  // false
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'B',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'I',
+        placed: 'board'
+      },
+      {
+        letter: 'L',
+        placed: 'board'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'A',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ],
+  // true
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'B',
+        placed: 'submitted'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'A',
+        placed: 'submitted'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'I',
+        placed: 'board'
+      },
+      {
+        letter: 'L',
+        placed: 'board'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ]
+];
+
+test('checkCoherentWord', () => {
+  expect(checkCoherentWord(checkCoherentWordTestData[0])).toBe(false);
+  expect(checkCoherentWord(checkCoherentWordTestData[1])).toBe(true);
 });
