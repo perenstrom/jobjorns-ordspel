@@ -42,7 +42,7 @@ saker som borde vara med i denna vyn:
   let hasPlayed: boolean;
   if (game.turns[0]) {
     hasPlayed =
-      game.turns[0].moves.findIndex((move) => move.userId == userWithId.id) >
+      game.turns[0].moves.findIndex((move) => move.userSub == userWithId.id) >
       -1;
   } else {
     hasPlayed = false;
@@ -50,16 +50,16 @@ saker som borde vara med i denna vyn:
   */
   //console.log({ hasPlayed });
 
-  let usersWhoPlayed: number[] = [];
+  let usersWhoPlayed: string[] = [];
   if (game.turns[0]) {
-    usersWhoPlayed = game.turns[0]?.moves.map((move) => move.userId);
+    usersWhoPlayed = game.turns[0]?.moves.map((move) => move.userSub);
   }
   //console.log({ usersWhoPlayed });
 
-  let usersWhoPlayedNot: number[] = [];
+  let usersWhoPlayedNot: string[] = [];
   game.users.map((user) => {
-    if (!usersWhoPlayed.includes(user.userId)) {
-      usersWhoPlayedNot.push(user.userId);
+    if (!usersWhoPlayed.includes(user.userSub)) {
+      usersWhoPlayedNot.push(user.userSub);
     }
   });
   //console.log({ usersWhoPlayedNot });
@@ -125,12 +125,12 @@ saker som borde vara med i denna vyn:
                     style={{ flexDirection: 'row-reverse' }}
                     spacing="small"
                   >
-                    {usersWhoPlayedNot.map((userId, index) => (
+                    {usersWhoPlayedNot.map((userSub, index) => (
                       <Avatar
                         key={index}
                         src={gravatar(
-                          game.users.find((user) => user.userId == userId)?.user
-                            .email
+                          game.users.find((user) => user.userSub == userSub)
+                            ?.user.email
                         )}
                       />
                     ))}
@@ -185,12 +185,12 @@ saker som borde vara med i denna vyn:
                   }}
                 >
                   <AvatarGroup max={4} style={{ flexDirection: 'row-reverse' }}>
-                    {usersWhoPlayed.map((userId, index) => (
+                    {usersWhoPlayed.map((userSub, index) => (
                       <Avatar
                         key={index}
                         src={gravatar(
-                          game.users.find((user) => user.userId == userId)?.user
-                            .email
+                          game.users.find((user) => user.userSub == userSub)
+                            ?.user.email
                         )}
                       />
                     ))}

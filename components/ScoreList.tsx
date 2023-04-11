@@ -16,19 +16,19 @@ interface ScoreListProps {
 
 export const ScoreList = ({ game }: ScoreListProps) => {
   const [userPoints, setUserPoints] = useState<
-    { userId: number; points: number }[]
+    { userSub: string; points: number }[]
   >([]);
 
   useEffect(() => {
-    let newUserPoints: { userId: number; points: number }[] = [];
+    let newUserPoints: { userSub: string; points: number }[] = [];
 
     game.users.map((user) => {
       let points = calculateUserPoints(
-        user.userId,
+        user.userSub,
         game.turns,
         game.currentTurn
       );
-      newUserPoints.push({ userId: user.userId, points: points });
+      newUserPoints.push({ userSub: user.userSub, points: points });
     });
 
     setUserPoints(newUserPoints);
@@ -42,15 +42,15 @@ export const ScoreList = ({ game }: ScoreListProps) => {
             <TableRow>
               <TableCell />
               {game.users.map((user) => (
-                <TableCell key={user.userId} style={{ fontWeight: 'bold' }}>
+                <TableCell key={user.userSub} style={{ fontWeight: 'bold' }}>
                   {user.user.name}
                   <SingleScorePoints
                     points={
-                      userPoints.find((x) => x.userId == user.userId)?.points
+                      userPoints.find((x) => x.userSub == user.userSub)?.points
                     }
                     won={
                       Math.max(...userPoints.map((x) => x.points)) ==
-                      userPoints.find((x) => x.userId == user.userId)?.points
+                      userPoints.find((x) => x.userSub == user.userSub)?.points
                     }
                   />
                 </TableCell>
@@ -63,9 +63,9 @@ export const ScoreList = ({ game }: ScoreListProps) => {
                     <TableCell>{turn.turnNumber}</TableCell>
                     {game.users.map((user) => (
                       <SingleScore
-                        key={user.userId}
+                        key={user.userSub}
                         move={turn.moves.find(
-                          (move) => move.userId == user.userId
+                          (move) => move.userSub == user.userSub
                         )}
                       />
                     ))}
@@ -84,7 +84,7 @@ interface SingleScoreProps {
 }
 
 export const SingleScore = ({ move }: SingleScoreProps) => {
-  if (move) {
+  if (move && move.playedWord) {
     return (
       <TableCell>
         <div
@@ -97,6 +97,22 @@ export const SingleScore = ({ move }: SingleScoreProps) => {
         >
           {move.playedWord}
           <SingleScorePoints points={move.playedPoints} won={move.won} />
+        </div>
+      </TableCell>
+    );
+  } else if (move && !move.playedWord) {
+    return (
+      <TableCell>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            flexDirection: 'row',
+            color: 'grey'
+          }}
+        >
+          (pass)
         </div>
       </TableCell>
     );
@@ -144,7 +160,7 @@ export const SingleScorePoints = ({
 };
 
 export const calculateUserPoints = (
-  userId: number,
+  userSub: string,
   turns: (Turn & {
     moves: Move[];
   })[],
@@ -153,7 +169,7 @@ export const calculateUserPoints = (
   let points = 0;
   turns.map((turn) =>
     turn.moves.map((move) => {
-      if (move.userId == userId && turn.turnNumber !== currentTurn) {
+      if (move.userSub == userSub && turn.turnNumber !== currentTurn) {
         points += move.playedPoints;
       }
     })

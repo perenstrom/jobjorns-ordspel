@@ -15,7 +15,7 @@ const getGame = async (gameId: number) => {
       include: {
         users: {
           orderBy: {
-            userId: 'asc'
+            userSub: 'asc'
           },
           include: {
             user: true
@@ -28,7 +28,7 @@ const getGame = async (gameId: number) => {
           include: {
             moves: {
               orderBy: {
-                userId: 'asc'
+                userSub: 'asc'
               }
             }
           }
@@ -50,7 +50,7 @@ const getGame = async (gameId: number) => {
 
 const submitMove = async (
   gameId: number,
-  userId: number,
+  userSub: number,
   turnNumber: number,
   playedWord: string,
   playedBoard: string
@@ -78,7 +78,7 @@ const submitMove = async (
         },
         user: {
           connect: {
-            id: userId
+            id: userSub
           }
         },
         playedWord: playedWord,
@@ -281,9 +281,62 @@ const submitTurn = async (
   }
 };
 
+const acceptInvite = async (gameId: number, userSub: string) => {
+  try {
+    const updateResult = await prisma.usersOnGames.update({
+      data: {
+        userAccepted: true
+      },
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (updateResult !== null) {
+      return { success: true as const, response: 'Inbjudan accepterades' };
+    } else {
+      throw new Error(
+        'Något gick fel i accepterandet av inbjudan, updateResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const declineInvite = async (gameId: number, userSub: string) => {
+  try {
+    const deleteResult = await prisma.usersOnGames.delete({
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (deleteResult !== null) {
+      return { success: true as const, response: 'Inbjudan avvisades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avvisandet av inbjudan, deleteResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
 interface PostRequestBodyMove {
   variant: 'move';
-  userId: number;
+  userSub: number;
   turnNumber: number;
   playedWord: string;
   playedBoard: string;
@@ -299,7 +352,7 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
       const {
-        userId,
+        userSub,
         turnNumber,
         playedWord,
         playedBoard
@@ -307,7 +360,7 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
 
       submitMove(
         parseInt(req.query.id as string, 10),
-        userId,
+        userSub,
         turnNumber,
         playedWord,
         playedBoard
@@ -349,6 +402,36 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   } else if (req.method === 'GET') {
     return new Promise((resolve) => {
       getGame(parseInt(req.query.id as string, 10))
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'accept') {
+    return new Promise((resolve) => {
+      acceptInvite(parseInt(req.query.id as string, 10), req.body.userSub)
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'decline') {
+    return new Promise((resolve) => {
+      declineInvite(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
           resolve('');

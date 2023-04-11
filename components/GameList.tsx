@@ -1,21 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { CircularProgress, Container, Grid, Typography } from '@mui/material';
+import {
+  Button,
+  CircularProgress,
+  Container,
+  Grid,
+  Typography
+} from '@mui/material';
 import { User } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUser, listGames } from 'services/local';
 import { GameWithEverything } from 'types/types';
 import { GameListCard } from './GameListCard';
+import { GameInviteCard } from './GameInviteCard';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [userWithId, setUserWithId] = useState<User>();
   const [gamesList, setGamesList] = useState<GameWithEverything[]>([]);
-  const [gamesListReady, setGamesListReady] = useState<GameWithEverything[]>(
-    []
-  );
+  const [gamesListInvites, setGamesListInvites] = useState<
+    GameWithEverything[]
+  >([]);
   const [gamesListWaiting, setGamesListWaiting] = useState<
     GameWithEverything[]
   >([]);
+  const [gamesListReady, setGamesListReady] = useState<GameWithEverything[]>(
+    []
+  );
 
   const { user } = useUser();
 
@@ -35,17 +45,23 @@ export const GameList: React.FC<{}> = () => {
 
   useEffect(() => {
     const fetchGamesList = async () => {
-      if (userWithId && userWithId.id) {
-        const newGamesList = await listGames(userWithId.id);
+      if (user && user.sub) {
+        const newGamesList = await listGames(user.sub);
+        let newGamesListInvites: GameWithEverything[] = [];
         let newGamesListWaiting: GameWithEverything[] = [];
         let newGamesListReady: GameWithEverything[] = [];
 
         if (newGamesList.success) {
           newGamesList.data.map((game) => {
             if (
+              game.users.find((gameUser) => gameUser.userSub == user.sub)
+                ?.userAccepted == false
+            ) {
+              newGamesListInvites.push(game);
+            } else if (
               game.turns[0] &&
               game.turns[0].moves.findIndex(
-                (move) => move.userId == userWithId.id
+                (move) => move.userSub == user.sub
               ) > -1
             ) {
               newGamesListWaiting.push(game);
@@ -54,20 +70,45 @@ export const GameList: React.FC<{}> = () => {
             }
           });
 
+          setGamesListInvites(newGamesListInvites);
           setGamesListWaiting(newGamesListWaiting);
           setGamesListReady(newGamesListReady);
           setGamesList(newGamesList.data);
-          setLoading(false);
         }
       }
+      setLoading(false);
     };
 
     fetchGamesList();
-  }, [userWithId]);
+  }, [user]);
 
-  if (gamesList && !loading && userWithId) {
+  console.log(gamesList);
+  console.log(loading);
+
+  if (gamesList.length == 0 && !loading) {
     return (
       <Container maxWidth="md">
+        <Typography variant="h4" sx={{ my: 3 }}>
+          Du har inga spel än. Skapa ett nytt spel nedan!
+        </Typography>
+        <Button variant="contained" href="/game/new">
+          Skapa nytt spel
+        </Button>
+      </Container>
+    );
+  } else if (gamesList && !loading && userWithId) {
+    return (
+      <Container maxWidth="md">
+        {gamesListInvites.length > 0 && (
+          <Typography variant="h4" sx={{ my: 3 }}>
+            Inbjudningar
+          </Typography>
+        )}
+        <Grid container spacing={2}>
+          {gamesListInvites.map((game, index) => (
+            <GameInviteCard key={index} game={game} userWithId={userWithId} />
+          ))}
+        </Grid>
         {gamesListReady.length > 0 && (
           <Typography variant="h4" sx={{ my: 3 }}>
             Väntar på ditt drag
