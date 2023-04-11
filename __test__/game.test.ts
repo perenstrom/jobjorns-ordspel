@@ -1,4 +1,8 @@
-import { checkAdjacentPlacement, checkTilesPlayed } from 'services/game';
+import {
+  checkAdjacentPlacement,
+  checkSameDirection,
+  checkTilesPlayed
+} from 'services/game';
 import { expect, test } from 'vitest';
 
 test('checkTilesPlayed', () => {
@@ -22,6 +26,468 @@ test('checkTilesPlayed', () => {
       ]
     ])
   ).toBe(false);
+});
+
+const checkSameDirectionTestData = [
+  // true
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'I',
+        placed: 'submitted'
+      },
+      {
+        letter: 'L',
+        placed: 'submitted'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ],
+  // false
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'L',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'I',
+        placed: 'hand'
+      },
+      {
+        letter: 'A',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ],
+  // false
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'A',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'L',
+        placed: 'hand'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ],
+  // true
+  [
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'A',
+        placed: 'submitted'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: 'L',
+        placed: 'submitted'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ],
+    [
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      },
+      {
+        letter: '',
+        placed: 'no'
+      }
+    ]
+  ]
+];
+
+test('checkSameDirection', () => {
+  expect(checkSameDirection(checkSameDirectionTestData[0])).toBe(true);
+  expect(checkSameDirection(checkSameDirectionTestData[1])).toBe(false);
+  expect(checkSameDirection(checkSameDirectionTestData[2])).toBe(false);
+  expect(checkSameDirection(checkSameDirectionTestData[3])).toBe(true);
 });
 
 const checkAdjacentPlacementTestData = [
