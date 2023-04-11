@@ -28,7 +28,7 @@ export const GameInviteCard = ({
   const [fade, setFade] = React.useState(false);
 
   const handleAcceptInvite = () => {
-    acceptInvite(game.id, userWithId.id);
+    acceptInvite(game.id, userWithId.sub);
 
     router.push(`/game/${game.id}`);
   };
