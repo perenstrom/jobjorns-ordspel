@@ -106,8 +106,8 @@ const listGames = async (userSub: string) => {
       JOIN "games" ON "games"."id" = "UsersOwnGames"."gameId"
       JOIN "UsersOnGames" AS "GameParticipants" ON "GameParticipants"."gameId" = "games"."id"
       JOIN "users" ON "users"."sub" = "GameParticipants"."userSub"
-      JOIN "Turn" ON "Turn"."gameId" = "games"."id"
-      JOIN "Move" ON "Move"."turnId" = "Turn"."id"
+      LEFT JOIN "Turn" ON "Turn"."gameId" = "games"."id"
+      LEFT JOIN "Move" ON "Move"."turnId" = "Turn"."id"
       WHERE "UsersOwnGames"."userSub" = ${userSub}
       ORDER BY "games"."id" DESC, "GameParticipants"."userSub" ASC, "users"."id" ASC, "Turn"."turnNumber" DESC, "Move"."userSub" ASC`;
 
