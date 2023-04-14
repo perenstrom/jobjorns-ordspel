@@ -260,7 +260,7 @@ export const acceptInvite = async (gameId: number, userSub: string) => {
   }
 };
 
-export const declineInvite = async (gameId: number, userSub: number) => {
+export const declineInvite = async (gameId: number, userSub: string) => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
