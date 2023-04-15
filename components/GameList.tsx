@@ -10,8 +10,8 @@ import {
 import { useUser } from '@auth0/nextjs-auth0';
 import { listGames } from 'services/local';
 import { GameWithEverything } from 'types/types';
-import { GameListListItem } from './GameListCard';
-import { GameInviteListItem } from './GameInviteCard';
+import { GameListListItem } from './GameListItem';
+import { GameInviteListItem } from './GameListInvite';
 import { GameListRefusal } from './GameListRefusal';
 
 export const GameList: React.FC<{}> = () => {
