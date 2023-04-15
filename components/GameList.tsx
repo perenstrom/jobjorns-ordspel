@@ -3,21 +3,25 @@ import {
   Button,
   CircularProgress,
   Container,
-  Grid,
+  List,
+  ListSubheader,
   Typography
 } from '@mui/material';
-import { User } from '@prisma/client';
 import { useUser } from '@auth0/nextjs-auth0';
-import { getUser, listGames } from 'services/local';
+import { listGames } from 'services/local';
 import { GameWithEverything } from 'types/types';
-import { GameListCard } from './GameListCard';
-import { GameInviteCard } from './GameInviteCard';
+import { GameListListItem } from './GameListCard';
+import { GameInviteListItem } from './GameInviteCard';
+import { GameListRefusal } from './GameListRefusal';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
-  const [userWithId, setUserWithId] = useState<User>();
+  // const [userWithId, setUserWithId] = useState<User>();
   const [gamesList, setGamesList] = useState<GameWithEverything[]>([]);
   const [gamesListInvites, setGamesListInvites] = useState<
+    GameWithEverything[]
+  >([]);
+  const [gamesListRefusals, setGamesListRefusals] = useState<
     GameWithEverything[]
   >([]);
   const [gamesListWaiting, setGamesListWaiting] = useState<
@@ -29,6 +33,7 @@ export const GameList: React.FC<{}> = () => {
 
   const { user } = useUser();
 
+  /*
   useEffect(() => {
     const fetchUserWithId = async () => {
       if (user && user.email) {
@@ -42,37 +47,15 @@ export const GameList: React.FC<{}> = () => {
 
     fetchUserWithId();
   }, [user]);
+  */
 
   useEffect(() => {
     const fetchGamesList = async () => {
       if (user && user.sub) {
         const newGamesList = await listGames(user.sub);
-        let newGamesListInvites: GameWithEverything[] = [];
-        let newGamesListWaiting: GameWithEverything[] = [];
-        let newGamesListReady: GameWithEverything[] = [];
 
         if (newGamesList.success) {
-          newGamesList.data.map((game) => {
-            if (
-              game.users.find((gameUser) => gameUser.userSub == user.sub)
-                ?.userAccepted == false
-            ) {
-              newGamesListInvites.push(game);
-            } else if (
-              game.turns[0] &&
-              game.turns[0].moves.findIndex(
-                (move) => move.userSub == user.sub
-              ) > -1
-            ) {
-              newGamesListWaiting.push(game);
-            } else {
-              newGamesListReady.push(game);
-            }
-          });
-
-          setGamesListInvites(newGamesListInvites);
-          setGamesListWaiting(newGamesListWaiting);
-          setGamesListReady(newGamesListReady);
+          console.log(newGamesList.data);
           setGamesList(newGamesList.data);
         }
       }
@@ -81,6 +64,44 @@ export const GameList: React.FC<{}> = () => {
 
     fetchGamesList();
   }, [user]);
+
+  useEffect(() => {
+    if (user && user.sub && gamesList.length > 0) {
+      let newGamesListInvites: GameWithEverything[] = [];
+      let newGamesListRefusals: GameWithEverything[] = [];
+      let newGamesListReady: GameWithEverything[] = [];
+      let newGamesListWaiting: GameWithEverything[] = [];
+
+      gamesList.map((game) => {
+        console.log({ 'game.id': game.id });
+        if (
+          game.users.find((player) => player.userSub == user.sub)
+            ?.userAccepted == false
+        ) {
+          newGamesListInvites.push(game);
+        } else if (game.startedBySub == user.sub && game.users.length == 1) {
+          newGamesListRefusals.push(game);
+        } else if (
+          game.turns[0] &&
+          game.turns[0].moves.findIndex((move) => move.userSub == user.sub) > -1
+        ) {
+          newGamesListWaiting.push(game);
+        } else {
+          newGamesListReady.push(game);
+        }
+      });
+
+      setGamesListInvites(newGamesListInvites);
+      setGamesListRefusals(newGamesListRefusals);
+      setGamesListWaiting(newGamesListWaiting);
+      setGamesListReady(newGamesListReady);
+    }
+  }, [user, gamesList]);
+
+  const removeGameFromList = (gameId: number) => {
+    const newGamesList = gamesList.filter((game) => game.id != gameId);
+    setGamesList(newGamesList);
+  };
 
   if (gamesList.length == 0 && !loading) {
     return (
@@ -93,42 +114,60 @@ export const GameList: React.FC<{}> = () => {
         </Button>
       </Container>
     );
-  } else if (gamesList && !loading && userWithId) {
+  } else if (gamesList && !loading && user) {
     return (
-      <Container maxWidth="md">
+      <Container maxWidth="md" sx={{ flexGrow: 1 }}>
         {gamesListInvites.length > 0 && (
-          <Typography variant="h4" sx={{ my: 3 }}>
+          <Typography variant="h4" sx={{}}>
             Inbjudningar
           </Typography>
         )}
-        <Grid container spacing={2}>
+        <List>
           {gamesListInvites.map((game, index) => (
-            <GameInviteCard key={index} game={game} userWithId={userWithId} />
+            <GameInviteListItem
+              key={index}
+              game={game}
+              removeGameFromList={removeGameFromList}
+            />
           ))}
-        </Grid>
-        {gamesListReady.length > 0 && (
-          <Typography variant="h4" sx={{ my: 3 }}>
-            Väntar på ditt drag
+        </List>
+
+        {gamesListRefusals.length > 0 && (
+          <Typography variant="h4" sx={{}}>
+            Avvisade inbjudningar
           </Typography>
         )}
-        <Grid container spacing={2}>
+        <List>
+          {gamesListRefusals.map((game, index) => (
+            <GameListRefusal
+              key={index}
+              game={game}
+              removeGameFromList={removeGameFromList}
+            />
+          ))}
+        </List>
+
+        {(gamesListReady.length > 0 || gamesListWaiting.length > 0) && (
+          <Typography variant="h4" sx={{}}>
+            Pågående spel
+          </Typography>
+        )}
+        <List>
+          {gamesListReady.length > 0 && (
+            <ListSubheader>Väntar på ditt drag</ListSubheader>
+          )}
+
           {gamesListReady.map((game, index) => (
-            <GameListCard key={index} game={game} userWithId={userWithId} />
+            <GameListListItem key={index} game={game} />
           ))}
-        </Grid>
-        {gamesListWaiting.length > 0 && (
-          <Typography variant="h4" sx={{ my: 3 }}>
-            Väntar på andras drag
-          </Typography>
-        )}
-        <Grid container spacing={2}>
+
+          {gamesListWaiting.length > 0 && (
+            <ListSubheader>Väntar på andras drag</ListSubheader>
+          )}
           {gamesListWaiting.map((game, index) => (
-            <GameListCard key={index} game={game} userWithId={userWithId} />
+            <GameListListItem key={index} game={game} />
           ))}
-        </Grid>
-        {gamesList.length == 0 && (
-          <Typography>Du har inga pågående spel.</Typography>
-        )}
+        </List>
       </Container>
     );
   } else {

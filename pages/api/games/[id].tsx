@@ -334,6 +334,31 @@ const declineInvite = async (gameId: number, userSub: string) => {
   }
 };
 
+const dismissRefusal = async (gameId: number, userSub: string) => {
+  try {
+    const deleteResult = await prisma.usersOnGames.delete({
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (deleteResult !== null) {
+      return { success: true as const, response: 'Spelet avvisades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avvisandet av spelet, deleteResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
 interface PostRequestBodyMove {
   variant: 'move';
   userSub: number;
@@ -432,6 +457,21 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   } else if (req.method === 'POST' && req.body.variant == 'decline') {
     return new Promise((resolve) => {
       declineInvite(parseInt(req.query.id as string, 10), req.body.userSub)
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'dismiss') {
+    return new Promise((resolve) => {
+      dismissRefusal(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
           resolve('');

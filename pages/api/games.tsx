@@ -60,16 +60,16 @@ type GameWithEverythingRaw = {
   name: string;
   email: string;
   picture: string;
-  turnId: number;
-  turnNumber: number;
-  turnStart: Date;
-  moveId: number;
-  moveUserSub: string;
-  playedWord: string;
-  playedBoard: string;
-  playedTime: Date;
-  playedPoints: number;
-  won: boolean;
+  turnId: number | null;
+  turnNumber: number | null;
+  turnStart: Date | null;
+  moveId: number | null;
+  moveUserSub: string | null;
+  playedWord: string | null;
+  playedBoard: string | null;
+  playedTime: Date | null;
+  playedPoints: number | null;
+  won: boolean | null;
 };
 
 const listGames = async (userSub: string) => {
@@ -152,41 +152,55 @@ const listGames = async (userSub: string) => {
           games.find((g) => g.id === game.id)?.users.push(user);
         }
 
-        let turn: Turn & { moves: Move[] } = {
-          id: gameRaw.turnId,
-          gameId: gameRaw.gameId,
-          turnNumber: gameRaw.turnNumber,
-          turnStart: gameRaw.turnStart,
-          moves: []
-        };
-        if (
-          games
-            .find((g) => g.id === game.id)
-            ?.turns.find((t) => t.id === turn.id) === undefined
-        ) {
-          games.find((g) => g.id === game.id)?.turns.push(turn);
-        }
+        if (gameRaw.turnId && gameRaw.turnNumber && gameRaw.turnStart) {
+          let turn: Turn & { moves: Move[] } = {
+            id: gameRaw.turnId,
+            gameId: gameRaw.gameId,
+            turnNumber: gameRaw.turnNumber,
+            turnStart: gameRaw.turnStart,
+            moves: []
+          };
+          if (
+            games
+              .find((g) => g.id === game.id)
+              ?.turns.find((t) => t.id === turn.id) === undefined
+          ) {
+            games.find((g) => g.id === game.id)?.turns.push(turn);
+          }
 
-        let move: Move = {
-          id: gameRaw.moveId,
-          turnId: gameRaw.turnId,
-          userSub: gameRaw.moveUserSub,
-          playedWord: gameRaw.playedWord,
-          playedBoard: gameRaw.playedBoard,
-          playedTime: gameRaw.playedTime,
-          playedPoints: gameRaw.playedPoints,
-          won: gameRaw.won
-        };
-        if (
-          games
-            .find((g) => g.id === game.id)
-            ?.turns.find((t) => t.id === turn.id)
-            ?.moves.find((m) => m.id === move.id) === undefined
-        ) {
-          games
-            .find((g) => g.id === game.id)
-            ?.turns.find((t) => t.id === turn.id)
-            ?.moves.push(move);
+          if (
+            gameRaw.moveId &&
+            gameRaw.turnId &&
+            gameRaw.moveUserSub &&
+            gameRaw.playedWord &&
+            gameRaw.playedBoard &&
+            gameRaw.playedTime &&
+            gameRaw.playedPoints &&
+            gameRaw.won
+          ) {
+            let move: Move = {
+              id: gameRaw.moveId,
+              turnId: gameRaw.turnId,
+              userSub: gameRaw.moveUserSub,
+              playedWord: gameRaw.playedWord,
+              playedBoard: gameRaw.playedBoard,
+              playedTime: gameRaw.playedTime,
+              playedPoints: gameRaw.playedPoints,
+              won: gameRaw.won
+            };
+            if (
+              games
+                .find((g) => g.id === game.id)
+                ?.turns.find((t) => t.id === turn.id)
+                ?.moves.find((m) => m.id === move.id) === undefined
+            ) {
+              games
+                .find((g) => g.id === game.id)
+                ?.turns.find((t) => t.id === turn.id)
+
+                ?.moves.push(move);
+            }
+          }
         }
       });
 
