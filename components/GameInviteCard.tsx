@@ -2,141 +2,82 @@ import React from 'react';
 import {
   Avatar,
   AvatarGroup,
-  Box,
   Button,
-  Card,
-  CardContent,
-  Grid,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
   Stack,
   styled
 } from '@mui/material';
 import { GameWithEverything } from 'types/types';
-import { User } from '@prisma/client';
 import { gravatar } from 'services/helpers';
-import PeopleIcon from '@mui/icons-material/People';
-import StartIcon from '@mui/icons-material/Start';
 import router from 'next/router';
 import { acceptInvite, declineInvite } from 'services/local';
+import { useUser } from '@auth0/nextjs-auth0';
+import { DateTime } from 'luxon';
 
-export const GameInviteCard = ({
+export const GameInviteListItem = ({
   game,
-  userWithId
+  removeGameFromList
 }: {
   game: GameWithEverything;
-  userWithId: User;
+  removeGameFromList: (gameId: number) => void;
 }) => {
   const [fade, setFade] = React.useState(false);
+  const { user } = useUser();
+  if (!user) return null;
 
   const handleAcceptInvite = () => {
-    acceptInvite(game.id, userWithId.sub);
+    if (user && user.sub) {
+      acceptInvite(game.id, user.sub);
 
-    router.push(`/game/${game.id}`);
+      router.push(`/game/${game.id}`);
+    }
   };
 
   const handleDeclineInvite = () => {
-    declineInvite(game.id, userWithId.id);
-
-    setFade(true);
+    if (user && user.sub) {
+      setFade(true);
+      declineInvite(game.id, user.sub);
+      setTimeout(() => {
+        removeGameFromList(game.id);
+      }, 1000);
+    }
   };
 
+  let startTimeString = DateTime.fromISO(new Date(game.startedAt).toISOString())
+    .setLocale('sv')
+    .toRelative({ style: 'long' });
+
+  let starterName =
+    game.users.find((user) => user.userSub == game.startedBySub)?.user.name ||
+    'Unknown';
+
   return (
-    <FadeWrapper
-      fade={fade}
-      item
-      sm={12}
-      md={6}
-      style={{ width: '100%', height: '100%' }}
-    >
-      <Card variant="outlined">
-        <CardContent
-          sx={{
-            flexGrow: 1,
-            display: 'flex',
-            flexWrap: 'wrap',
-            padding: '0.5rem',
-            marginBottom: 'calc(-24px + 0.5rem)'
-          }}
-        >
-          <Box
-            sx={{
-              flexBasis: '50%',
-              flexGrow: 0,
-              maxWidth: '50%',
-              minHeight: '50px',
-              display: 'flex',
-              boxModel: 'content-box',
-              alignItems: 'center'
-            }}
-          >
-            <StartIcon
-              style={{
-                marginRight: '1rem'
-              }}
-            />
-            <div
-              style={{
-                display: 'inline-block'
-              }}
-            >
-              <Avatar
-                src={gravatar(
-                  game.users.find((user) => user.userSub == game.startedBySub)
-                    ?.user.email
-                )}
-              />
-            </div>
-          </Box>
-
-          <Box
-            sx={{
-              flexBasis: '50%',
-              flexGrow: 0,
-              maxWidth: '50%',
-              minHeight: '50px',
-              display: 'flex',
-              boxModel: 'content-box',
-              alignItems: 'center'
-            }}
-          >
-            <PeopleIcon
-              style={{
-                marginRight: '1rem'
-              }}
-            />
-            <div
-              style={{
-                display: 'inline-block'
-              }}
-            >
-              <AvatarGroup
-                max={4}
-                style={{ flexDirection: 'row-reverse' }}
-                spacing="small"
-              >
-                {game.users.map(
-                  (user, index) =>
-                    user.userSub != game.startedBySub && (
-                      <Avatar key={index} src={gravatar(user.user.email)} />
-                    )
-                )}
-              </AvatarGroup>
-            </div>
-          </Box>
-
-          <Box
-            sx={{
-              flexBasis: '100%',
-              flexGrow: 0,
-              maxWidth: '100%',
-              minHeight: '50px',
-              display: 'flex',
-              alignItems: 'center',
-              boxModel: 'content-box'
-            }}
-          >
-            <Stack direction="row" spacing={1}>
+    <FadeWrapper fade={fade} disableGutters>
+      <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
+        <AvatarGroup max={4} spacing={28}>
+          {game.users.map(
+            (player, index) =>
+              user.sub !== player.userSub && (
+                <Avatar
+                  sx={{ zIndex: index }}
+                  key={index}
+                  src={player.user.picture || gravatar(player.user.email)}
+                />
+              )
+          )}
+        </AvatarGroup>
+      </ListItemAvatar>
+      <ListItemText
+        primary={starterName + ' har bjudit in dig'}
+        secondary={
+          <>
+            {'Inbjudan skickades ' + startTimeString}
+            <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
               <Button
                 variant="contained"
+                color="success"
                 onClick={() => {
                   handleAcceptInvite();
                 }}
@@ -145,6 +86,7 @@ export const GameInviteCard = ({
               </Button>
               <Button
                 variant="outlined"
+                color="error"
                 onClick={() => {
                   handleDeclineInvite();
                 }}
@@ -152,9 +94,9 @@ export const GameInviteCard = ({
                 Neka
               </Button>
             </Stack>
-          </Box>
-        </CardContent>
-      </Card>
+          </>
+        }
+      />
     </FadeWrapper>
   );
 };
@@ -163,11 +105,9 @@ type FadeWrapperProps = {
   fade: boolean;
 };
 
-const FadeWrapper = styled(Grid, {
+const FadeWrapper = styled(ListItem, {
   shouldForwardProp: (prop) => prop !== 'fade'
 })<FadeWrapperProps>((props) => ({
   opacity: props.fade ? 0 : 1,
-  transform: props.fade ? 'translateY(-1000%)' : 'translateX(0)',
-  overflow: 'hidden',
-  transition: 'opacity 1s ease-in-out, transform 0s 1s'
+  transition: 'opacity 1s ease-in-out'
 }));

@@ -2,236 +2,78 @@ import React from 'react';
 import {
   Avatar,
   AvatarGroup,
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  Grid,
-  Typography
+  ListItem,
+  ListItemAvatar,
+  ListItemButton,
+  ListItemText
 } from '@mui/material';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { GameWithEverything } from 'types/types';
-import { User } from '@prisma/client';
 import { gravatar } from 'services/helpers';
-import DoneIcon from '@mui/icons-material/Done';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import AbcIcon from '@mui/icons-material/Abc';
-import { grey } from '@mui/material/colors';
+import { useUser } from '@auth0/nextjs-auth0';
 
-export const GameListCard = ({
-  game
-}: {
-  game: GameWithEverything;
-  userWithId: User;
-}) => {
-  /*
-saker som borde vara med i denna vyn:
-
-1) har du spelat eller inte?
-2) vilka deltagare har spelat?
-3) vilka har inte spelat?
-4) vilket var det senaste vinnande ordet
-5) hur länge sedan lades det
-6) vilken tur är det
-
-*/
-
-  /*
-  let hasPlayed: boolean;
-  if (game.turns[0]) {
-    hasPlayed =
-      game.turns[0].moves.findIndex((move) => move.userSub == userWithId.id) >
-      -1;
-  } else {
-    hasPlayed = false;
-  }
-  */
-  //console.log({ hasPlayed });
-
-  let usersWhoPlayed: string[] = [];
-  if (game.turns[0]) {
-    usersWhoPlayed = game.turns[0]?.moves.map((move) => move.userSub);
-  }
-  //console.log({ usersWhoPlayed });
-
-  let usersWhoPlayedNot: string[] = [];
-  game.users.map((user) => {
-    if (!usersWhoPlayed.includes(user.userSub)) {
-      usersWhoPlayedNot.push(user.userSub);
-    }
-  });
-  //console.log({ usersWhoPlayedNot });
-
-  let latestWinningWord: string = '';
-  let newLatestWinningWord = game.turns[1]?.moves.find(
-    (move) => move.won == true
-  )?.playedWord;
-  if (newLatestWinningWord) {
-    latestWinningWord = newLatestWinningWord;
-  }
-  //console.log({ latestWinningWord });
+export const GameListListItem = ({ game }: { game: GameWithEverything }) => {
+  const { user } = useUser();
+  if (!user) return null;
 
   let latestTurnStartTime: Date;
+  let timeSinceText: string;
   if (game.turns[0]) {
     latestTurnStartTime = game.turns[0].turnStart;
+    timeSinceText = 'Turen startade ';
   } else {
     latestTurnStartTime = game.startedAt;
+    timeSinceText = 'Spelet startade ';
   }
-  //console.log({ latestTurnStartTime });
+  let timeSinceLastMove = DateTime.fromISO(
+    new Date(latestTurnStartTime).toISOString()
+  )
+    .setLocale('sv')
+    .toRelative({ style: 'long' });
 
-  //let currentTurn = game.currentTurn;
-  //console.log({ currentTurn });
+  let playersList = '';
+  game.users.forEach((player) => {
+    if (player.userSub !== user.sub) {
+      if (playersList.length == 0) {
+        playersList = player.user.name;
+      } else {
+        playersList += ', ' + player.user.name;
+      }
+    }
+  });
 
   return (
-    <Grid item sm={12} md={6} style={{ width: '100%', height: '100%' }}>
-      <Link key={game.id} passHref href={`/game/${game.id}`}>
-        <CardActionArea>
-          <Card variant="outlined">
-            <CardContent
-              sx={{
-                flexGrow: 1,
-                display: 'flex',
-                flexWrap: 'wrap',
-                padding: '0.5rem',
-                marginBottom: 'calc(-24px + 0.5rem)'
-              }}
-            >
-              <Box
-                sx={{
-                  flexBasis: '50%',
-                  flexGrow: 0,
-                  maxWidth: '50%',
-                  minHeight: '50px',
-                  display: 'flex',
-                  boxModel: 'content-box',
-                  paddingRight: '1rem',
-                  alignItems: 'center'
-                }}
-              >
-                <HourglassEmptyIcon
-                  style={{
-                    marginRight: '1rem'
-                  }}
-                />
-                <div
-                  style={{
-                    display: 'inline-block'
-                  }}
-                >
-                  <AvatarGroup
-                    max={4}
-                    style={{ flexDirection: 'row-reverse' }}
-                    spacing="small"
-                  >
-                    {usersWhoPlayedNot.map((userSub, index) => (
-                      <Avatar
-                        key={index}
-                        src={gravatar(
-                          game.users.find((user) => user.userSub == userSub)
-                            ?.user.email
-                        )}
-                      />
-                    ))}
-                  </AvatarGroup>
-                </div>
-              </Box>
-
-              <Box
-                sx={{
-                  flexBasis: '50%',
-                  flexGrow: 0,
-                  maxWidth: '50%',
-                  minHeight: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  boxModel: 'content-box',
-                  paddingLeft: '1rem',
-                  borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
-                }}
-              >
-                <AbcIcon style={{ marginRight: '1rem' }} />
-                {latestWinningWord.length > 0 ? (
-                  <Typography
-                    style={{
-                      display: 'inline-block'
-                    }}
-                  >
-                    {latestWinningWord}
-                  </Typography>
-                ) : (
-                  <Typography color={grey[500]}>
-                    {'(inget ord lagt)'}
-                  </Typography>
-                )}
-              </Box>
-              <Box
-                sx={{
-                  flexBasis: '50%',
-                  flexGrow: 0,
-                  maxWidth: '50%',
-                  minHeight: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  boxModel: 'content-box',
-                  paddingRight: '1rem'
-                }}
-              >
-                <DoneIcon style={{ marginRight: '1rem' }} />
-                <div
-                  style={{
-                    display: 'inline-block'
-                  }}
-                >
-                  <AvatarGroup max={4} style={{ flexDirection: 'row-reverse' }}>
-                    {usersWhoPlayed.map((userSub, index) => (
-                      <Avatar
-                        key={index}
-                        src={gravatar(
-                          game.users.find((user) => user.userSub == userSub)
-                            ?.user.email
-                        )}
-                      />
-                    ))}
-                  </AvatarGroup>
-                  {usersWhoPlayed.length < 1 && (
-                    <Typography color={grey[500]}>
-                      {'(inga drag gjorda)'}
-                    </Typography>
-                  )}
-                </div>
-              </Box>
-              <Box
-                sx={{
-                  flexBasis: '50%',
-                  flexGrow: 0,
-                  maxWidth: '50%',
-                  minHeight: '50px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  boxModel: 'content-box',
-                  paddingLeft: '1rem',
-                  borderLeft: '1px solid rgba(255, 255, 255, 0.12)'
-                }}
-              >
-                <AccessTimeIcon style={{ marginRight: '1rem' }} />
-                <Typography
-                  style={{
-                    display: 'inline-block'
-                  }}
-                >
-                  {DateTime.fromISO(new Date(latestTurnStartTime).toISOString())
-                    .setLocale('sv')
-                    .toRelative({ style: 'long' })
-                    ?.replace('för ', '')
-                    .replace(' sedan', '')}
-                </Typography>
-              </Box>
-            </CardContent>
-          </Card>
-        </CardActionArea>
+    <ListItem disableGutters>
+      <Link passHref href={`/game/${game.id}`}>
+        <ListItemButton component="a" sx={{ p: 1, m: -1 }}>
+          <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
+            <AvatarGroup max={4} spacing={28}>
+              {game.users.map(
+                (player, index) =>
+                  user.sub !== player.userSub && (
+                    <Avatar
+                      sx={{ zIndex: index }}
+                      key={index}
+                      src={player.user.picture || gravatar(player.user.email)}
+                    />
+                  )
+              )}
+            </AvatarGroup>
+          </ListItemAvatar>
+          <ListItemText
+            sx={{
+              '& .MuiListItemText-primary': {
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
+              }
+            }}
+            primary={playersList}
+            secondary={timeSinceText + timeSinceLastMove}
+          />
+        </ListItemButton>
       </Link>
-    </Grid>
+    </ListItem>
   );
 };
