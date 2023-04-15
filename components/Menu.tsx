@@ -48,11 +48,11 @@ export const Menu: React.FC<{}> = () => {
           {user && <ListItem>{user.name}</ListItem>}
 
           <Link href="/" passHref>
-            <ListItemButton key={'Pågående spel'} component="a">
+            <ListItemButton key={'Översikt'} component="a">
               <ListItemIcon>
                 <GridOnIcon />
               </ListItemIcon>
-              <ListItemText primary={'Pågående spel'} />
+              <ListItemText primary={'Översikt'} />
             </ListItemButton>
           </Link>
 
