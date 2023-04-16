@@ -23,6 +23,7 @@ import {
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
+import ReactConfetti from 'react-confetti';
 
 const emptyTile: TileType = {
   letter: '',
@@ -52,6 +53,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
+  //  const [confettiCount, setConfettiCount] = useState<number>(200);
 
   const addAlerts = (newAlerts: Alert[]) => {
     setAlerts([...alerts, ...newAlerts]);
@@ -360,6 +362,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           </Alert>
         ))}
       </Backdrop>
+      {game.finished && <ReactConfetti recycle={false} />}
       <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
@@ -392,7 +395,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         <Button variant="outlined" onClick={() => shuffleTileHolder()}>
           Blanda brickor
         </Button>
-        {playerHasSubmitted ? (
+        {playerHasSubmitted || game.finished ? (
           <>
             <Button variant="outlined" disabled>
               Passa

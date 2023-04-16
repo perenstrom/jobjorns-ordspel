@@ -19,7 +19,10 @@ export const GameListListItem = ({ game }: { game: GameWithEverything }) => {
 
   let latestTurnStartTime: Date;
   let timeSinceText: string;
-  if (game.turns[0]) {
+  if (game.turns[0] && game.finished) {
+    latestTurnStartTime = game.turns[0].turnStart;
+    timeSinceText = 'Spelet slutade ';
+  } else if (game.turns[0]) {
     latestTurnStartTime = game.turns[0].turnStart;
     timeSinceText = 'Turen startade ';
   } else {

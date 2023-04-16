@@ -30,6 +30,9 @@ export const GameList: React.FC<{}> = () => {
   const [gamesListReady, setGamesListReady] = useState<GameWithEverything[]>(
     []
   );
+  const [gamesListFinished, setGamesListFinished] = useState<
+    GameWithEverything[]
+  >([]);
 
   const { user } = useUser();
 
@@ -71,10 +74,13 @@ export const GameList: React.FC<{}> = () => {
       let newGamesListRefusals: GameWithEverything[] = [];
       let newGamesListReady: GameWithEverything[] = [];
       let newGamesListWaiting: GameWithEverything[] = [];
+      let newGamesListFinished: GameWithEverything[] = [];
 
       gamesList.map((game) => {
-        console.log({ 'game.id': game.id });
-        if (
+        console.log({ 'game.id': game.id, 'game.finished': game.finished });
+        if (game.finished) {
+          newGamesListFinished.push(game);
+        } else if (
           game.users.find((player) => player.userSub == user.sub)
             ?.userAccepted == false
         ) {
@@ -95,6 +101,7 @@ export const GameList: React.FC<{}> = () => {
       setGamesListRefusals(newGamesListRefusals);
       setGamesListWaiting(newGamesListWaiting);
       setGamesListReady(newGamesListReady);
+      setGamesListFinished(newGamesListFinished);
     }
   }, [user, gamesList]);
 
@@ -105,7 +112,7 @@ export const GameList: React.FC<{}> = () => {
 
   if (gamesList.length == 0 && !loading) {
     return (
-      <Container maxWidth="md">
+      <Container maxWidth="sm">
         <Typography variant="h4" sx={{ my: 3 }}>
           Du har inga spel än. Skapa ett nytt spel nedan!
         </Typography>
@@ -116,7 +123,7 @@ export const GameList: React.FC<{}> = () => {
     );
   } else if (gamesList && !loading && user) {
     return (
-      <Container maxWidth="md" sx={{ flexGrow: 1 }}>
+      <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
         {gamesListInvites.length > 0 && (
           <Typography variant="h4" sx={{}}>
             Inbjudningar
@@ -165,6 +172,17 @@ export const GameList: React.FC<{}> = () => {
             <ListSubheader>Väntar på andras drag</ListSubheader>
           )}
           {gamesListWaiting.map((game, index) => (
+            <GameListListItem key={index} game={game} />
+          ))}
+        </List>
+
+        {gamesListFinished.length > 0 && (
+          <Typography variant="h4" sx={{}}>
+            Avslutade spel
+          </Typography>
+        )}
+        <List>
+          {gamesListFinished.map((game, index) => (
             <GameListListItem key={index} game={game} />
           ))}
         </List>
