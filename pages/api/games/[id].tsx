@@ -128,6 +128,8 @@ export const runTurnEnd = async (gameId: number) => {
     let playersCount = game.data.users.length;
     let lastTurn = game.data.turns[0];
     let playedCount = lastTurn?.moves.length;
+    let allSkipped = true;
+    let gameEnded = false;
 
     if (playersCount == playedCount && playersCount > 0 && lastTurn) {
       let winningMove = lastTurn.moves[0];
@@ -139,7 +141,15 @@ export const runTurnEnd = async (gameId: number) => {
         ) {
           winningMove = move;
         }
+
+        if (move.playedWord !== '') {
+          allSkipped = false;
+        }
       });
+
+      if (allSkipped) {
+        gameEnded = true;
+      }
 
       let updateMove = await updateWinningMove(winningMove.id);
       if (updateMove.success == false) {
@@ -163,6 +173,10 @@ export const runTurnEnd = async (gameId: number) => {
         }
       });
 
+      if (letters.length == 0 && !gameEnded) {
+        gameEnded = true;
+      }
+
       let newLetters = letters.join(',');
 
       let winningBoard = winningMove.playedBoard.replaceAll(
@@ -178,6 +192,12 @@ export const runTurnEnd = async (gameId: number) => {
           winningMove.playedWord
         );
         if (turnResult.success && updateMove.success) {
+          if (gameEnded) {
+            let gameEndResult = await endGame(gameId);
+
+            console.log(gameEndResult);
+          }
+
           return {
             success: true as const,
             turn: { response: turnResult.response },
@@ -271,6 +291,31 @@ const submitTurn = async (
     } else {
       throw new Error(
         'Något gick fel i sparandet av ny tur, updateResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const endGame = async (gameId: number) => {
+  try {
+    const endGameResult = await prisma.game.update({
+      data: {
+        finished: true
+      },
+      where: {
+        id: gameId
+      }
+    });
+    if (endGameResult !== null) {
+      return { success: true as const, response: 'Spelet avslutades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avslutandet av spelet, endGameResult var null'
       );
     }
   } catch (error) {

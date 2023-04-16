@@ -52,6 +52,7 @@ type GameWithEverythingRaw = {
   board: string;
   latestWord: string;
   currentTurn: number;
+  finished: boolean;
   userSub: string;
   userAccepted: boolean;
   createdAt: Date;
@@ -84,6 +85,7 @@ const listGames = async (userSub: string) => {
         "games"."board",
         "games"."latestWord",
         "games"."currentTurn",
+        "games"."finished",
         "GameParticipants"."userSub" as "userSub",
         "GameParticipants"."userAccepted",
         "GameParticipants"."createdAt",
@@ -125,7 +127,8 @@ const listGames = async (userSub: string) => {
           latestWord: gameRaw.latestWord,
           currentTurn: gameRaw.currentTurn,
           users: [],
-          turns: []
+          turns: [],
+          finished: gameRaw.finished
         };
         if (games.find((g) => g.id === game.id) === undefined) {
           games.push(game);

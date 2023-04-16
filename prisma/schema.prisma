@@ -31,6 +31,7 @@ model Game {
   users        UsersOnGames[]
   currentTurn  Int            @default(1)
   turns        Turn[]         @relation("turns")
+  finished     Boolean        @default(false)
 
   @@map("games")
 }

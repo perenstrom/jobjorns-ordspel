@@ -21,7 +21,8 @@ import {
   ListItemAvatar,
   ListItemButton,
   ListItemText,
-  Stack
+  Stack,
+  Typography
 } from '@mui/material';
 import { gravatar } from 'services/helpers';
 
@@ -71,6 +72,9 @@ const NewGamePage: NextPage<{}> = () => {
       >
         <Menu />
         <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
+          <Typography variant="h4" sx={{}}>
+            Starta nytt spel
+          </Typography>
           <List>
             {users.map(
               (listUser, index) =>
@@ -109,7 +113,7 @@ const NewGamePage: NextPage<{}> = () => {
                 )
               }
             >
-              Starta spelet
+              Bjud in spelare
             </Button>
           </Stack>
         </Container>
