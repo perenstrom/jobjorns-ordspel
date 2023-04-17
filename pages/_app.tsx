@@ -8,7 +8,6 @@ import {
 } from '@mui/material';
 import { theme } from 'styles/theme';
 import { UserProvider } from '@auth0/nextjs-auth0';
-import { AnimatePresence } from 'framer-motion';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { AppProps } from 'next/dist/shared/lib/router/router';
@@ -35,9 +34,7 @@ function MyApp({
         <StyledEngineProvider injectFirst>
           <ThemeProvider theme={theme}>
             <CssBaseline />
-            <AnimatePresence mode="wait">
-              <Component {...pageProps} key={router.asPath} />
-            </AnimatePresence>
+            <Component {...pageProps} key={router.asPath} />
           </ThemeProvider>
         </StyledEngineProvider>
       </CacheProvider>

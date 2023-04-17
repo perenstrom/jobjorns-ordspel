@@ -111,7 +111,7 @@ const listGames = async (userSub: string) => {
       LEFT JOIN "Turn" ON "Turn"."gameId" = "games"."id"
       LEFT JOIN "Move" ON "Move"."turnId" = "Turn"."id"
       WHERE "UsersOwnGames"."userSub" = ${userSub}
-      ORDER BY "games"."id" DESC, "GameParticipants"."userSub" ASC, "users"."id" ASC, "Turn"."turnNumber" DESC, "Move"."userSub" ASC`;
+      ORDER BY "games"."id" DESC, "Turn"."turnNumber" DESC, "Move"."userSub" ASC, "GameParticipants"."userSub" ASC, "users"."id" ASC`;
 
     if (listGamesPrisma === null || typeof listGamesPrisma === 'undefined') {
       return { message: 'Inga spel returnerades' };
@@ -179,7 +179,7 @@ const listGames = async (userSub: string) => {
             gameRaw.playedBoard &&
             gameRaw.playedTime &&
             gameRaw.playedPoints &&
-            gameRaw.won
+            typeof gameRaw.won === 'boolean'
           ) {
             let move: Move = {
               id: gameRaw.moveId,
