@@ -15,7 +15,7 @@ const getGame = async (gameId: number) => {
       include: {
         users: {
           orderBy: {
-            userId: 'asc'
+            userSub: 'asc'
           },
           include: {
             user: true
@@ -28,7 +28,7 @@ const getGame = async (gameId: number) => {
           include: {
             moves: {
               orderBy: {
-                userId: 'asc'
+                userSub: 'asc'
               }
             }
           }
@@ -50,7 +50,7 @@ const getGame = async (gameId: number) => {
 
 const submitMove = async (
   gameId: number,
-  userId: number,
+  userSub: number,
   turnNumber: number,
   playedWord: string,
   playedBoard: string
@@ -78,7 +78,7 @@ const submitMove = async (
         },
         user: {
           connect: {
-            id: userId
+            id: userSub
           }
         },
         playedWord: playedWord,
@@ -128,6 +128,8 @@ export const runTurnEnd = async (gameId: number) => {
     let playersCount = game.data.users.length;
     let lastTurn = game.data.turns[0];
     let playedCount = lastTurn?.moves.length;
+    let allSkipped = true;
+    let gameEnded = false;
 
     if (playersCount == playedCount && playersCount > 0 && lastTurn) {
       let winningMove = lastTurn.moves[0];
@@ -139,7 +141,15 @@ export const runTurnEnd = async (gameId: number) => {
         ) {
           winningMove = move;
         }
+
+        if (move.playedWord !== '') {
+          allSkipped = false;
+        }
       });
+
+      if (allSkipped) {
+        gameEnded = true;
+      }
 
       let updateMove = await updateWinningMove(winningMove.id);
       if (updateMove.success == false) {
@@ -163,6 +173,10 @@ export const runTurnEnd = async (gameId: number) => {
         }
       });
 
+      if (letters.length == 0 && !gameEnded) {
+        gameEnded = true;
+      }
+
       let newLetters = letters.join(',');
 
       let winningBoard = winningMove.playedBoard.replaceAll(
@@ -178,6 +192,12 @@ export const runTurnEnd = async (gameId: number) => {
           winningMove.playedWord
         );
         if (turnResult.success && updateMove.success) {
+          if (gameEnded) {
+            let gameEndResult = await endGame(gameId);
+
+            console.log(gameEndResult);
+          }
+
           return {
             success: true as const,
             turn: { response: turnResult.response },
@@ -281,9 +301,112 @@ const submitTurn = async (
   }
 };
 
+const endGame = async (gameId: number) => {
+  try {
+    const endGameResult = await prisma.game.update({
+      data: {
+        finished: true
+      },
+      where: {
+        id: gameId
+      }
+    });
+    if (endGameResult !== null) {
+      return { success: true as const, response: 'Spelet avslutades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avslutandet av spelet, endGameResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const acceptInvite = async (gameId: number, userSub: string) => {
+  try {
+    const updateResult = await prisma.usersOnGames.update({
+      data: {
+        userAccepted: true
+      },
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (updateResult !== null) {
+      return { success: true as const, response: 'Inbjudan accepterades' };
+    } else {
+      throw new Error(
+        'Något gick fel i accepterandet av inbjudan, updateResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const declineInvite = async (gameId: number, userSub: string) => {
+  try {
+    const deleteResult = await prisma.usersOnGames.delete({
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (deleteResult !== null) {
+      return { success: true as const, response: 'Inbjudan avvisades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avvisandet av inbjudan, deleteResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const dismissRefusal = async (gameId: number, userSub: string) => {
+  try {
+    const deleteResult = await prisma.usersOnGames.delete({
+      where: {
+        userSub_gameId: {
+          userSub,
+          gameId
+        }
+      }
+    });
+    if (deleteResult !== null) {
+      return { success: true as const, response: 'Spelet avvisades' };
+    } else {
+      throw new Error(
+        'Något gick fel i avvisandet av spelet, deleteResult var null'
+      );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
 interface PostRequestBodyMove {
   variant: 'move';
-  userId: number;
+  userSub: number;
   turnNumber: number;
   playedWord: string;
   playedBoard: string;
@@ -299,7 +422,7 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
       const {
-        userId,
+        userSub,
         turnNumber,
         playedWord,
         playedBoard
@@ -307,7 +430,7 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
 
       submitMove(
         parseInt(req.query.id as string, 10),
-        userId,
+        userSub,
         turnNumber,
         playedWord,
         playedBoard
@@ -349,6 +472,51 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
   } else if (req.method === 'GET') {
     return new Promise((resolve) => {
       getGame(parseInt(req.query.id as string, 10))
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'accept') {
+    return new Promise((resolve) => {
+      acceptInvite(parseInt(req.query.id as string, 10), req.body.userSub)
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'decline') {
+    return new Promise((resolve) => {
+      declineInvite(parseInt(req.query.id as string, 10), req.body.userSub)
+        .then((result) => {
+          res.status(200).json(result);
+          resolve('');
+        })
+        .catch((error) => {
+          res.status(500).end(error);
+          resolve('');
+        })
+        .finally(async () => {
+          await prisma.$disconnect();
+        });
+    });
+  } else if (req.method === 'POST' && req.body.variant == 'dismiss') {
+    return new Promise((resolve) => {
+      dismissRefusal(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
           resolve('');

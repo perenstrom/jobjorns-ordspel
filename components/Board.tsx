@@ -14,6 +14,7 @@ import { submitMove } from 'services/local';
 import { Tile } from './Tile';
 import { shuffleArray } from 'services/helpers';
 import {
+  checkAdjacentPlacement,
   checkCoherentWord,
   checkInWordList,
   checkSameDirection,
@@ -22,6 +23,7 @@ import {
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
+import ReactConfetti from 'react-confetti';
 
 const emptyTile: TileType = {
   letter: '',
@@ -51,6 +53,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
+  //  const [confettiCount, setConfettiCount] = useState<number>(200);
 
   const addAlerts = (newAlerts: Alert[]) => {
     setAlerts([...alerts, ...newAlerts]);
@@ -99,7 +102,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     const latestTurn = game.turns[0];
     const latestUserMove = latestTurn?.moves.find(
-      (move) => move.userId === currentUser.id
+      (move) => move.userSub === currentUser.sub
     );
 
     if (latestTurn?.turnNumber == game.currentTurn && latestUserMove) {
@@ -201,14 +204,23 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setPlayerHasSubmitted(true);
     const copiedBoard = [...unplayedBoard];
 
+    console.log(copiedBoard);
+
     // criteria:
     let tilesPlayed = checkTilesPlayed(copiedBoard); // minst en bricka måste läggas
     let sameDirection = checkSameDirection(copiedBoard); // alla placerade brickor ska vara i samma riktning
     let coherentWord = checkCoherentWord(copiedBoard); // placerade brickor får inte ha ett mellanrum
     let inWordList = checkInWordList(copiedBoard); // de lagda orden måste finnas i ordlistan
+    let adjacentPlacement = checkAdjacentPlacement(copiedBoard); // brickor får inte placeras som en egen ö
 
     let newAlerts: Alert[] = [];
-    if (tilesPlayed && sameDirection && coherentWord && inWordList) {
+    if (
+      tilesPlayed &&
+      sameDirection &&
+      coherentWord &&
+      inWordList &&
+      adjacentPlacement
+    ) {
       newAlerts.push({
         severity: 'info',
         message: `Vänta, draget spelas...`
@@ -278,6 +290,13 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           message: 'Alla ord måste finnas i ordlistan.'
         });
       }
+      if (!adjacentPlacement) {
+        newAlerts.push({
+          severity: 'error',
+          message:
+            'Det lagda ordet måste placeras i anslutning till redan lagda ord.'
+        });
+      }
 
       setPlayerHasSubmitted(false);
       addAlerts(newAlerts);
@@ -337,13 +356,14 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           <Alert
             key={index}
             severity={alert.severity}
-            sx={{ width: '65vh', margin: '3px' }}
+            sx={{ width: '65vw', margin: '3px' }}
           >
             {alert.message}
           </Alert>
         ))}
       </Backdrop>
-      <BoardGrid>
+      {game.finished && <ReactConfetti recycle={false} />}
+      <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
             <Tile
@@ -372,7 +392,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         <Button variant="outlined" onClick={() => shuffleTileHolder()}>
           Blanda brickor
         </Button>
-        {playerHasSubmitted ? (
+        {playerHasSubmitted || game.finished ? (
           <>
             <Button variant="outlined" disabled>
               Passa
@@ -400,16 +420,20 @@ const TileHolder = styled('div')((props) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(7, 1fr)',
   margin: props.theme.spacing(1, 0),
-  gap: props.theme.spacing(0.5),
+  gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%'
 }));
 
-const BoardGrid = styled('div')((props) => ({
+type BoardGridProps = {
+  size: number;
+};
+
+const BoardGrid = styled('div')<BoardGridProps>((props) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(11, 1fr)',
-  gridTemplateRows: 'repeat(11, 1fr)',
-  gap: props.theme.spacing(0.5),
+  gridTemplateColumns: `repeat(${props.size}, 1fr)`,
+  gridTemplateRows: `repeat(${props.size}, 1fr)`,
+  gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%',
   aspectRatio: '1/1'

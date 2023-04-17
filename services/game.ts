@@ -21,27 +21,60 @@ export const checkSameDirection = (board: Tile[][]) => {
   const copiedBoard = [...board];
   let sameDirection = true; // alla placerade brickor ska vara i samma riktning
 
-  let previousRow = -1;
-  let previousColumn = -1;
+  let usedRows: number[] = [];
+  let usedColumns: number[] = [];
 
   copiedBoard.forEach((row, indexRow) =>
     row.forEach((cell, indexColumn) => {
-      if (cell.placed === 'hand') {
-        if (
-          previousRow !== indexRow &&
-          previousRow !== -1 &&
-          previousColumn !== indexColumn &&
-          previousColumn !== -1
-        ) {
-          sameDirection = false;
+      if (cell.placed === 'submitted' || cell.placed === 'hand') {
+        if (!usedRows.includes(indexRow)) {
+          usedRows.push(indexRow);
         }
-        previousRow = indexRow;
-        previousColumn = indexColumn;
+        if (!usedColumns.includes(indexColumn)) {
+          usedColumns.push(indexColumn);
+        }
       }
     })
   );
 
+  if (usedRows.length > 1 && usedColumns.length > 1) {
+    sameDirection = false;
+  }
+
   return sameDirection;
+};
+
+export const checkAdjacentPlacement = (board: Tile[][]) => {
+  const copiedBoard = [...board];
+
+  let adjacentPlacement = false; // placerade brickor får inte skapa en ö
+  let noOtherTiles = true; // om det inte finns några andra brickor på spelplanen är det OK med en ö
+
+  let adjacentTiles: { row: number; column: number }[] = [];
+  copiedBoard.forEach((row, indexRow) =>
+    row.forEach((cell, indexColumn) => {
+      if (cell.placed === 'submitted' || cell.placed === 'hand') {
+        adjacentTiles.push({ row: indexRow - 1, column: indexColumn }); // den ovanför
+        adjacentTiles.push({ row: indexRow, column: indexColumn - 1 }); // den till vänster
+        adjacentTiles.push({ row: indexRow, column: indexColumn + 1 }); // den till höger
+        adjacentTiles.push({ row: indexRow + 1, column: indexColumn }); // den under
+      } else if (cell.placed === 'board') {
+        noOtherTiles = false;
+      }
+    })
+  );
+
+  adjacentTiles.forEach((tile) => {
+    if (
+      typeof copiedBoard[tile.row] !== 'undefined' &&
+      typeof copiedBoard[tile.row][tile.column] !== 'undefined' &&
+      copiedBoard[tile.row][tile.column].placed === 'board'
+    ) {
+      adjacentPlacement = true;
+    }
+  });
+
+  return adjacentPlacement || noOtherTiles;
 };
 
 export const getPlayedWords = (board: Tile[][]) => {

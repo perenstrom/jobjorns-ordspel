@@ -71,7 +71,7 @@ const NewGamePage: NextPage<{}> = () => {
         }}
       >
         <Menu />
-        <Container maxWidth="sm">
+        <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
           <ScoreList game={game} />
         </Container>
@@ -80,16 +80,19 @@ const NewGamePage: NextPage<{}> = () => {
     );
   } else {
     return (
-      <Container
-        maxWidth="sm"
+      <Box
         sx={{
           display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'row'
+          justifyContent: 'space-between',
+          flexDirection: 'column',
+          minHeight: '100vh',
+          backgroundColor: '#121212'
         }}
       >
+        <Menu />
         <CircularProgress />
-      </Container>
+        <Footer />
+      </Box>
     );
   }
 };
