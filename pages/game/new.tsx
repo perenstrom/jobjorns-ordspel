@@ -99,7 +99,9 @@ const NewGamePage: NextPage<{}> = () => {
                       selected={selectedUsers.indexOf(listUser) !== -1}
                     >
                       <ListItemAvatar>
-                        <Avatar src={gravatar(listUser.email)} />
+                        <Avatar
+                          src={listUser.picture || gravatar(listUser.email)}
+                        />
                       </ListItemAvatar>
                       <ListItemText primary={listUser.name} />
                     </ListItemButton>
