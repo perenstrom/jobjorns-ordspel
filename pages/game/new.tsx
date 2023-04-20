@@ -24,7 +24,8 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import { gravatar } from 'services/helpers';
+import { faviconString, gravatar } from 'services/helpers';
+import Head from 'next/head';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -70,6 +71,10 @@ const NewGamePage: NextPage<{}> = () => {
           backgroundColor: '#121212'
         }}
       >
+        <Head>
+          <title>Jobjörns ordspel</title>
+          <link rel="icon" href={faviconString()} key="favicon" />
+        </Head>
         <Menu />
         <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
           <Typography variant="h4" sx={{}}>

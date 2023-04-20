@@ -97,6 +97,7 @@ export const Tile = ({
             height="100%"
             onClick={() => onClick()}
             style={{ display: 'block' }}
+            xmlns="http://www.w3.org/2000/svg"
           >
             <rect
               x="0"
