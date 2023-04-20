@@ -31,7 +31,9 @@ export const Menu: React.FC<{}> = () => {
     <AppBar position="relative" sx={{ marginBottom: '8px' }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Jobjörns ordspel
+          <Link href="/" passHref>
+            <a style={{ textDecoration: 'none' }}>Jobjörns ordspel</a>
+          </Link>
         </Typography>
         <IconButton
           size="large"
