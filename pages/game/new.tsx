@@ -67,7 +67,7 @@ const NewGamePage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
@@ -127,14 +127,7 @@ const NewGamePage: NextPage<{}> = () => {
     );
   } else {
     return (
-      <Container
-        maxWidth="sm"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'row'
-        }}
-      >
+      <Container maxWidth="sm">
         <CircularProgress />
       </Container>
     );

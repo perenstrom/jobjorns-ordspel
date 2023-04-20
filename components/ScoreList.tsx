@@ -1,4 +1,5 @@
 import {
+  Container,
   Table,
   TableCell,
   TableContainer,
@@ -35,7 +36,7 @@ export const ScoreList = ({ game }: ScoreListProps) => {
   }, [game]);
 
   return (
-    <>
+    <Container maxWidth="sm" sx={{ flexShrink: 0, margin: 0 }}>
       <TableContainer sx={{ mt: 3 }}>
         <Table size="small">
           <TableHead>
@@ -75,7 +76,7 @@ export const ScoreList = ({ game }: ScoreListProps) => {
           </TableHead>
         </Table>
       </TableContainer>
-    </>
+    </Container>
   );
 };
 

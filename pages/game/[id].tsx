@@ -68,7 +68,7 @@ const NewGamePage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
@@ -77,7 +77,16 @@ const NewGamePage: NextPage<{}> = () => {
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
         <Menu />
-        <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            padding: 0
+          }}
+        >
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
           <ScoreList game={game} />
         </Container>
@@ -91,7 +100,7 @@ const NewGamePage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
