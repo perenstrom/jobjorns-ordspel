@@ -7,6 +7,8 @@ import { GameList } from 'components/GameList';
 import { Footer } from 'components/Footer';
 import { Splash } from 'components/Splash';
 import { addUser } from 'services/local';
+import Head from 'next/head';
+import { faviconString } from 'services/helpers';
 
 const IndexPage: NextPage<{}> = () => {
   const { user, isLoading } = useUser(); // härifrån finns också error att ta ut
@@ -23,19 +25,16 @@ const IndexPage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
+        <Head>
+          <title>Jobjörns ordspel</title>
+          <link rel="icon" href={faviconString()} key="favicon" />
+        </Head>
         {isLoading ? (
-          <Container
-            maxWidth="sm"
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              flexDirection: 'row'
-            }}
-          >
+          <Container maxWidth="sm">
             <CircularProgress />
           </Container>
         ) : user ? (

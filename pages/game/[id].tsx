@@ -16,6 +16,8 @@ import router from 'next/router';
 import { Board } from 'components/Board';
 import { User } from '@prisma/client';
 import { ScoreList } from 'components/ScoreList';
+import Head from 'next/head';
+import { faviconString } from 'services/helpers';
 
 const NewGamePage: NextPage<{}> = () => {
   const [game, setGame] = useState<GameWithEverything>();
@@ -66,12 +68,25 @@ const NewGamePage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
+        <Head>
+          <title>Jobjörns ordspel</title>
+          <link rel="icon" href={faviconString()} key="favicon" />
+        </Head>
         <Menu />
-        <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
+        <Container
+          maxWidth="xl"
+          sx={{
+            flexGrow: 1,
+            display: 'flex',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            padding: 0
+          }}
+        >
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
           <ScoreList game={game} />
         </Container>
@@ -85,7 +100,7 @@ const NewGamePage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >

@@ -24,7 +24,8 @@ import {
   Stack,
   Typography
 } from '@mui/material';
-import { gravatar } from 'services/helpers';
+import { faviconString, gravatar } from 'services/helpers';
+import Head from 'next/head';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -66,10 +67,14 @@ const NewGamePage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
+        <Head>
+          <title>Jobjörns ordspel</title>
+          <link rel="icon" href={faviconString()} key="favicon" />
+        </Head>
         <Menu />
         <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
           <Typography variant="h4" sx={{}}>
@@ -94,7 +99,9 @@ const NewGamePage: NextPage<{}> = () => {
                       selected={selectedUsers.indexOf(listUser) !== -1}
                     >
                       <ListItemAvatar>
-                        <Avatar src={gravatar(listUser.email)} />
+                        <Avatar
+                          src={listUser.picture || gravatar(listUser.email)}
+                        />
                       </ListItemAvatar>
                       <ListItemText primary={listUser.name} />
                     </ListItemButton>
@@ -122,14 +129,7 @@ const NewGamePage: NextPage<{}> = () => {
     );
   } else {
     return (
-      <Container
-        maxWidth="sm"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          flexDirection: 'row'
-        }}
-      >
+      <Container maxWidth="sm">
         <CircularProgress />
       </Container>
     );
