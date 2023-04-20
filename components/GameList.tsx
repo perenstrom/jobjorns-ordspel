@@ -13,6 +13,8 @@ import { GameWithEverything } from 'types/types';
 import { GameListListItem } from './GameListItem';
 import { GameInviteListItem } from './GameListInvite';
 import { GameListRefusal } from './GameListRefusal';
+import Head from 'next/head';
+import { faviconString } from 'services/helpers';
 
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -33,24 +35,9 @@ export const GameList: React.FC<{}> = () => {
   const [gamesListFinished, setGamesListFinished] = useState<
     GameWithEverything[]
   >([]);
+  const [favicon, setFavicon] = useState<string>('');
 
   const { user } = useUser();
-
-  /*
-  useEffect(() => {
-    const fetchUserWithId = async () => {
-      if (user && user.email) {
-        const newUserWithId = await getUser(user.email);
-
-        if (newUserWithId.success) {
-          setUserWithId(newUserWithId.data);
-        }
-      }
-    };
-
-    fetchUserWithId();
-  }, [user]);
-  */
 
   useEffect(() => {
     const fetchGamesList = async () => {
@@ -105,8 +92,15 @@ export const GameList: React.FC<{}> = () => {
     }
   }, [user, gamesList]);
 
+  useEffect(() => {
+    const newFavicon = faviconString(gamesListReady.length);
+
+    setFavicon(newFavicon);
+  }, [gamesListReady]);
+
   const removeGameFromList = (gameId: number) => {
     const newGamesList = gamesList.filter((game) => game.id != gameId);
+
     setGamesList(newGamesList);
   };
 
@@ -124,6 +118,16 @@ export const GameList: React.FC<{}> = () => {
   } else if (gamesList && !loading && user) {
     return (
       <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
+        {favicon && (
+          <Head>
+            <link rel="icon" href={favicon} key="favicon" />
+            {gamesListReady.length > 0 && (
+              <title>
+                {'(' + gamesListReady.length + ') Jobjörns ordspel'}
+              </title>
+            )}
+          </Head>
+        )}
         {gamesListInvites.length > 0 && (
           <Typography variant="h4" sx={{}}>
             Inbjudningar

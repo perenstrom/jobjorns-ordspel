@@ -16,6 +16,8 @@ import router from 'next/router';
 import { Board } from 'components/Board';
 import { User } from '@prisma/client';
 import { ScoreList } from 'components/ScoreList';
+import Head from 'next/head';
+import { faviconString } from 'services/helpers';
 
 const NewGamePage: NextPage<{}> = () => {
   const [game, setGame] = useState<GameWithEverything>();
@@ -70,6 +72,10 @@ const NewGamePage: NextPage<{}> = () => {
           backgroundColor: '#121212'
         }}
       >
+        <Head>
+          <title>Jobjörns ordspel</title>
+          <link rel="icon" href={faviconString()} key="favicon" />
+        </Head>
         <Menu />
         <Container maxWidth="sm" sx={{ flexGrow: 1 }}>
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
