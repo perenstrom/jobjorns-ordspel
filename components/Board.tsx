@@ -12,7 +12,7 @@ import { GameWithEverything, Tile as TileType } from 'types/types';
 import { User } from '@prisma/client';
 import { submitMove } from 'services/local';
 import { Tile } from './Tile';
-import { shuffleArray } from 'services/helpers';
+import { faviconString, shuffleArray } from 'services/helpers';
 import {
   checkAdjacentPlacement,
   checkCoherentWord,
@@ -24,6 +24,7 @@ import {
 } from 'services/game';
 import Ably from 'ably';
 import ReactConfetti from 'react-confetti';
+import Head from 'next/head';
 
 const emptyTile: TileType = {
   letter: '',
@@ -362,6 +363,11 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           </Alert>
         ))}
       </Backdrop>
+      {!playerHasSubmitted && !game.finished && (
+        <Head>
+          <link rel="icon" href={faviconString('din tur')} key="favicon" />
+        </Head>
+      )}
       {game.finished && <ReactConfetti recycle={false} />}
       <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>
