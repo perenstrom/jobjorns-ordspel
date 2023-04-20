@@ -4,6 +4,7 @@ import {
   AlertColor,
   Backdrop,
   Button,
+  Container,
   Stack,
   styled
 } from '@mui/material';
@@ -343,7 +344,13 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   };
 
   return (
-    <>
+    <Container
+      maxWidth="sm"
+      sx={{
+        flexShrink: 0,
+        margin: 0
+      }}
+    >
       <Backdrop
         sx={{
           color: '#fff',
@@ -421,7 +428,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           </>
         )}
       </Stack>
-    </>
+    </Container>
   );
 };
 
@@ -444,7 +451,10 @@ const BoardGrid = styled('div')<BoardGridProps>((props) => ({
   gridTemplateRows: `repeat(${props.size}, 1fr)`,
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
-  width: '100%'
+  width: '100%',
+  maxWidth: 'calc(100vh - 72px - 78px - 16px - 33px - 8px)',
+  margin: 'auto',
+  aspectRatio: '1/1'
 }));
 
 interface BoardCellProps {

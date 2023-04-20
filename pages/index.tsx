@@ -25,7 +25,7 @@ const IndexPage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '100vh',
+          minHeight: '90vh',
           backgroundColor: '#121212'
         }}
       >
@@ -34,14 +34,7 @@ const IndexPage: NextPage<{}> = () => {
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
         {isLoading ? (
-          <Container
-            maxWidth="sm"
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              flexDirection: 'row'
-            }}
-          >
+          <Container maxWidth="sm">
             <CircularProgress />
           </Container>
         ) : user ? (
