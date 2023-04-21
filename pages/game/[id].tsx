@@ -54,12 +54,6 @@ const NewGamePage: NextPage<{}> = () => {
   };
 
   useEffect(() => {
-    let t1 = performance.now();
-    console.log(
-      t1,
-      'nu kör vi useeffecten som kör fetchgame i [id].tsx',
-      gameId
-    );
     fetchGame(gameId);
   }, [gameId]);
 
