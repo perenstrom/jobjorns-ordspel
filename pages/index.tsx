@@ -34,7 +34,7 @@ const IndexPage: NextPage<{}> = () => {
         }}
       >
         <Head>
-          <title>Jobjörns ordspel</title>
+          <title>Översikt | Jobjörns ordspel</title>
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
         {user ? (
