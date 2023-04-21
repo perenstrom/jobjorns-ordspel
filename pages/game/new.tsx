@@ -111,17 +111,23 @@ const NewGamePage: NextPage<{}> = () => {
           </List>
 
           <Stack direction="row" spacing={1} sx={{ my: 1 }}>
-            <Button
-              variant="contained"
-              onClick={() =>
-                startGame(
-                  users.find((u) => u.sub === user.sub) as User,
-                  selectedUsers
-                )
-              }
-            >
-              Bjud in spelare
-            </Button>
+            {selectedUsers.length > 0 ? (
+              <Button
+                variant="contained"
+                onClick={() =>
+                  startGame(
+                    users.find((u) => u.sub === user.sub) as User,
+                    selectedUsers
+                  )
+                }
+              >
+                Bjud in spelare
+              </Button>
+            ) : (
+              <Button variant="contained" disabled>
+                Bjud in spelare
+              </Button>
+            )}
           </Stack>
         </Container>
         <Footer />
