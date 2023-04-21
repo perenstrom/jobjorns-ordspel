@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, CircularProgress, Container } from '@mui/material';
+import { Box } from '@mui/material';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
 import { useUser } from '@auth0/nextjs-auth0';
@@ -9,6 +9,7 @@ import { Splash } from 'components/Splash';
 import { addUser } from 'services/local';
 import Head from 'next/head';
 import { faviconString } from 'services/helpers';
+import { Loading } from 'components/Loading';
 
 const IndexPage: NextPage<{}> = () => {
   const { user, isLoading } = useUser(); // härifrån finns också error att ta ut
@@ -17,6 +18,9 @@ const IndexPage: NextPage<{}> = () => {
     addUser(user);
   }
 
+  if (isLoading) {
+    return <Loading />;
+  }
   return (
     <>
       <Box
@@ -25,7 +29,7 @@ const IndexPage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '90vh',
+          minHeight: '100%',
           backgroundColor: '#121212'
         }}
       >
@@ -33,11 +37,7 @@ const IndexPage: NextPage<{}> = () => {
           <title>Jobjörns ordspel</title>
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
-        {isLoading ? (
-          <Container maxWidth="sm">
-            <CircularProgress />
-          </Container>
-        ) : user ? (
+        {user ? (
           <>
             <Menu />
             <GameList />
