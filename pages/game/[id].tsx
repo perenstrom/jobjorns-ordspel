@@ -11,13 +11,13 @@ import { getGame, getUser } from 'services/local';
 import { GameWithEverything } from 'types/types';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import CircularProgress from '@mui/material/CircularProgress';
 import router from 'next/router';
 import { Board } from 'components/Board';
 import { User } from '@prisma/client';
 import { ScoreList } from 'components/ScoreList';
 import Head from 'next/head';
 import { faviconString } from 'services/helpers';
+import { Loading } from 'components/Loading';
 
 const NewGamePage: NextPage<{}> = () => {
   const [game, setGame] = useState<GameWithEverything>();
@@ -45,19 +45,15 @@ const NewGamePage: NextPage<{}> = () => {
     if (gameId > 0) {
       const newGame = await getGame(gameId);
 
-      if (newGame.success) {
+      if (newGame.success && newGame.data) {
         setGame(newGame.data);
+      } else {
+        router.push('/');
       }
     }
   };
 
   useEffect(() => {
-    let t1 = performance.now();
-    console.log(
-      t1,
-      'nu kör vi useeffecten som kör fetchgame i [id].tsx',
-      gameId
-    );
     fetchGame(gameId);
   }, [gameId]);
 
@@ -68,7 +64,7 @@ const NewGamePage: NextPage<{}> = () => {
           display: 'flex',
           justifyContent: 'space-between',
           flexDirection: 'column',
-          minHeight: '90vh',
+          minHeight: '100%',
           backgroundColor: '#121212'
         }}
       >
@@ -94,21 +90,7 @@ const NewGamePage: NextPage<{}> = () => {
       </Box>
     );
   } else {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexDirection: 'column',
-          minHeight: '90vh',
-          backgroundColor: '#121212'
-        }}
-      >
-        <Menu />
-        <CircularProgress />
-        <Footer />
-      </Box>
-    );
+    return <Loading />;
   }
 };
 

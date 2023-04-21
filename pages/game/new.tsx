@@ -11,7 +11,6 @@ import { listUsers, startGame } from 'services/local';
 import { User } from '@prisma/client';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import CircularProgress from '@mui/material/CircularProgress';
 import {
   Avatar,
   Button,
@@ -26,6 +25,7 @@ import {
 } from '@mui/material';
 import { faviconString, gravatar } from 'services/helpers';
 import Head from 'next/head';
+import { Loading } from 'components/Loading';
 
 const NewGamePage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
@@ -67,12 +67,12 @@ const NewGamePage: NextPage<{}> = () => {
           justifyContent: 'space-between',
           alignContent: 'center',
           flexDirection: 'column',
-          minHeight: '90vh',
+          minHeight: '100%',
           backgroundColor: '#121212'
         }}
       >
         <Head>
-          <title>Jobjörns ordspel</title>
+          <title>Nytt spel | Jobjörns ordspel</title>
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
         <Menu />
@@ -111,28 +111,30 @@ const NewGamePage: NextPage<{}> = () => {
           </List>
 
           <Stack direction="row" spacing={1} sx={{ my: 1 }}>
-            <Button
-              variant="contained"
-              onClick={() =>
-                startGame(
-                  users.find((u) => u.sub === user.sub) as User,
-                  selectedUsers
-                )
-              }
-            >
-              Bjud in spelare
-            </Button>
+            {selectedUsers.length > 0 ? (
+              <Button
+                variant="contained"
+                onClick={() =>
+                  startGame(
+                    users.find((u) => u.sub === user.sub) as User,
+                    selectedUsers
+                  )
+                }
+              >
+                Bjud in spelare
+              </Button>
+            ) : (
+              <Button variant="contained" disabled>
+                Bjud in spelare
+              </Button>
+            )}
           </Stack>
         </Container>
         <Footer />
       </Box>
     );
   } else {
-    return (
-      <Container maxWidth="sm">
-        <CircularProgress />
-      </Container>
-    );
+    return <Loading />;
   }
 };
 

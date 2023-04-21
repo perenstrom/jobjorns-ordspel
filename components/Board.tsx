@@ -56,6 +56,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
   //  const [confettiCount, setConfettiCount] = useState<number>(200);
+  const [nameList, setNameList] = useState<string>('');
 
   const addAlerts = (newAlerts: Alert[]) => {
     setAlerts([...alerts, ...newAlerts]);
@@ -134,6 +135,19 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   }, [game, currentUser]);
 
   useEffect(() => {
+    let newNameList = '';
+    game.users.forEach((player) => {
+      if (player.userSub !== currentUser.sub) {
+        if (newNameList.length > 0) {
+          newNameList += ', ';
+        }
+        newNameList += player.user.name;
+      }
+    });
+    setNameList(newNameList);
+  }, [game, currentUser]);
+
+  useEffect(() => {
     let points = wordPoints(getPlayedWords(unplayedBoard).join(', '));
     setCurrentPoints(points);
   }, [unplayedBoard]);
@@ -141,6 +155,22 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const shuffleTileHolder = () => {
     let copiedTiles = shuffleArray(tiles);
     setTiles(copiedTiles);
+  };
+
+  const clearBoard = () => {
+    let copiedBoard = [...unplayedBoard];
+    let copiedTiles = [...tiles];
+    copiedBoard.forEach((row, rowIndex) =>
+      row.forEach((cell, columnIndex) => {
+        if (cell.placed === 'hand' || cell.placed === 'submitted') {
+          copiedTiles.push(cell);
+          copiedBoard[rowIndex][columnIndex] = emptyTile;
+        }
+      })
+    );
+    setUnplayedBoard(copiedBoard);
+    setTiles(copiedTiles);
+    setPlacedTiles([]);
   };
 
   const selectTile = (tile: TileType) => {
@@ -375,6 +405,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           <link rel="icon" href={faviconString('din tur')} key="favicon" />
         </Head>
       )}
+      <Head>
+        <title>{nameList + ' | Jobjörns ordspel'}</title>
+      </Head>
       {game.finished && <ReactConfetti recycle={false} />}
       <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>
@@ -402,11 +435,20 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         ))}
       </TileHolder>
       <Stack direction="row" spacing={1}>
-        <Button variant="outlined" onClick={() => shuffleTileHolder()}>
-          Blanda brickor
-        </Button>
+        {tiles.length > 0 ? (
+          <Button variant="outlined" onClick={() => shuffleTileHolder()}>
+            Blanda brickor
+          </Button>
+        ) : (
+          <Button variant="outlined" disabled>
+            Blanda brickor
+          </Button>
+        )}
         {playerHasSubmitted || game.finished ? (
           <>
+            <Button variant="outlined" disabled>
+              Rensa
+            </Button>
             <Button variant="outlined" disabled>
               Passa
             </Button>
@@ -416,6 +458,15 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           </>
         ) : (
           <>
+            {placedTiles.length > 0 ? (
+              <Button variant="outlined" onClick={() => clearBoard()}>
+                Rensa
+              </Button>
+            ) : (
+              <Button variant="outlined" disabled>
+                Rensa
+              </Button>
+            )}
             <Button variant="outlined" onClick={() => passTurn()}>
               Passa
             </Button>
@@ -435,7 +486,8 @@ const TileHolder = styled('div')((props) => ({
   margin: props.theme.spacing(1, 0),
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
-  width: '100%'
+  width: '100%',
+  minHeight: '77.15px'
 }));
 
 type BoardGridProps = {
