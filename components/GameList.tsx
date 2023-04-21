@@ -76,7 +76,9 @@ export const GameList: React.FC<{}> = () => {
           newGamesListRefusals.push(game);
         } else if (
           game.turns[0] &&
-          game.turns[0].moves.findIndex((move) => move.userSub == user.sub) > -1
+          game.turns[0].moves.findIndex((move) => move.userSub == user.sub) >
+            -1 &&
+          game.turns[0].turnNumber == game.currentTurn
         ) {
           newGamesListWaiting.push(game);
         } else {
