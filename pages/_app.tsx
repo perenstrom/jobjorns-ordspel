@@ -24,7 +24,7 @@ const inputGlobalStyles = (
         /*
         Josh's Custom CSS Reset
         https://www.joshwcomeau.com/css/custom-css-reset/
-      */
+        */
 
         '*, *::before, *::after': {
           boxSizing: 'border-box'
@@ -37,7 +37,7 @@ const inputGlobalStyles = (
         },
         body: {
           lineHeight: '1.5',
-          '-webkit-font-smoothing': 'antialiased'
+          WebkitFontSmoothing: 'antialiased'
         },
         'img, picture, video, canvas, svg': {
           display: 'block',
