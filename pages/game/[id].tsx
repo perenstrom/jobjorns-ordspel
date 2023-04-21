@@ -45,8 +45,10 @@ const NewGamePage: NextPage<{}> = () => {
     if (gameId > 0) {
       const newGame = await getGame(gameId);
 
-      if (newGame.success) {
+      if (newGame.success && newGame.data) {
         setGame(newGame.data);
+      } else {
+        router.push('/');
       }
     }
   };
