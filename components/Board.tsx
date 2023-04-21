@@ -157,6 +157,22 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     setTiles(copiedTiles);
   };
 
+  const clearBoard = () => {
+    let copiedBoard = [...unplayedBoard];
+    let copiedTiles = [...tiles];
+    copiedBoard.forEach((row, rowIndex) =>
+      row.forEach((cell, columnIndex) => {
+        if (cell.placed === 'hand' || cell.placed === 'submitted') {
+          copiedTiles.push(cell);
+          copiedBoard[rowIndex][columnIndex] = emptyTile;
+        }
+      })
+    );
+    setUnplayedBoard(copiedBoard);
+    setTiles(copiedTiles);
+    setPlacedTiles([]);
+  };
+
   const selectTile = (tile: TileType) => {
     setSelectedTile(tile);
   };
@@ -422,11 +438,20 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         ))}
       </TileHolder>
       <Stack direction="row" spacing={1}>
-        <Button variant="outlined" onClick={() => shuffleTileHolder()}>
-          Blanda brickor
-        </Button>
+        {tiles.length > 0 ? (
+          <Button variant="outlined" onClick={() => shuffleTileHolder()}>
+            Blanda brickor
+          </Button>
+        ) : (
+          <Button variant="outlined" disabled>
+            Blanda brickor
+          </Button>
+        )}
         {playerHasSubmitted || game.finished ? (
           <>
+            <Button variant="outlined" disabled>
+              Rensa
+            </Button>
             <Button variant="outlined" disabled>
               Passa
             </Button>
@@ -436,6 +461,15 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           </>
         ) : (
           <>
+            {placedTiles.length > 0 ? (
+              <Button variant="outlined" onClick={() => clearBoard()}>
+                Rensa
+              </Button>
+            ) : (
+              <Button variant="outlined" disabled>
+                Rensa
+              </Button>
+            )}
             <Button variant="outlined" onClick={() => passTurn()}>
               Passa
             </Button>
@@ -455,7 +489,8 @@ const TileHolder = styled('div')((props) => ({
   margin: props.theme.spacing(1, 0),
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
-  width: '100%'
+  width: '100%',
+  minHeight: '77.15px'
 }));
 
 type BoardGridProps = {
