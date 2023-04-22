@@ -4,12 +4,14 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  Modal,
   TableRow
 } from '@mui/material';
 import { Move, Turn } from '@prisma/client';
 import { GameWithEverything } from 'types/types';
 import { amber, blue } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
+import { FinishedModal } from './FinishedModal';
 
 interface ScoreListProps {
   game: GameWithEverything;
@@ -19,6 +21,9 @@ export const ScoreList = ({ game }: ScoreListProps) => {
   const [userPoints, setUserPoints] = useState<
     { userSub: string; points: number }[]
   >([]);
+
+  const [finishedModalOpen, setFinishedModalOpen] = useState(false);
+  const handleCloseFinishedModal = () => setFinishedModalOpen(false);
 
   useEffect(() => {
     let newUserPoints: { userSub: string; points: number }[] = [];
@@ -35,8 +40,27 @@ export const ScoreList = ({ game }: ScoreListProps) => {
     setUserPoints(newUserPoints);
   }, [game]);
 
+  useEffect(() => {
+    if (game.finished) {
+      setFinishedModalOpen(true);
+    }
+  }, [game.finished]);
+
   return (
     <Container maxWidth="sm" sx={{ flexShrink: 0, margin: 0 }}>
+      <Modal
+        open={finishedModalOpen}
+        onClose={handleCloseFinishedModal}
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        <FinishedModal game={game} userPoints={userPoints} />
+      </Modal>
       <TableContainer sx={{ mt: 3 }}>
         <Table size="small">
           <TableHead>

@@ -24,7 +24,6 @@ import {
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
-import ReactConfetti from 'react-confetti';
 import Head from 'next/head';
 
 const emptyTile: TileType = {
@@ -55,7 +54,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
-  //  const [confettiCount, setConfettiCount] = useState<number>(200);
   const [nameList, setNameList] = useState<string>('');
 
   const addAlerts = (newAlerts: Alert[]) => {
@@ -413,7 +411,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       <Head>
         <title>{nameList + ' | Jobjörns ordspel'}</title>
       </Head>
-      {game.finished && <ReactConfetti recycle={false} />}
       <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>
           row.map((cell, indexColumn) => (
