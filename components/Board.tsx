@@ -394,7 +394,12 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           <Alert
             key={index}
             severity={alert.severity}
-            sx={{ width: '65vw', margin: '3px' }}
+            sx={{
+              width: '65vw',
+              margin: '3px',
+              bgcolor: 'background.paper'
+            }}
+            variant="outlined"
           >
             {alert.message}
           </Alert>
