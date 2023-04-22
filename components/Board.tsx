@@ -398,6 +398,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
               bgcolor: 'background.paper'
             }}
             variant="outlined"
+            onClose={() => {}}
           >
             {alert.message}
           </Alert>
