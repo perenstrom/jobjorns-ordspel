@@ -2,8 +2,10 @@ import {
   checkAdjacentPlacement,
   checkCoherentWord,
   checkSameDirection,
-  checkTilesPlayed
+  checkTilesPlayed,
+  getPlayedWords
 } from 'services/game';
+import { Tile } from 'types/types';
 import { expect, test } from 'vitest';
 
 test('checkTilesPlayed', () => {
@@ -1185,4 +1187,158 @@ const checkCoherentWordTestData = [
 test('checkCoherentWord', () => {
   expect(checkCoherentWord(checkCoherentWordTestData[0])).toBe(false);
   expect(checkCoherentWord(checkCoherentWordTestData[1])).toBe(true);
+});
+
+const getPlayedWordsTestData: Tile[][] = [
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'S', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'V', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'A', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'F', placed: 'board' },
+    { letter: 'L', placed: 'board' },
+    { letter: 'I', placed: 'board' },
+    { letter: 'N', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'R', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'S', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'S', placed: 'board' },
+    { letter: 'L', placed: 'board' },
+    { letter: 'Ä', placed: 'board' },
+    { letter: 'P', placed: 'board' },
+    { letter: 'A', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'J', placed: 'board' },
+    { letter: 'O', placed: 'board' },
+    { letter: 'N', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: 'D', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'D', placed: 'board' },
+    { letter: 'Ö', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'D', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'R', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'E', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'A', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: 'B', placed: 'board' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'R', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ],
+  [
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: 'G', placed: 'board' },
+    { letter: 'L', placed: 'board' },
+    { letter: 'U', placed: 'board' },
+    { letter: 'T', placed: 'board' },
+    { letter: 'T', placed: 'board' },
+    { letter: 'A', placed: 'hand' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' },
+    { letter: '', placed: 'no' }
+  ]
+];
+
+test('getPlayedWords', () => {
+  expect(getPlayedWords(getPlayedWordsTestData)).toEqual([
+    'SLÄPA',
+    'GLUTTA',
+    'ADDERA'
+  ]);
 });
