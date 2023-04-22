@@ -489,8 +489,7 @@ const TileHolder = styled('div')((props) => ({
   margin: props.theme.spacing(1, 0),
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
-  width: '100%',
-  minHeight: '77.15px'
+  width: '100%'
 }));
 
 type BoardGridProps = {
