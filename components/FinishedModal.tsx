@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Button,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,9 +16,14 @@ import ReactConfetti from 'react-confetti';
 interface FinishedModalProps {
   game: GameWithEverything;
   userPoints: { userSub: string; points: number }[];
+  handleCloseFinishedModal: () => void;
 }
 
-export const FinishedModal = ({ game, userPoints }: FinishedModalProps) => {
+export const FinishedModal = ({
+  game,
+  userPoints,
+  handleCloseFinishedModal
+}: FinishedModalProps) => {
   const [sortedUsers, setSortedUsers] = useState<GameWithEverything['users']>(
     []
   );
@@ -78,6 +84,14 @@ export const FinishedModal = ({ game, userPoints }: FinishedModalProps) => {
           </ListItem>
         ))}
       </List>
+      <Button
+        variant="contained"
+        onClick={() => {
+          handleCloseFinishedModal();
+        }}
+      >
+        Okej
+      </Button>
     </Paper>
   );
 };

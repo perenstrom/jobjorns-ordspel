@@ -59,7 +59,11 @@ export const ScoreList = ({ game }: ScoreListProps) => {
           justifyContent: 'center'
         }}
       >
-        <FinishedModal game={game} userPoints={userPoints} />
+        <FinishedModal
+          game={game}
+          userPoints={userPoints}
+          handleCloseFinishedModal={handleCloseFinishedModal}
+        />
       </Modal>
       <TableContainer sx={{ mt: 3 }}>
         <Table size="small">
