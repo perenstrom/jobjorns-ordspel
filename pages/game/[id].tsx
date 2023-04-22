@@ -80,7 +80,10 @@ const NewGamePage: NextPage<{}> = () => {
             display: 'flex',
             justifyContent: 'center',
             flexWrap: 'wrap',
-            padding: 0
+            p: 0,
+            '@media (min-width: 600px)': {
+              p: 0
+            }
           }}
         >
           <Board game={game} user={userWithId} fetchGame={fetchGame} />
