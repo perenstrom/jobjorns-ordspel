@@ -175,10 +175,10 @@ const listGames = async (userSub: string) => {
             gameRaw.moveId &&
             gameRaw.turnId &&
             gameRaw.moveUserSub &&
-            gameRaw.playedWord &&
+            typeof gameRaw.playedWord === 'string' &&
             gameRaw.playedBoard &&
             gameRaw.playedTime &&
-            gameRaw.playedPoints &&
+            typeof gameRaw.playedPoints === 'number' &&
             typeof gameRaw.won === 'boolean'
           ) {
             let move: Move = {
