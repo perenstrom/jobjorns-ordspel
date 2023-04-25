@@ -9,9 +9,10 @@ import {
 } from '@mui/material';
 import { Move, Turn } from '@prisma/client';
 import { GameWithEverything } from 'types/types';
-import { amber, blue } from '@mui/material/colors';
+import { amber, blue, grey } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { FinishedModal } from './FinishedModal';
+import { useUser } from '@auth0/nextjs-auth0';
 
 interface ScoreListProps {
   game: GameWithEverything;
@@ -24,6 +25,8 @@ export const ScoreList = ({ game }: ScoreListProps) => {
 
   const [finishedModalOpen, setFinishedModalOpen] = useState(false);
   const handleCloseFinishedModal = () => setFinishedModalOpen(false);
+
+  const { user } = useUser();
 
   useEffect(() => {
     let newUserPoints: { userSub: string; points: number }[] = [];
@@ -70,37 +73,38 @@ export const ScoreList = ({ game }: ScoreListProps) => {
           <TableHead>
             <TableRow>
               <TableCell />
-              {game.users.map((user) => (
-                <TableCell key={user.userSub} style={{ fontWeight: 'bold' }}>
-                  {user.user.name}
+              {game.users.map((player) => (
+                <TableCell key={player.userSub} style={{ fontWeight: 'bold' }}>
+                  {player.user.name}
                   <SingleScorePoints
                     points={
-                      userPoints.find((x) => x.userSub == user.userSub)?.points
+                      userPoints.find((x) => x.userSub == player.userSub)
+                        ?.points
                     }
                     won={
                       Math.max(...userPoints.map((x) => x.points)) ==
-                      userPoints.find((x) => x.userSub == user.userSub)?.points
+                      userPoints.find((x) => x.userSub == player.userSub)
+                        ?.points
                     }
                   />
                 </TableCell>
               ))}
             </TableRow>
-            {game.turns.map(
-              (turn) =>
-                turn.turnNumber !== game.currentTurn && (
-                  <TableRow key={turn.id}>
-                    <TableCell>{turn.turnNumber}</TableCell>
-                    {game.users.map((user) => (
-                      <SingleScore
-                        key={user.userSub}
-                        move={turn.moves.find(
-                          (move) => move.userSub == user.userSub
-                        )}
-                      />
-                    ))}
-                  </TableRow>
-                )
-            )}
+            {game.turns.map((turn) => (
+              <TableRow key={turn.id}>
+                <TableCell>{turn.turnNumber}</TableCell>
+                {game.users.map((player) => (
+                  <SingleScore
+                    key={player.userSub}
+                    isCurrentTurn={turn.turnNumber == game.currentTurn}
+                    isSelf={player.userSub == user?.sub}
+                    move={turn.moves.find(
+                      (move) => move.userSub == player.userSub
+                    )}
+                  />
+                ))}
+              </TableRow>
+            ))}
           </TableHead>
         </Table>
       </TableContainer>
@@ -110,43 +114,88 @@ export const ScoreList = ({ game }: ScoreListProps) => {
 
 interface SingleScoreProps {
   move?: Move;
+  isCurrentTurn: boolean;
+  isSelf: boolean;
 }
 
-export const SingleScore = ({ move }: SingleScoreProps) => {
-  if (move && move.playedWord) {
-    return (
-      <TableCell>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            flexDirection: 'row'
-          }}
-        >
-          {move.playedWord}
-          <SingleScorePoints points={move.playedPoints} won={move.won} />
-        </div>
-      </TableCell>
-    );
-  } else if (move && !move.playedWord) {
-    return (
-      <TableCell>
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            flexDirection: 'row',
-            color: 'grey'
-          }}
-        >
-          (pass)
-        </div>
-      </TableCell>
-    );
+export const SingleScore = ({
+  move,
+  isCurrentTurn,
+  isSelf
+}: SingleScoreProps) => {
+  if (isCurrentTurn && !isSelf) {
+    if (move) {
+      return (
+        <TableCell>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row'
+            }}
+          >
+            {Array.from(
+              { length: Math.floor(Math.random() * 5) + 2 },
+              () => '*'
+            )}
+            <SingleScorePoints points={'?'} won={false} />
+          </div>
+        </TableCell>
+      );
+    } else {
+      return (
+        <TableCell>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row',
+              color: 'grey'
+            }}
+          >
+            (ännu ej lagt)
+          </div>
+        </TableCell>
+      );
+    }
   } else {
-    return <TableCell></TableCell>;
+    if (move && move.playedWord) {
+      return (
+        <TableCell>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row'
+            }}
+          >
+            {move.playedWord}
+            <SingleScorePoints points={move.playedPoints} won={move.won} />
+          </div>
+        </TableCell>
+      );
+    } else if (move && !move.playedWord) {
+      return (
+        <TableCell>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              flexDirection: 'row',
+              color: 'grey'
+            }}
+          >
+            (pass)
+          </div>
+        </TableCell>
+      );
+    } else {
+      return <TableCell></TableCell>;
+    }
   }
 };
 
@@ -154,7 +203,7 @@ export const SingleScorePoints = ({
   points,
   won
 }: {
-  points?: number;
+  points?: number | string;
   won: boolean;
 }) => {
   if (typeof points === 'undefined') {
@@ -162,7 +211,10 @@ export const SingleScorePoints = ({
   }
   let pointsColor;
   let textColor;
-  if (won) {
+  if (typeof points === 'string') {
+    pointsColor = grey[500];
+    textColor = 'white';
+  } else if (won) {
     pointsColor = amber[500];
     textColor = 'black';
   } else {
