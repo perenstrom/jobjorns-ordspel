@@ -5,7 +5,8 @@ import {
   TableContainer,
   TableHead,
   Modal,
-  TableRow
+  TableRow,
+  Paper
 } from '@mui/material';
 import { Move, Turn } from '@prisma/client';
 import { GameWithEverything } from 'types/types';
@@ -62,11 +63,21 @@ export const ScoreList = ({ game }: ScoreListProps) => {
           justifyContent: 'center'
         }}
       >
-        <FinishedModal
-          game={game}
-          userPoints={userPoints}
-          handleCloseFinishedModal={handleCloseFinishedModal}
-        />
+        <Paper
+          sx={{
+            p: 3,
+            m: 3,
+            width: '100%',
+            maxWidth: '400px'
+          }}
+          variant="outlined"
+        >
+          <FinishedModal
+            game={game}
+            userPoints={userPoints}
+            handleCloseFinishedModal={handleCloseFinishedModal}
+          />
+        </Paper>
       </Modal>
       <TableContainer sx={{ mt: 3 }}>
         <Table size="small">
