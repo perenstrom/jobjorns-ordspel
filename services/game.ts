@@ -8,7 +8,7 @@ export const checkTilesPlayed = (board: Tile[][]) => {
 
   copiedBoard.forEach((row) =>
     row.forEach((cell) => {
-      if (cell.placed === 'hand') {
+      if (cell.placed === 'hand' || cell.placed === 'submitted') {
         tilesPlayed = true;
       }
     })
@@ -108,7 +108,7 @@ export const getPlayedWords = (board: Tile[][]) => {
         columnLetters[indexColumn] = [];
       }
 
-      if (cell.placed === 'hand') {
+      if (cell.placed === 'hand' || cell.placed === 'submitted') {
         rowHandIsPlayed[indexRow] = true;
         columnHandIsPlayed[indexColumn] = true;
 
