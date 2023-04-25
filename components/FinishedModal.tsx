@@ -5,7 +5,6 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
-  Paper,
   Typography
 } from '@mui/material';
 import { useEffect, useState } from 'react';
@@ -49,15 +48,7 @@ export const FinishedModal = ({
   const medalEmojis = ['🥇', '🥈', '🥉'];
 
   return (
-    <Paper
-      sx={{
-        p: 3,
-        m: 3,
-        width: '100%',
-        maxWidth: '400px'
-      }}
-      variant="outlined"
-    >
+    <>
       <ReactConfetti recycle={false} />
       <Typography variant="h4">Spelet är slut!</Typography>
       <Typography variant="body1">{tileCount} brickor lagda</Typography>
@@ -92,6 +83,6 @@ export const FinishedModal = ({
       >
         Okej
       </Button>
-    </Paper>
+    </>
   );
 };
