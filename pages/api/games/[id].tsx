@@ -1,6 +1,14 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
-import { wordPoints } from 'services/game';
+import {
+  checkAdjacentPlacement,
+  checkCoherentWord,
+  checkInWordList,
+  checkSameDirection,
+  checkTilesPlayed,
+  getPlayedWords,
+  wordPoints
+} from 'services/game';
 import Ably from 'ably';
 import { Tile } from 'types/types';
 
@@ -55,6 +63,29 @@ const submitMove = async (
   playedWord: string,
   playedBoard: string
 ) => {
+  let parsedBoard: Tile[][] = JSON.parse(playedBoard);
+
+  let tilesPlayed = checkTilesPlayed(parsedBoard); // minst en bricka måste läggas
+  let sameDirection = checkSameDirection(parsedBoard); // alla placerade brickor ska vara i samma riktning
+  let coherentWord = checkCoherentWord(parsedBoard); // placerade brickor får inte ha ett mellanrum
+  let inWordList = checkInWordList(parsedBoard); // de lagda orden måste finnas i ordlistan
+  let adjacentPlacement = checkAdjacentPlacement(parsedBoard); // brickor får inte placeras som en egen ö
+  let wordIsSame = getPlayedWords(parsedBoard).join(', ') === playedWord; // det lagda ordet måste vara samma som det som skickas med
+
+  if (
+    !tilesPlayed ||
+    !sameDirection ||
+    !coherentWord ||
+    !inWordList ||
+    !adjacentPlacement ||
+    !wordIsSame
+  ) {
+    return {
+      success: false,
+      message: 'Nätverksanropet förefaller manipulerat'
+    };
+  }
+
   try {
     const createMove = await prisma.move.create({
       data: {
