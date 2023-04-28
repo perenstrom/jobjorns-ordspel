@@ -8,7 +8,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
-const startGame = async (starter: User, players: User[]) => {
+export const startGame = async (starter: User, players: User[]) => {
   let newPlayers = [...players, starter];
 
   let letters: string = shuffleArray(allLetters()).join();
