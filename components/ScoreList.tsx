@@ -100,6 +100,11 @@ export const ScoreList = ({ game }: ScoreListProps) => {
                   />
                 </TableCell>
               ))}
+              {game.invitations.map((invitation) => (
+                <TableCell key={invitation.id} style={{ fontWeight: 'bold' }}>
+                  {invitation.email}
+                </TableCell>
+              ))}
             </TableRow>
             {game.turns.map((turn) => (
               <TableRow key={turn.id}>
@@ -113,6 +118,21 @@ export const ScoreList = ({ game }: ScoreListProps) => {
                       (move) => move.userSub == player.userSub
                     )}
                   />
+                ))}
+                {game.invitations.map((invitation) => (
+                  <TableCell key={invitation.id}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        flexDirection: 'row',
+                        color: 'grey'
+                      }}
+                    >
+                      (har ännu inte accepterat inbjudan)
+                    </div>
+                  </TableCell>
                 ))}
               </TableRow>
             ))}

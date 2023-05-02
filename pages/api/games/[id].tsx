@@ -29,6 +29,7 @@ const getGame = async (gameId: number) => {
             user: true
           }
         },
+        invitations: true,
         turns: {
           orderBy: {
             turnNumber: 'desc'
@@ -155,7 +156,7 @@ export const runTurnEnd = async (gameId: number) => {
   const game = await getGame(gameId);
 
   if (game.data) {
-    let playersCount = game.data.users.length;
+    let playersCount = game.data.users.length + game.data.invitations.length;
     let lastTurn = game.data.turns[0];
     let playedCount = lastTurn?.moves.length;
     let allSkipped = true;

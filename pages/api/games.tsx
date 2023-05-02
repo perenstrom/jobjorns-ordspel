@@ -1,19 +1,48 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Move, PrismaClient, Turn, User, UsersOnGames } from '@prisma/client';
+import {
+  Invitation,
+  Move,
+  PrismaClient,
+  Turn,
+  User,
+  UsersOnGames
+} from '@prisma/client';
 import { allLetters } from 'data/defaults';
 import { shuffleArray } from 'services/helpers';
 import { GameWithEverything } from 'types/types';
 
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['warn', 'error']
 });
 
-export const startGame = async (starter: User, players: User[]) => {
-  let newPlayers = [...players, starter];
+export const startGame = async (
+  starter: User,
+  players: User[],
+  emailList: string[]
+) => {
+  let newPlayers = [starter, ...players];
+  let invitations: string[] = [];
 
   let letters: string = shuffleArray(allLetters()).join();
 
   try {
+    if (emailList.length > 0) {
+      await Promise.all(
+        emailList.map(async (email) => {
+          const newPlayer = await prisma.user.findUnique({
+            where: {
+              email: email
+            }
+          });
+          if (newPlayer !== null) {
+            newPlayers.push(newPlayer);
+          } else {
+            invitations.push(email);
+          }
+        })
+      );
+    }
+
     const createGame = await prisma.game.create({
       data: {
         letters: letters,
@@ -28,9 +57,19 @@ export const startGame = async (starter: User, players: User[]) => {
             userSub: player.sub,
             userAccepted: player.sub == starter.sub
           }))
+        },
+        invitations: {
+          create: invitations.map((email) => ({
+            email: email
+          }))
         }
       }
     });
+
+    if (invitations.length > 0) {
+      // send mail here, through sendgrid API
+      console.log('send mail to: ', invitations);
+    }
 
     if (createGame !== null) {
       return { message: `Spelet skapades`, id: createGame.id };
@@ -61,6 +100,9 @@ type GameWithEverythingRaw = {
   name: string;
   email: string;
   picture: string;
+  invitationId: number | null;
+  invitationEmail: string | null;
+  invitationCreatedAt: Date | null;
   turnId: number | null;
   turnNumber: number | null;
   turnStart: Date | null;
@@ -94,6 +136,9 @@ const listGames = async (userSub: string) => {
         "users"."name",
         "users"."email",
         "users"."picture",
+        "Invitation"."id" as "invitationId",
+        "Invitation"."email" as "invitationEmail",
+        "Invitation"."createdAt" as "invitationCreatedAt",
         "Turn"."id" as "turnId",
         "Turn"."turnNumber",
         "Turn"."turnStart",
@@ -108,6 +153,7 @@ const listGames = async (userSub: string) => {
       JOIN "games" ON "games"."id" = "UsersOwnGames"."gameId"
       JOIN "UsersOnGames" AS "GameParticipants" ON "GameParticipants"."gameId" = "games"."id"
       JOIN "users" ON "users"."sub" = "GameParticipants"."userSub"
+      LEFT JOIN "Invitation" ON "Invitation"."gameId" = "games"."id"
       LEFT JOIN "Turn" ON "Turn"."gameId" = "games"."id"
       LEFT JOIN "Move" ON "Move"."turnId" = "Turn"."id"
       WHERE "UsersOwnGames"."userSub" = ${userSub}
@@ -127,6 +173,7 @@ const listGames = async (userSub: string) => {
           latestWord: gameRaw.latestWord,
           currentTurn: gameRaw.currentTurn,
           users: [],
+          invitations: [],
           turns: [],
           finished: gameRaw.finished
         };
@@ -153,6 +200,27 @@ const listGames = async (userSub: string) => {
             ?.users.find((u) => u.userSub === user.userSub) === undefined
         ) {
           games.find((g) => g.id === game.id)?.users.push(user);
+        }
+
+        if (
+          gameRaw.invitationId &&
+          gameRaw.invitationEmail &&
+          gameRaw.invitationCreatedAt
+        ) {
+          let invitation: Invitation = {
+            id: gameRaw.invitationId,
+            gameId: gameRaw.gameId,
+            email: gameRaw.invitationEmail,
+            createdAt: gameRaw.invitationCreatedAt
+          };
+
+          if (
+            games
+              .find((g) => g.id === game.id)
+              ?.invitations.find((i) => i.id === invitation.id) === undefined
+          ) {
+            games.find((g) => g.id === game.id)?.invitations.push(invitation);
+          }
         }
 
         if (gameRaw.turnId && gameRaw.turnNumber && gameRaw.turnStart) {
@@ -220,18 +288,20 @@ const listGames = async (userSub: string) => {
 interface PostRequestBody {
   starter: User;
   players: User[];
+  emailList: string[];
 }
 
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
-      const { starter, players }: PostRequestBody = req.body;
+      const { starter, players, emailList }: PostRequestBody = req.body;
 
-      if (!starter || !players) {
+      console.log({ starter, players, emailList });
+      if (!starter || (!players && !emailList)) {
         res.status(400).end('Starter eller Players saknas');
         resolve('');
       } else {
-        startGame(starter, players)
+        startGame(starter, players, emailList)
           .then((result) => {
             res.status(200).json(result);
             resolve('');
