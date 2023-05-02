@@ -29,6 +29,7 @@ model Game {
   board        String?
   latestWord   String?
   users        UsersOnGames[]
+  invitations  Invitation[]
   currentTurn  Int            @default(1)
   turns        Turn[]         @relation("turns")
   finished     Boolean        @default(false)
@@ -45,6 +46,16 @@ model UsersOnGames {
   createdAt    DateTime @default(now())
 
   @@id([userSub, gameId])
+}
+
+model Invitation {
+  id        Int      @id @default(autoincrement())
+  game      Game     @relation(fields: [gameId], references: [id])
+  gameId    Int // relation scalar field
+  email     String
+  createdAt DateTime @default(now())
+
+  @@unique([gameId, email])
 }
 
 model Turn {

@@ -1,5 +1,5 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
-import { User } from '@prisma/client';
+import { Invitation, User } from '@prisma/client';
 import router from 'next/router';
 import { ResponseType, GameWithEverything } from 'types/types';
 
@@ -102,7 +102,11 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
     });
 };
 
-export const startGame = (starter: User, players: User[]) => {
+export const startGame = (
+  starter: User,
+  players: User[],
+  emailList: string[]
+) => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -111,7 +115,7 @@ export const startGame = (starter: User, players: User[]) => {
   const options = {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ starter, players })
+    body: JSON.stringify({ starter, players, emailList })
   };
   fetch(url, options)
     .then((response) => {
@@ -304,4 +308,40 @@ export const dismissRefusal = async (gameId: number, userSub: string) => {
       dismiss: { success: false, response: error }
     };
   }
+};
+
+export const getUpdatedInvitations = (
+  email: string,
+  sub: string
+): Promise<ResponseType<Invitation[]>> => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/invitations?email=' + email + '&sub=' + sub;
+  const options = {
+    method: 'GET',
+    headers: defaultHeaders
+  };
+  console.log('här görs en fetch för getUpdatedInvitations');
+  return fetch(url, options)
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.statusText);
+      }
+    })
+    .then((response) => {
+      return {
+        success: true as const,
+        data: response.data
+      };
+    })
+    .catch((error) => {
+      return {
+        success: false,
+        error: error
+      };
+    });
 };

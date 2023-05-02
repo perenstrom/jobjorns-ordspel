@@ -46,6 +46,14 @@ export const GameListListItem = ({ game }: { game: GameWithEverything }) => {
     }
   });
 
+  game.invitations.forEach((invitation) => {
+    if (playersList.length == 0) {
+      playersList = invitation.email;
+    } else {
+      playersList += ', ' + invitation.email;
+    }
+  });
+
   return (
     <ListItem disableGutters>
       <Link passHref href={`/game/${game.id}`}>
@@ -62,6 +70,13 @@ export const GameListListItem = ({ game }: { game: GameWithEverything }) => {
                     />
                   )
               )}
+              {game.invitations.map((invitation, index) => (
+                <Avatar
+                  sx={{ zIndex: 100 + index }}
+                  key={100 + index}
+                  src={gravatar(invitation.email)}
+                />
+              ))}
             </AvatarGroup>
           </ListItemAvatar>
           <ListItemText
