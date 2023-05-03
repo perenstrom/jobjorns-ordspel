@@ -36,7 +36,7 @@ const addUser = async (user: User) => {
           picture:
             'https://lh3.googleusercontent.com/a/AGNmyxYVLIwhcm95ez--qa8SoFriMrC_h7wwK5HLhM7Vpg=s96-c'
         };
-        const createGame = startGame(starter, [createResult]);
+        const createGame = startGame(starter, [createResult], []);
         if (createGame !== null) {
           return { message: `Spelet skapades` };
         } else {
