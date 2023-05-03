@@ -10,6 +10,8 @@ import {
 import { allLetters } from 'data/defaults';
 import { shuffleArray } from 'services/helpers';
 import { GameWithEverything } from 'types/types';
+import sendgrid from '@sendgrid/mail';
+import he from 'he';
 
 const prisma = new PrismaClient({
   log: ['warn', 'error']
@@ -66,9 +68,43 @@ export const startGame = async (
       }
     });
 
-    if (invitations.length > 0) {
-      // send mail here, through sendgrid API
-      console.log('send mail to: ', invitations);
+    if (invitations.length > 0 && process.env.SENDGRID_API_KEY) {
+      sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+
+      invitations.map(async (email) => {
+        const message = {
+          to: email,
+          from: 'Jobjörns ordspel <jobjorn@jobjorn.se>',
+          subject: starter.name + ' har bjudit in dig in till Jobjörns ordspel',
+          text:
+            'Hej!\n\n' +
+            he.encode(starter.name) +
+            ' har bjudit in dig till Jobj&ouml;rns ordspel.\n\n' +
+            'Skapa ett konto p&aring; https://jobjorns-ordspel.vercel.app/ med din mailadress (' +
+            he.encode(email) +
+            ') s&aring; kan ni spela tillsammans!\n\n' +
+            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du avs&auml;ga dig dem h&auml;r: <%asm_group_unsubscribe_raw_url%>\n\n' +
+            'Allt gott,\nJobj&ouml;rn',
+          html:
+            'Hej!<br><br>' +
+            he.encode(starter.name) +
+            ' har bjudit in dig till <strong>Jobj&ouml;rns ordspel</strong>.<br><br>' +
+            'Skapa ett konto p&aring; <a href="https://jobjorns-ordspel.vercel.app/">Jobj&ouml;rns ordspel</a> med din mailadress (' +
+            he.encode(email) +
+            ') s&aring; kan ni spela tillsammans!<br><br>' +
+            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du <a href="<%asm_group_unsubscribe_raw_url%>">avs&auml;ga dig dem h&auml;r</a>.<br><br>' +
+            'Allt gott,<br>Jobj&ouml;rn',
+          asm: {
+            groupId: 21182,
+            groups_to_display: [21182]
+          }
+        };
+        try {
+          await sendgrid.send(message);
+        } catch (error) {
+          console.error(error);
+        }
+      });
     }
 
     if (createGame !== null) {
