@@ -75,11 +75,13 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       const channel = ably.channels.get('quickstart');
       channel.subscribe((message: Ably.Types.Message) => {
-        if (message.name == 'turn' && message.data.gameId == game.id) {
+        if (message.name == 'move' && message.data.gameId == game.id) {
           fetchGame(game.id);
-          setBackdrop(true);
-          setAlerts([{ severity: 'info', message: 'Nu börjar en ny tur!' }]);
-          setPlayerHasSubmitted(false);
+          if (message.data.newTurn) {
+            setBackdrop(true);
+            setAlerts([{ severity: 'info', message: 'Nu börjar en ny tur!' }]);
+            setPlayerHasSubmitted(false);
+          }
         }
       });
 
