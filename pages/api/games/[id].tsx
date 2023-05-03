@@ -74,11 +74,10 @@ const submitMove = async (
   let wordIsSame = getPlayedWords(parsedBoard).join(', ') === playedWord; // det lagda ordet måste vara samma som det som skickas med
 
   if (
-    !tilesPlayed ||
+    !(tilesPlayed == adjacentPlacement) ||
     !sameDirection ||
     !coherentWord ||
     !inWordList ||
-    !adjacentPlacement ||
     !wordIsSame
   ) {
     return {
