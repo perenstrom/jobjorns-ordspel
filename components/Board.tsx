@@ -75,11 +75,13 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       const channel = ably.channels.get('quickstart');
       channel.subscribe((message: Ably.Types.Message) => {
-        if (message.name == 'turn' && message.data.gameId == game.id) {
+        if (message.name == 'move' && message.data.gameId == game.id) {
           fetchGame(game.id);
-          setBackdrop(true);
-          setAlerts([{ severity: 'info', message: 'Nu börjar en ny tur!' }]);
-          setPlayerHasSubmitted(false);
+          if (message.data.newTurn) {
+            setBackdrop(true);
+            setAlerts([{ severity: 'info', message: 'Nu börjar en ny tur!' }]);
+            setPlayerHasSubmitted(false);
+          }
         }
       });
 
@@ -94,7 +96,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   useEffect(() => {
     let newTiles: TileType[] = [];
     let gameTiles = game.letters.split(',');
-    for (let i = newTiles.length; i < 7; i++) {
+    for (let i = newTiles.length; i < 8; i++) {
       let popped = gameTiles.shift();
       if (popped) {
         newTiles.push({ letter: popped, placed: 'hand' });
@@ -485,7 +487,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
 const TileHolder = styled('div')((props) => ({
   display: 'grid',
-  gridTemplateColumns: 'repeat(7, 1fr)',
+  gridTemplateColumns: 'repeat(8, 1fr)',
   margin: props.theme.spacing(1, 0),
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
@@ -503,7 +505,8 @@ const BoardGrid = styled('div')<BoardGridProps>((props) => ({
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%',
-  maxWidth: 'calc(100vh - 72px - 78px - 16px - 33px - 8px)',
+  maxWidth: 'calc(100vh - 72px - 69px - 16px - 33px - 8px)',
+  // 100vh - navbar - tileholder - margin - button - margin
   margin: 'auto',
   aspectRatio: '1/1'
 }));

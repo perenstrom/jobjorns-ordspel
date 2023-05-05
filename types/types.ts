@@ -24,6 +24,7 @@ export type GameWithEverything = Prisma.GameGetPayload<{
         user: true;
       };
     };
+    invitations: true;
     turns: {
       include: {
         moves: true;

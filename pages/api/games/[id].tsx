@@ -29,6 +29,7 @@ const getGame = async (gameId: number) => {
             user: true
           }
         },
+        invitations: true,
         turns: {
           orderBy: {
             turnNumber: 'desc'
@@ -121,21 +122,26 @@ const submitMove = async (
       console.log('createMove gick bra');
 
       let turnEndResult = await runTurnEnd(gameId);
-      if (turnEndResult.success) {
-        return {
-          success: true,
-          move: { response: 'Draget sparades' },
-          turn: { response: turnEndResult.turn.response },
-          updateMove: { response: turnEndResult.updateMove.response }
-        };
-      } else {
-        return {
-          success: false,
-          move: { response: 'Draget sparades' },
-          turn: { response: turnEndResult.turn.response },
-          updateMove: { response: turnEndResult.updateMove.response }
-        };
+
+      // For the full code sample see here: https://github.com/ably/quickstart-js
+      const ablyApiKey = process.env.ABLY_API_KEY;
+      if (ablyApiKey) {
+        const ably = new Ably.Realtime.Promise(ablyApiKey);
+        await ably.connection.once('connected');
+        const channel = ably.channels.get('quickstart');
+        await channel.publish('move', {
+          gameId: gameId,
+          newTurn: turnEndResult.success
+        });
+        ably.close();
       }
+
+      return {
+        success: true,
+        move: { response: 'Draget sparades' },
+        turn: { response: turnEndResult.turn.response },
+        updateMove: { response: turnEndResult.updateMove.response }
+      };
     } else {
       throw new Error(
         'Något gick fel i sparandet av draget, createMove var null'
@@ -155,7 +161,7 @@ export const runTurnEnd = async (gameId: number) => {
   const game = await getGame(gameId);
 
   if (game.data) {
-    let playersCount = game.data.users.length;
+    let playersCount = game.data.users.length + game.data.invitations.length;
     let lastTurn = game.data.turns[0];
     let playedCount = lastTurn?.moves.length;
     let allSkipped = true;
@@ -245,7 +251,7 @@ export const runTurnEnd = async (gameId: number) => {
       }
     } else {
       return {
-        success: true as const,
+        success: false as const,
         turn: { response: 'Inte sista turen' },
         updateMove: { response: 'Inte sista turen' }
       };
@@ -307,16 +313,6 @@ const submitTurn = async (
       }
     });
     if (updateResult !== null) {
-      // For the full code sample see here: https://github.com/ably/quickstart-js
-      const ablyApiKey = process.env.ABLY_API_KEY;
-      if (ablyApiKey) {
-        const ably = new Ably.Realtime.Promise(ablyApiKey);
-        await ably.connection.once('connected');
-        const channel = ably.channels.get('quickstart');
-        await channel.publish('turn', { gameId: gameId });
-        ably.close();
-      }
-
       return { success: true as const, response: 'Ny tur sparades' };
     } else {
       throw new Error(

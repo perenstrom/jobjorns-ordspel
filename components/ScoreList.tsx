@@ -5,7 +5,8 @@ import {
   TableContainer,
   TableHead,
   Modal,
-  TableRow
+  TableRow,
+  Paper
 } from '@mui/material';
 import { Move, Turn } from '@prisma/client';
 import { GameWithEverything } from 'types/types';
@@ -62,11 +63,21 @@ export const ScoreList = ({ game }: ScoreListProps) => {
           justifyContent: 'center'
         }}
       >
-        <FinishedModal
-          game={game}
-          userPoints={userPoints}
-          handleCloseFinishedModal={handleCloseFinishedModal}
-        />
+        <Paper
+          sx={{
+            p: 3,
+            m: 3,
+            width: '100%',
+            maxWidth: '400px'
+          }}
+          variant="outlined"
+        >
+          <FinishedModal
+            game={game}
+            userPoints={userPoints}
+            handleCloseFinishedModal={handleCloseFinishedModal}
+          />
+        </Paper>
       </Modal>
       <TableContainer sx={{ mt: 3 }}>
         <Table size="small">
@@ -89,6 +100,11 @@ export const ScoreList = ({ game }: ScoreListProps) => {
                   />
                 </TableCell>
               ))}
+              {game.invitations.map((invitation) => (
+                <TableCell key={invitation.id} style={{ fontWeight: 'bold' }}>
+                  {invitation.email}
+                </TableCell>
+              ))}
             </TableRow>
             {game.turns.map((turn) => (
               <TableRow key={turn.id}>
@@ -102,6 +118,21 @@ export const ScoreList = ({ game }: ScoreListProps) => {
                       (move) => move.userSub == player.userSub
                     )}
                   />
+                ))}
+                {game.invitations.map((invitation) => (
+                  <TableCell key={invitation.id}>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        flexDirection: 'row',
+                        color: 'grey'
+                      }}
+                    >
+                      (har ännu inte accepterat inbjudan)
+                    </div>
+                  </TableCell>
                 ))}
               </TableRow>
             ))}

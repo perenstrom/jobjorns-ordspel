@@ -1,19 +1,50 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { Move, PrismaClient, Turn, User, UsersOnGames } from '@prisma/client';
+import {
+  Invitation,
+  Move,
+  PrismaClient,
+  Turn,
+  User,
+  UsersOnGames
+} from '@prisma/client';
 import { allLetters } from 'data/defaults';
 import { shuffleArray } from 'services/helpers';
 import { GameWithEverything } from 'types/types';
+import sendgrid from '@sendgrid/mail';
+import he from 'he';
 
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  log: ['warn', 'error']
 });
 
-const startGame = async (starter: User, players: User[]) => {
-  let newPlayers = [...players, starter];
+export const startGame = async (
+  starter: User,
+  players: User[],
+  emailList: string[]
+) => {
+  let newPlayers = [starter, ...players];
+  let invitations: string[] = [];
 
   let letters: string = shuffleArray(allLetters()).join();
 
   try {
+    if (emailList.length > 0) {
+      await Promise.all(
+        emailList.map(async (email) => {
+          const newPlayer = await prisma.user.findUnique({
+            where: {
+              email: email
+            }
+          });
+          if (newPlayer !== null) {
+            newPlayers.push(newPlayer);
+          } else {
+            invitations.push(email);
+          }
+        })
+      );
+    }
+
     const createGame = await prisma.game.create({
       data: {
         letters: letters,
@@ -28,9 +59,53 @@ const startGame = async (starter: User, players: User[]) => {
             userSub: player.sub,
             userAccepted: player.sub == starter.sub
           }))
+        },
+        invitations: {
+          create: invitations.map((email) => ({
+            email: email
+          }))
         }
       }
     });
+
+    if (invitations.length > 0 && process.env.SENDGRID_API_KEY) {
+      sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
+
+      invitations.map(async (email) => {
+        const message = {
+          to: email,
+          from: 'Jobjörns ordspel <jobjorn@jobjorn.se>',
+          subject: starter.name + ' har bjudit in dig in till Jobjörns ordspel',
+          text:
+            'Hej!\n\n' +
+            he.encode(starter.name) +
+            ' har bjudit in dig till Jobj&ouml;rns ordspel.\n\n' +
+            'Skapa ett konto p&aring; https://jobjorns-ordspel.vercel.app/ med din mailadress (' +
+            he.encode(email) +
+            ') s&aring; kan ni spela tillsammans!\n\n' +
+            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du avs&auml;ga dig dem h&auml;r: <%asm_group_unsubscribe_raw_url%>\n\n' +
+            'Allt gott,\nJobj&ouml;rn',
+          html:
+            'Hej!<br><br>' +
+            he.encode(starter.name) +
+            ' har bjudit in dig till <strong>Jobj&ouml;rns ordspel</strong>.<br><br>' +
+            'Skapa ett konto p&aring; <a href="https://jobjorns-ordspel.vercel.app/">Jobj&ouml;rns ordspel</a> med din mailadress (' +
+            he.encode(email) +
+            ') s&aring; kan ni spela tillsammans!<br><br>' +
+            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du <a href="<%asm_group_unsubscribe_raw_url%>">avs&auml;ga dig dem h&auml;r</a>.<br><br>' +
+            'Allt gott,<br>Jobj&ouml;rn',
+          asm: {
+            groupId: 21182,
+            groups_to_display: [21182]
+          }
+        };
+        try {
+          await sendgrid.send(message);
+        } catch (error) {
+          console.error(error);
+        }
+      });
+    }
 
     if (createGame !== null) {
       return { message: `Spelet skapades`, id: createGame.id };
@@ -61,6 +136,10 @@ type GameWithEverythingRaw = {
   name: string;
   email: string;
   picture: string;
+  settingVisibility: boolean;
+  invitationId: number | null;
+  invitationEmail: string | null;
+  invitationCreatedAt: Date | null;
   turnId: number | null;
   turnNumber: number | null;
   turnStart: Date | null;
@@ -94,6 +173,10 @@ const listGames = async (userSub: string) => {
         "users"."name",
         "users"."email",
         "users"."picture",
+        "users"."settingVisibility",
+        "Invitation"."id" as "invitationId",
+        "Invitation"."email" as "invitationEmail",
+        "Invitation"."createdAt" as "invitationCreatedAt",
         "Turn"."id" as "turnId",
         "Turn"."turnNumber",
         "Turn"."turnStart",
@@ -108,6 +191,7 @@ const listGames = async (userSub: string) => {
       JOIN "games" ON "games"."id" = "UsersOwnGames"."gameId"
       JOIN "UsersOnGames" AS "GameParticipants" ON "GameParticipants"."gameId" = "games"."id"
       JOIN "users" ON "users"."sub" = "GameParticipants"."userSub"
+      LEFT JOIN "Invitation" ON "Invitation"."gameId" = "games"."id"
       LEFT JOIN "Turn" ON "Turn"."gameId" = "games"."id"
       LEFT JOIN "Move" ON "Move"."turnId" = "Turn"."id"
       WHERE "UsersOwnGames"."userSub" = ${userSub}
@@ -127,6 +211,7 @@ const listGames = async (userSub: string) => {
           latestWord: gameRaw.latestWord,
           currentTurn: gameRaw.currentTurn,
           users: [],
+          invitations: [],
           turns: [],
           finished: gameRaw.finished
         };
@@ -144,7 +229,8 @@ const listGames = async (userSub: string) => {
             sub: gameRaw.userSub,
             name: gameRaw.name,
             email: gameRaw.email,
-            picture: gameRaw.picture
+            picture: gameRaw.picture,
+            settingVisibility: gameRaw.settingVisibility
           }
         };
         if (
@@ -153,6 +239,27 @@ const listGames = async (userSub: string) => {
             ?.users.find((u) => u.userSub === user.userSub) === undefined
         ) {
           games.find((g) => g.id === game.id)?.users.push(user);
+        }
+
+        if (
+          gameRaw.invitationId &&
+          gameRaw.invitationEmail &&
+          gameRaw.invitationCreatedAt
+        ) {
+          let invitation: Invitation = {
+            id: gameRaw.invitationId,
+            gameId: gameRaw.gameId,
+            email: gameRaw.invitationEmail,
+            createdAt: gameRaw.invitationCreatedAt
+          };
+
+          if (
+            games
+              .find((g) => g.id === game.id)
+              ?.invitations.find((i) => i.id === invitation.id) === undefined
+          ) {
+            games.find((g) => g.id === game.id)?.invitations.push(invitation);
+          }
         }
 
         if (gameRaw.turnId && gameRaw.turnNumber && gameRaw.turnStart) {
@@ -220,18 +327,20 @@ const listGames = async (userSub: string) => {
 interface PostRequestBody {
   starter: User;
   players: User[];
+  emailList: string[];
 }
 
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
-      const { starter, players }: PostRequestBody = req.body;
+      const { starter, players, emailList }: PostRequestBody = req.body;
 
-      if (!starter || !players) {
+      console.log({ starter, players, emailList });
+      if (!starter || (!players && !emailList)) {
         res.status(400).end('Starter eller Players saknas');
         resolve('');
       } else {
-        startGame(starter, players)
+        startGame(starter, players, emailList)
           .then((result) => {
             res.status(200).json(result);
             resolve('');

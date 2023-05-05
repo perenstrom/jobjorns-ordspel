@@ -1,7 +1,7 @@
 import { Tile } from 'types/types';
 
 export const defaultBoard = () => {
-  const size = 11;
+  const size = 13;
 
   const generateInner = () => {
     const inner = new Array<Tile>(size);

@@ -8,7 +8,7 @@ import {
   Typography
 } from '@mui/material';
 import { useUser } from '@auth0/nextjs-auth0';
-import { listGames } from 'services/local';
+import { getUpdatedInvitations, listGames } from 'services/local';
 import { GameWithEverything } from 'types/types';
 import { GameListListItem } from './GameListItem';
 import { GameInviteListItem } from './GameListInvite';
@@ -36,6 +36,8 @@ export const GameList: React.FC<{}> = () => {
     GameWithEverything[]
   >([]);
   const [favicon, setFavicon] = useState<string>('');
+  const [updatedInvitationsToggle, setUpdatedInvitationsToggle] =
+    useState<boolean>(false);
 
   const { user } = useUser();
 
@@ -45,7 +47,7 @@ export const GameList: React.FC<{}> = () => {
         const newGamesList = await listGames(user.sub);
 
         if (newGamesList.success) {
-          console.log(newGamesList.data);
+          console.log('här får vi nya games!', newGamesList.data);
           setGamesList(newGamesList.data);
         }
       }
@@ -53,6 +55,28 @@ export const GameList: React.FC<{}> = () => {
     };
 
     fetchGamesList();
+  }, [user, updatedInvitationsToggle]);
+
+  useEffect(() => {
+    const fetchUpdatedInvitations = async () => {
+      if (user && user.email && user.sub) {
+        const newUpdatedInvitations = await getUpdatedInvitations(
+          user.email,
+          user.sub
+        );
+
+        console.log({ newUpdatedInvitations });
+        if (
+          newUpdatedInvitations.success &&
+          newUpdatedInvitations.data &&
+          newUpdatedInvitations.data.length > 0
+        ) {
+          setUpdatedInvitationsToggle(true);
+        }
+      }
+    };
+
+    fetchUpdatedInvitations();
   }, [user]);
 
   useEffect(() => {
@@ -72,7 +96,11 @@ export const GameList: React.FC<{}> = () => {
             ?.userAccepted == false
         ) {
           newGamesListInvites.push(game);
-        } else if (game.startedBySub == user.sub && game.users.length == 1) {
+        } else if (
+          game.startedBySub == user.sub &&
+          game.users.length == 1 &&
+          game.invitations.length == 0
+        ) {
           newGamesListRefusals.push(game);
         } else if (
           game.turns[0] &&
