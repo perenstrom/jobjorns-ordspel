@@ -136,6 +136,7 @@ type GameWithEverythingRaw = {
   name: string;
   email: string;
   picture: string;
+  settingVisibility: boolean;
   invitationId: number | null;
   invitationEmail: string | null;
   invitationCreatedAt: Date | null;
@@ -172,6 +173,7 @@ const listGames = async (userSub: string) => {
         "users"."name",
         "users"."email",
         "users"."picture",
+        "users"."settingVisibility",
         "Invitation"."id" as "invitationId",
         "Invitation"."email" as "invitationEmail",
         "Invitation"."createdAt" as "invitationCreatedAt",
@@ -227,7 +229,8 @@ const listGames = async (userSub: string) => {
             sub: gameRaw.userSub,
             name: gameRaw.name,
             email: gameRaw.email,
-            picture: gameRaw.picture
+            picture: gameRaw.picture,
+            settingVisibility: gameRaw.settingVisibility
           }
         };
         if (

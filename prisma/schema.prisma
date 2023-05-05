@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-  id           Int            @id @default(autoincrement())
-  sub          String         @unique
-  name         String
-  email        String         @unique
-  picture      String?
-  games        UsersOnGames[]
-  startedGames Game[]
-  moves        Move[]
+  id                Int            @id @default(autoincrement())
+  sub               String         @unique
+  name              String
+  email             String         @unique
+  picture           String?
+  settingVisibility Boolean        @default(true)
+  games             UsersOnGames[]
+  startedGames      Game[]
+  moves             Move[]
 
   @@map("users")
 }
