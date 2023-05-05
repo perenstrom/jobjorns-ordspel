@@ -345,3 +345,27 @@ export const getUpdatedInvitations = (
       };
     });
 };
+
+export const updateUser = async (user: User): Promise<ResponseType<User>> => {
+  const defaultHeaders = {
+    Accept: 'application/json',
+    'Content-Type': 'application/json;charset=UTF-8'
+  };
+  const url = '/api/user/';
+  const options = {
+    method: 'PATCH',
+    headers: defaultHeaders,
+    body: JSON.stringify({ user })
+  };
+
+  try {
+    const updatedUser = await (await fetch(url, options)).json();
+
+    return { success: true as const, data: updatedUser };
+  } catch (error) {
+    return {
+      success: false as const,
+      error: error as Error
+    };
+  }
+};

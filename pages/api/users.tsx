@@ -34,7 +34,8 @@ const addUser = async (user: User) => {
           name: 'Jobjörn Folkesson',
           email: 'jobjorn@gmail.com',
           picture:
-            'https://lh3.googleusercontent.com/a/AGNmyxYVLIwhcm95ez--qa8SoFriMrC_h7wwK5HLhM7Vpg=s96-c'
+            'https://lh3.googleusercontent.com/a/AGNmyxYVLIwhcm95ez--qa8SoFriMrC_h7wwK5HLhM7Vpg=s96-c',
+          settingVisibility: true
         };
         const createGame = startGame(starter, [createResult], []);
         if (createGame !== null) {
@@ -59,7 +60,11 @@ const addUser = async (user: User) => {
 
 const listUsers = async () => {
   try {
-    const listUsersPrisma = await prisma.user.findMany();
+    const listUsersPrisma = await prisma.user.findMany({
+      where: {
+        settingVisibility: true
+      }
+    });
     if (listUsersPrisma === null) {
       return { message: 'Inga användare returnerades' };
     } else {
