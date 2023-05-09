@@ -25,6 +25,7 @@ import {
 } from 'services/game';
 import Ably from 'ably';
 import Head from 'next/head';
+import { TileHolder } from './TileHolder';
 
 const emptyTile: TileType = {
   letter: '',
@@ -429,16 +430,11 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
           ))
         )}
       </BoardGrid>
-      <TileHolder>
-        {tiles.map((tile, index) => (
-          <Tile
-            tile={tile}
-            status={selectedTile == tile ? 'selected' : 'hand'}
-            key={index}
-            onClick={() => selectTile(tile)}
-          />
-        ))}
-      </TileHolder>
+      <TileHolder
+        tiles={tiles}
+        selectedTile={selectedTile}
+        selectTile={selectTile}
+      />
       <Stack direction="row" spacing={1}>
         {tiles.length > 0 ? (
           <Button variant="outlined" onClick={() => shuffleTileHolder()}>
@@ -484,15 +480,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     </Container>
   );
 };
-
-const TileHolder = styled('div')((props) => ({
-  display: 'grid',
-  gridTemplateColumns: 'repeat(8, 1fr)',
-  margin: props.theme.spacing(1, 0),
-  gap: props.theme.spacing(0.25),
-  justifyItems: 'stretch',
-  width: '100%'
-}));
 
 type BoardGridProps = {
   size: number;
