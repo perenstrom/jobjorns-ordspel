@@ -81,4 +81,6 @@ model Move {
   playedTime   DateTime @default(now())
   playedPoints Int
   won          Boolean  @default(false)
+
+  @@unique([turnId, userSub])
 }
