@@ -22,18 +22,19 @@ model User {
 }
 
 model Game {
-  id           Int            @id @default(autoincrement())
-  letters      String
-  startedAt    DateTime       @default(now())
-  startedBy    User           @relation(fields: [startedBySub], references: [sub])
-  startedBySub String // relation scalar field
-  board        String?
-  latestWord   String?
-  users        UsersOnGames[]
-  invitations  Invitation[]
-  currentTurn  Int            @default(1)
-  turns        Turn[]         @relation("turns")
-  finished     Boolean        @default(false)
+  id               Int            @id @default(autoincrement())
+  letters          String
+  startedAt        DateTime       @default(now())
+  startedBy        User           @relation(fields: [startedBySub], references: [sub])
+  startedBySub     String // relation scalar field
+  board            String?
+  latestWord       String?
+  users            UsersOnGames[]
+  invitations      Invitation[]
+  currentTurn      Int            @default(1)
+  currentTurnStart DateTime       @default(now())
+  turns            Turn[]         @relation("turns")
+  finished         Boolean        @default(false)
 
   @@map("games")
 }
@@ -45,8 +46,18 @@ model UsersOnGames {
   game         Game     @relation(fields: [gameId], references: [id])
   gameId       Int // relation scalar field
   createdAt    DateTime @default(now())
+  status       Status   @default(DEFAULT)
 
   @@id([userSub, gameId])
+}
+
+enum Status {
+  DEFAULT
+  REFUSED
+  INVITED
+  YOURTURN
+  OTHERTURN
+  FINISHED
 }
 
 model Invitation {
