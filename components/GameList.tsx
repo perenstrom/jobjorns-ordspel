@@ -195,7 +195,9 @@ export const GameList: React.FC<{}> = () => {
         )}
         <List>
           {gamesListReady.length > 0 && (
-            <ListSubheader>Väntar på ditt drag</ListSubheader>
+            <ListSubheader style={{ zIndex: 200 }}>
+              Väntar på ditt drag
+            </ListSubheader>
           )}
 
           {gamesListReady.map((game, index) => (
@@ -203,7 +205,9 @@ export const GameList: React.FC<{}> = () => {
           ))}
 
           {gamesListWaiting.length > 0 && (
-            <ListSubheader>Väntar på andras drag</ListSubheader>
+            <ListSubheader style={{ zIndex: 200 }}>
+              Väntar på andras drag
+            </ListSubheader>
           )}
           {gamesListWaiting.map((game, index) => (
             <GameListListItem key={index} game={game} />
