@@ -54,3 +54,6 @@ export const allLetters = () =>
   allLettersData.flatMap((letterData) =>
     Array<string>(letterData.count).fill(letterData.letter)
   );
+
+export const bonusPoints = [0, 1, 1, 2, 3, 5, 8, 13];
+export const bonusPointsSums = [0, 1, 2, 4, 7, 12, 20, 33];
