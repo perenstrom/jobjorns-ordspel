@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { useUser } from '@auth0/nextjs-auth0';
 import { getUpdatedInvitations, listGames } from 'services/local';
-import { GameWithEverything } from 'types/types';
+import { GameListNecessaryData } from 'types/types';
 import { GameListListItem } from './GameListItem';
 import { GameInviteListItem } from './GameListInvite';
 import { GameListRefusal } from './GameListRefusal';
@@ -19,21 +19,21 @@ import { faviconString } from 'services/helpers';
 export const GameList: React.FC<{}> = () => {
   const [loading, setLoading] = useState(true);
   // const [userWithId, setUserWithId] = useState<User>();
-  const [gamesList, setGamesList] = useState<GameWithEverything[]>([]);
+  const [gamesList, setGamesList] = useState<GameListNecessaryData[]>([]);
   const [gamesListInvites, setGamesListInvites] = useState<
-    GameWithEverything[]
+    GameListNecessaryData[]
   >([]);
   const [gamesListRefusals, setGamesListRefusals] = useState<
-    GameWithEverything[]
+    GameListNecessaryData[]
   >([]);
   const [gamesListWaiting, setGamesListWaiting] = useState<
-    GameWithEverything[]
+    GameListNecessaryData[]
   >([]);
-  const [gamesListReady, setGamesListReady] = useState<GameWithEverything[]>(
+  const [gamesListReady, setGamesListReady] = useState<GameListNecessaryData[]>(
     []
   );
   const [gamesListFinished, setGamesListFinished] = useState<
-    GameWithEverything[]
+    GameListNecessaryData[]
   >([]);
   const [favicon, setFavicon] = useState<string>('');
   const [updatedInvitationsToggle, setUpdatedInvitationsToggle] =
@@ -81,33 +81,21 @@ export const GameList: React.FC<{}> = () => {
 
   useEffect(() => {
     if (user && user.sub && gamesList.length > 0) {
-      let newGamesListInvites: GameWithEverything[] = [];
-      let newGamesListRefusals: GameWithEverything[] = [];
-      let newGamesListReady: GameWithEverything[] = [];
-      let newGamesListWaiting: GameWithEverything[] = [];
-      let newGamesListFinished: GameWithEverything[] = [];
+      let newGamesListInvites: GameListNecessaryData[] = [];
+      let newGamesListRefusals: GameListNecessaryData[] = [];
+      let newGamesListReady: GameListNecessaryData[] = [];
+      let newGamesListWaiting: GameListNecessaryData[] = [];
+      let newGamesListFinished: GameListNecessaryData[] = [];
 
       gamesList.map((game) => {
-        console.log({ 'game.id': game.id, 'game.finished': game.finished });
-        if (game.finished) {
+        console.log({ 'game.id': game.id, 'game.status': game.status });
+        if (game.status == 'FINISHED') {
           newGamesListFinished.push(game);
-        } else if (
-          game.users.find((player) => player.userSub == user.sub)
-            ?.userAccepted == false
-        ) {
+        } else if (game.status == 'INVITED') {
           newGamesListInvites.push(game);
-        } else if (
-          game.startedBySub == user.sub &&
-          game.users.length == 1 &&
-          game.invitations.length == 0
-        ) {
+        } else if (game.status == 'REFUSED') {
           newGamesListRefusals.push(game);
-        } else if (
-          game.turns[0] &&
-          game.turns[0].moves.findIndex((move) => move.userSub == user.sub) >
-            -1 &&
-          game.turns[0].turnNumber == game.currentTurn
-        ) {
+        } else if (game.status == 'OTHERTURN') {
           newGamesListWaiting.push(game);
         } else {
           newGamesListReady.push(game);
@@ -167,7 +155,7 @@ export const GameList: React.FC<{}> = () => {
           {gamesListInvites.map((game, index) => (
             <GameInviteListItem
               key={index}
-              game={game}
+              gameId={game.id}
               removeGameFromList={removeGameFromList}
             />
           ))}
@@ -182,7 +170,7 @@ export const GameList: React.FC<{}> = () => {
           {gamesListRefusals.map((game, index) => (
             <GameListRefusal
               key={index}
-              game={game}
+              gameId={game.id}
               removeGameFromList={removeGameFromList}
             />
           ))}
@@ -201,7 +189,7 @@ export const GameList: React.FC<{}> = () => {
           )}
 
           {gamesListReady.map((game, index) => (
-            <GameListListItem key={index} game={game} />
+            <GameListListItem key={index} gameId={game.id} />
           ))}
 
           {gamesListWaiting.length > 0 && (
@@ -210,7 +198,7 @@ export const GameList: React.FC<{}> = () => {
             </ListSubheader>
           )}
           {gamesListWaiting.map((game, index) => (
-            <GameListListItem key={index} game={game} />
+            <GameListListItem key={index} gameId={game.id} />
           ))}
         </List>
 
@@ -221,7 +209,7 @@ export const GameList: React.FC<{}> = () => {
         )}
         <List>
           {gamesListFinished.map((game, index) => (
-            <GameListListItem key={index} game={game} />
+            <GameListListItem key={index} gameId={game.id} />
           ))}
         </List>
       </Container>

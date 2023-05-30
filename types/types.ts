@@ -32,3 +32,8 @@ export type GameWithEverything = Prisma.GameGetPayload<{
     };
   };
 }>;
+
+export type GameListNecessaryData = {
+  id: number;
+  status: string;
+};
