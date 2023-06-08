@@ -1,7 +1,11 @@
 import { UserProfile } from '@auth0/nextjs-auth0';
 import { Invitation, User } from '@prisma/client';
 import router from 'next/router';
-import { ResponseType, GameWithEverything } from 'types/types';
+import {
+  ResponseType,
+  GameWithEverything,
+  GameListNecessaryData
+} from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   const defaultHeaders = {
@@ -102,11 +106,8 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
     });
 };
 
-export const startGame = (
-  starter: User,
-  players: User[],
-  emailList: string[]
-) => {
+export const startGame = (players: User[], emailList: string[]) => {
+  console.log(players, emailList);
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -115,7 +116,7 @@ export const startGame = (
   const options = {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ starter, players, emailList })
+    body: JSON.stringify({ players, emailList })
   };
   fetch(url, options)
     .then((response) => {
@@ -173,7 +174,7 @@ export const getGame = (
 
 export const listGames = (
   userSub: string
-): Promise<ResponseType<GameWithEverything[]>> => {
+): Promise<ResponseType<GameListNecessaryData[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -207,7 +208,7 @@ export const listGames = (
 
 export const submitMove = async (
   gameId: number,
-  userSub: number,
+  userSub: string,
   turnNumber: number,
   playedWord: string,
   playedBoard: string

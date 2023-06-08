@@ -59,7 +59,7 @@ const getGame = async (gameId: number) => {
 
 const submitMove = async (
   gameId: number,
-  userSub: number,
+  userSub: string,
   turnNumber: number,
   playedWord: string,
   playedBoard: string
@@ -109,7 +109,7 @@ const submitMove = async (
         },
         user: {
           connect: {
-            id: userSub
+            sub: userSub
           }
         },
         playedWord: playedWord,
@@ -120,6 +120,19 @@ const submitMove = async (
 
     if (createMove !== null) {
       console.log('createMove gick bra');
+
+      let updateUserOnGame = await prisma.usersOnGames.update({
+        where: {
+          userSub_gameId: {
+            gameId: gameId,
+            userSub: userSub
+          }
+        },
+        data: {
+          status: 'OTHERTURN'
+        }
+      });
+      console.log(updateUserOnGame);
 
       let turnEndResult = await runTurnEnd(gameId);
 
@@ -313,6 +326,16 @@ const submitTurn = async (
       }
     });
     if (updateResult !== null) {
+      let updateUserOnGame = await prisma.usersOnGames.updateMany({
+        where: {
+          gameId: gameId
+        },
+        data: {
+          status: 'YOURTURN'
+        }
+      });
+      console.log(updateUserOnGame);
+
       return { success: true as const, response: 'Ny tur sparades' };
     } else {
       throw new Error(
@@ -338,6 +361,16 @@ const endGame = async (gameId: number) => {
       }
     });
     if (endGameResult !== null) {
+      let updateUserOnGame = await prisma.usersOnGames.updateMany({
+        where: {
+          gameId: gameId
+        },
+        data: {
+          status: 'FINISHED'
+        }
+      });
+      console.log(updateUserOnGame);
+
       return { success: true as const, response: 'Spelet avslutades' };
     } else {
       throw new Error(
@@ -356,7 +389,8 @@ const acceptInvite = async (gameId: number, userSub: string) => {
   try {
     const updateResult = await prisma.usersOnGames.update({
       data: {
-        userAccepted: true
+        userAccepted: true,
+        status: 'YOURTURN'
       },
       where: {
         userSub_gameId: {
@@ -391,11 +425,48 @@ const declineInvite = async (gameId: number, userSub: string) => {
       }
     });
     if (deleteResult !== null) {
+      checkDeclinations(gameId);
+
       return { success: true as const, response: 'Inbjudan avvisades' };
     } else {
       throw new Error(
         'Något gick fel i avvisandet av inbjudan, deleteResult var null'
       );
+    }
+  } catch (error) {
+    return {
+      success: false as const,
+      response: 'Det blev ett error: ' + error
+    };
+  }
+};
+
+const checkDeclinations = async (gameId: number) => {
+  try {
+    const checkDeclinationsResult = await prisma.usersOnGames.count({
+      where: {
+        gameId: gameId
+      }
+    });
+    if (checkDeclinationsResult === 1) {
+      const updateResult = await prisma.usersOnGames.updateMany({
+        data: {
+          status: 'REFUSED'
+        },
+        where: {
+          gameId: gameId
+        }
+      });
+      if (updateResult !== null) {
+        return {
+          success: true as const,
+          response: 'Alla inbjudningar har avvisats'
+        };
+      } else {
+        throw new Error(
+          'Något gick fel i uppdateringen av inbjudningsstatus, updateResult var null'
+        );
+      }
     }
   } catch (error) {
     return {
@@ -432,7 +503,7 @@ const dismissRefusal = async (gameId: number, userSub: string) => {
 
 interface PostRequestBodyMove {
   variant: 'move';
-  userSub: number;
+  userSub: string;
   turnNumber: number;
   playedWord: string;
   playedBoard: string;
