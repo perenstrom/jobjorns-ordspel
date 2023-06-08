@@ -53,7 +53,8 @@ export const startGame = async (
         users: {
           create: newPlayers.map((playerSub) => ({
             userSub: playerSub,
-            userAccepted: playerSub == starter
+            userAccepted: playerSub == starter,
+            status: playerSub == starter ? 'YOURTURN' : 'INVITED'
           }))
         },
         invitations: {

@@ -208,7 +208,7 @@ export const listGames = (
 
 export const submitMove = async (
   gameId: number,
-  userSub: number,
+  userSub: string,
   turnNumber: number,
   playedWord: string,
   playedBoard: string
