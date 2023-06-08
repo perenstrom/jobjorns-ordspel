@@ -5,17 +5,20 @@ import { shuffleArray } from 'services/helpers';
 import sendgrid from '@sendgrid/mail';
 import he from 'he';
 import { GameListNecessaryData } from 'types/types';
+import { getUser } from 'services/authorization';
 
 const prisma = new PrismaClient({
   log: ['warn', 'error']
 });
 
 export const startGame = async (
-  starter: User,
+  starter: User['sub'],
   players: User[],
   emailList: string[]
 ) => {
-  let newPlayers = [starter, ...players];
+  let newPlayers = players.map((player) => player.sub);
+  newPlayers.push(starter);
+
   let invitations: string[] = [];
 
   let letters: string = shuffleArray(allLetters()).join();
@@ -30,7 +33,7 @@ export const startGame = async (
             }
           });
           if (newPlayer !== null) {
-            newPlayers.push(newPlayer);
+            newPlayers.push(newPlayer.sub);
           } else {
             invitations.push(email);
           }
@@ -43,14 +46,14 @@ export const startGame = async (
         letters: letters,
         startedBy: {
           connect: {
-            id: starter.id
+            sub: starter
           }
         },
         currentTurn: 1,
         users: {
-          create: newPlayers.map((player) => ({
-            userSub: player.sub,
-            userAccepted: player.sub == starter.sub
+          create: newPlayers.map((playerSub) => ({
+            userSub: playerSub,
+            userAccepted: playerSub == starter
           }))
         },
         invitations: {
@@ -144,14 +147,17 @@ interface PostRequestBody {
 const games = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
-      const { starter, players, emailList }: PostRequestBody = req.body;
+      const { players, emailList }: PostRequestBody = req.body;
 
-      console.log({ starter, players, emailList });
-      if (!starter || (!players && !emailList)) {
-        res.status(400).end('Starter eller Players saknas');
+      const loggedInUser = getUser(req, res);
+      const loggedInUserSub = loggedInUser?.sub;
+
+      console.log({ players, emailList });
+      if (!loggedInUserSub || (!players && !emailList)) {
+        res.status(400).end('Players saknas');
         resolve('');
       } else {
-        startGame(starter, players, emailList)
+        startGame(loggedInUserSub, players, emailList)
           .then((result) => {
             res.status(200).json(result);
             resolve('');

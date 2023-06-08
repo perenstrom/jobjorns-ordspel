@@ -106,11 +106,8 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
     });
 };
 
-export const startGame = (
-  starter: User,
-  players: User[],
-  emailList: string[]
-) => {
+export const startGame = (players: User[], emailList: string[]) => {
+  console.log(players, emailList);
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -119,7 +116,7 @@ export const startGame = (
   const options = {
     method: 'POST',
     headers: defaultHeaders,
-    body: JSON.stringify({ starter, players, emailList })
+    body: JSON.stringify({ players, emailList })
   };
   fetch(url, options)
     .then((response) => {
