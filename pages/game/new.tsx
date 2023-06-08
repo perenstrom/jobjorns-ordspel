@@ -198,13 +198,7 @@ const NewGamePage: NextPage<{}> = () => {
             <Button
               disabled={selectedUsers.length + emailList.length < 1}
               variant="contained"
-              onClick={() =>
-                startGame(
-                  users.find((u) => u.sub === user.sub) as User,
-                  selectedUsers,
-                  emailList
-                )
-              }
+              onClick={() => startGame(selectedUsers, emailList)}
             >
               Bjud in {selectedUsers.length + emailList.length} spelare
             </Button>
