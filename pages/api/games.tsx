@@ -71,10 +71,10 @@ export const startGame = async (
         const message = {
           to: email,
           from: 'Jobjörns ordspel <jobjorn@jobjorn.se>',
-          subject: starter.name + ' har bjudit in dig in till Jobjörns ordspel',
+          subject: starter + ' har bjudit in dig in till Jobjörns ordspel',
           text:
             'Hej!\n\n' +
-            he.encode(starter.name) +
+            he.encode(starter) +
             ' har bjudit in dig till Jobj&ouml;rns ordspel.\n\n' +
             'Skapa ett konto p&aring; https://jobjorns-ordspel.vercel.app/ med din mailadress (' +
             he.encode(email) +
@@ -83,7 +83,7 @@ export const startGame = async (
             'Allt gott,\nJobj&ouml;rn',
           html:
             'Hej!<br><br>' +
-            he.encode(starter.name) +
+            he.encode(starter) +
             ' har bjudit in dig till <strong>Jobj&ouml;rns ordspel</strong>.<br><br>' +
             'Skapa ett konto p&aring; <a href="https://jobjorns-ordspel.vercel.app/">Jobj&ouml;rns ordspel</a> med din mailadress (' +
             he.encode(email) +
