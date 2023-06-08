@@ -274,7 +274,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
       let moveResult = await submitMove(
         game.id,
-        currentUser.id,
+        currentUser.sub, // sub?
         game.currentTurn,
         playedWords,
         currentBoard
@@ -349,7 +349,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
     let moveResult = await submitMove(
       game.id,
-      currentUser.id,
+      currentUser.sub,
       game.currentTurn,
       '',
       JSON.stringify(copiedBoard)
