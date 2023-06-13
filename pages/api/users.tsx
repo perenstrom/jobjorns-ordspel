@@ -28,15 +28,7 @@ const addUser = async (user: User) => {
       });
       if (createResult !== null) {
         // Add an invitation from the creator to the new user
-        const starter = {
-          id: 1,
-          sub: 'google-oauth2|104137162787605911168',
-          name: 'Jobjörn Folkesson',
-          email: 'jobjorn@gmail.com',
-          picture:
-            'https://lh3.googleusercontent.com/a/AGNmyxYVLIwhcm95ez--qa8SoFriMrC_h7wwK5HLhM7Vpg=s96-c',
-          settingVisibility: true
-        };
+        const starter = 'google-oauth2|104137162787605911168';
         const createGame = startGame(starter, [createResult], []);
         if (createGame !== null) {
           return { message: `Spelet skapades` };
@@ -63,6 +55,9 @@ const listUsers = async () => {
     const listUsersPrisma = await prisma.user.findMany({
       where: {
         settingVisibility: true
+      },
+      orderBy: {
+        name: 'asc'
       }
     });
     if (listUsersPrisma === null) {
