@@ -47,6 +47,7 @@ model UsersOnGames {
   gameId       Int // relation scalar field
   createdAt    DateTime @default(now())
   status       Status   @default(DEFAULT)
+  statusTime   DateTime @default(now())
 
   @@id([userSub, gameId])
 }
@@ -58,6 +59,7 @@ enum Status {
   YOURTURN
   OTHERTURN
   FINISHED
+  ARCHIVED
 }
 
 model Invitation {
