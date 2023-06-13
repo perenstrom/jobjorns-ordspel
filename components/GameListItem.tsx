@@ -36,18 +36,23 @@ export const GameListListItem = ({ gameId }: { gameId: number }) => {
   if (!user) return null;
 
   if (game) {
-    let latestTurnStartTime: Date;
     let timeSinceText: string;
-    if (game.turns[0] && game.finished) {
-      latestTurnStartTime = game.turns[0].turnStart;
+
+    let latestTurnStartTime = game.users.find(
+      (player) => player.userSub == user.sub
+    )?.statusTime;
+    if (!latestTurnStartTime) {
+      latestTurnStartTime = game.startedAt;
+    }
+
+    if (game.finished) {
       timeSinceText = 'Spelet slutade ';
     } else if (game.turns[0]) {
-      latestTurnStartTime = game.turns[0].turnStart;
       timeSinceText = 'Turen startade ';
     } else {
-      latestTurnStartTime = game.startedAt;
       timeSinceText = 'Spelet startade ';
     }
+
     let timeSinceLastMove = DateTime.fromISO(
       new Date(latestTurnStartTime).toISOString()
     )
