@@ -129,7 +129,8 @@ const submitMove = async (
           }
         },
         data: {
-          status: 'OTHERTURN'
+          status: 'OTHERTURN',
+          statusTime: new Date()
         }
       });
       console.log(updateUserOnGame);
@@ -331,7 +332,8 @@ const submitTurn = async (
           gameId: gameId
         },
         data: {
-          status: 'YOURTURN'
+          status: 'YOURTURN',
+          statusTime: new Date()
         }
       });
       console.log(updateUserOnGame);
@@ -366,7 +368,8 @@ const endGame = async (gameId: number) => {
           gameId: gameId
         },
         data: {
-          status: 'FINISHED'
+          status: 'FINISHED',
+          statusTime: new Date()
         }
       });
       console.log(updateUserOnGame);
@@ -390,7 +393,8 @@ const acceptInvite = async (gameId: number, userSub: string) => {
     const updateResult = await prisma.usersOnGames.update({
       data: {
         userAccepted: true,
-        status: 'YOURTURN'
+        status: 'YOURTURN',
+        statusTime: new Date()
       },
       where: {
         userSub_gameId: {
@@ -451,7 +455,8 @@ const checkDeclinations = async (gameId: number) => {
     if (checkDeclinationsResult === 1) {
       const updateResult = await prisma.usersOnGames.updateMany({
         data: {
-          status: 'REFUSED'
+          status: 'REFUSED',
+          statusTime: new Date()
         },
         where: {
           gameId: gameId
