@@ -55,6 +55,9 @@ const listUsers = async () => {
     const listUsersPrisma = await prisma.user.findMany({
       where: {
         settingVisibility: true
+      },
+      orderBy: {
+        name: 'asc'
       }
     });
     if (listUsersPrisma === null) {

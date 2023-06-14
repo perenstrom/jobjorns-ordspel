@@ -122,9 +122,12 @@ const listGames = async (userSub: string) => {
     const listGamesPrisma: GameListNecessaryData[] = await prisma.$queryRaw`
       SELECT 
         "UsersOnGames"."gameId" AS "id",
-        "UsersOnGames"."status" AS "status"
+        "UsersOnGames"."status" AS "status",
+        "UsersOnGames"."statusTime" AS "statusTime"
       FROM "UsersOnGames"
-      WHERE "UsersOnGames"."userSub" = ${userSub}`;
+      WHERE "UsersOnGames"."userSub" = ${userSub}
+      ORDER BY "UsersOnGames"."statusTime" DESC
+      `;
 
     if (listGamesPrisma === null || typeof listGamesPrisma === 'undefined') {
       return { message: 'Inga spel returnerades' };

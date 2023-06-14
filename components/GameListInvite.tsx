@@ -131,24 +131,12 @@ export const GameInviteListItem = ({
           primary={<Skeleton variant="text" />}
           secondary={
             <>
-              {'Inbjudan skickades ' + <Skeleton variant="text" width={100} />}
+              <Skeleton variant="text" width={100} />
               <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
-                <Button
-                  variant="contained"
-                  color="success"
-                  onClick={() => {
-                    handleAcceptInvite();
-                  }}
-                >
+                <Button variant="contained" disabled>
                   Acceptera
                 </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => {
-                    handleDeclineInvite();
-                  }}
-                >
+                <Button variant="outlined" disabled>
                   Neka
                 </Button>
               </Stack>
