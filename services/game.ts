@@ -1,6 +1,6 @@
 import { allLettersData } from 'data/defaults';
-import wordList from 'data/swedish.json';
 import { Tile } from 'types/types';
+// import { ResponseType } from 'types/types';
 
 export const checkTilesPlayed = (board: Tile[][]) => {
   const copiedBoard = [...board];
@@ -190,22 +190,6 @@ export const checkCoherentWord = (board: Tile[][]) => {
   });
 
   return coherentWord;
-};
-
-export const checkInWordList = (board: Tile[][]) => {
-  const copiedBoard = [...board];
-  let inWordList = true; // de lagda orden måste finnas i ordlistan
-
-  let playedWords = getPlayedWords(copiedBoard);
-
-  playedWords.forEach((word) => {
-    let singleWordInList = wordList.includes(word.toLowerCase());
-    if (singleWordInList === false) {
-      inWordList = false;
-    }
-  });
-
-  return inWordList;
 };
 
 export const points = (letter: string) => {

@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import {
   checkAdjacentPlacement,
   checkCoherentWord,
-  checkInWordList,
   checkSameDirection,
   checkTilesPlayed,
   getPlayedWords,
@@ -57,6 +56,44 @@ const getGame = async (gameId: number) => {
   }
 };
 
+const checkInSAOL = async (board: Tile[][]) => {
+  const copiedBoard = [...board];
+
+  let playedWords = getPlayedWords(copiedBoard);
+  console.log('playedWords', playedWords);
+
+  let checkWordResult = await prisma.sAOL.findMany({
+    where: {
+      NOT: {
+        form: 'böjning'
+      },
+      OR: playedWords.map((word) => ({
+        word: {
+          equals: word.toLowerCase()
+        }
+      }))
+    }
+  });
+  if (checkWordResult.length > 0) {
+    let someWordMissing: boolean;
+
+    someWordMissing = playedWords.some((word) => {
+      let foundWord = checkWordResult.findIndex(
+        (SAOL) => SAOL.word == word.toLowerCase()
+      );
+      if (foundWord == -1) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return !someWordMissing;
+  } else {
+    return false;
+  }
+};
+
 const submitMove = async (
   gameId: number,
   userSub: string,
@@ -69,20 +106,24 @@ const submitMove = async (
   let tilesPlayed = checkTilesPlayed(parsedBoard); // minst en bricka måste läggas
   let sameDirection = checkSameDirection(parsedBoard); // alla placerade brickor ska vara i samma riktning
   let coherentWord = checkCoherentWord(parsedBoard); // placerade brickor får inte ha ett mellanrum
-  let inWordList = checkInWordList(parsedBoard); // de lagda orden måste finnas i ordlistan
+  let inSAOL = await checkInSAOL(parsedBoard); // de lagda orden måste finnas i ordlistan
   let adjacentPlacement = checkAdjacentPlacement(parsedBoard); // brickor får inte placeras som en egen ö
   let wordIsSame = getPlayedWords(parsedBoard).join(', ') === playedWord; // det lagda ordet måste vara samma som det som skickas med
 
-  if (
+  if (!inSAOL) {
+    return {
+      success: false,
+      message: 'Ett eller flera ord finns inte med i SAOL.'
+    };
+  } else if (
     !(tilesPlayed == adjacentPlacement) ||
     !sameDirection ||
     !coherentWord ||
-    !inWordList ||
     !wordIsSame
   ) {
     return {
       success: false,
-      message: 'Nätverksanropet förefaller manipulerat'
+      message: 'Något gick fel med draget, försök igen.'
     };
   }
 
