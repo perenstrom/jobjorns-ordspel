@@ -17,7 +17,6 @@ import { faviconString, shuffleArray } from 'services/helpers';
 import {
   checkAdjacentPlacement,
   checkCoherentWord,
-  checkInWordList,
   checkSameDirection,
   checkTilesPlayed,
   getPlayedWords,
@@ -235,25 +234,16 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
 
   const submitWord = async () => {
     setPlayerHasSubmitted(true);
-    const copiedBoard = [...unplayedBoard];
-
-    console.log(copiedBoard);
+    const copiedBoard: TileType[][] = JSON.parse(JSON.stringify(unplayedBoard));
 
     // criteria:
     let tilesPlayed = checkTilesPlayed(copiedBoard); // minst en bricka måste läggas
     let sameDirection = checkSameDirection(copiedBoard); // alla placerade brickor ska vara i samma riktning
     let coherentWord = checkCoherentWord(copiedBoard); // placerade brickor får inte ha ett mellanrum
-    let inWordList = checkInWordList(copiedBoard); // de lagda orden måste finnas i ordlistan
     let adjacentPlacement = checkAdjacentPlacement(copiedBoard); // brickor får inte placeras som en egen ö
 
     let newAlerts: Alert[] = [];
-    if (
-      tilesPlayed &&
-      sameDirection &&
-      coherentWord &&
-      inWordList &&
-      adjacentPlacement
-    ) {
+    if (tilesPlayed && sameDirection && coherentWord && adjacentPlacement) {
       newAlerts.push({
         severity: 'info',
         message: `Vänta, draget spelas...`
@@ -293,7 +283,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         setAlerts([
           {
             severity: 'error',
-            message: `Något gick fel med draget, försök igen`
+            message: moveResult.move.message
+              ? moveResult.move.message
+              : 'Något gick fel. Försök igen.'
           }
         ]);
         setPlayerHasSubmitted(false);
@@ -315,12 +307,6 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         newAlerts.push({
           severity: 'error',
           message: 'Det lagda ordet får inte ha mellanrum i sig.'
-        });
-      }
-      if (!inWordList) {
-        newAlerts.push({
-          severity: 'error',
-          message: 'Alla ord måste finnas i ordlistan.'
         });
       }
       if (!adjacentPlacement) {

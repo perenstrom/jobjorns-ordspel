@@ -97,3 +97,14 @@ model Move {
 
   @@unique([turnId, userSub])
 }
+
+model SAOL {
+  autoId   Int    @id @default(autoincrement())
+  id       Int
+  article  String
+  homograf String
+  word     String
+  form     String
+
+  @@map("saol_export")
+}
