@@ -69,7 +69,8 @@ const checkInSAOL = async (board: Tile[][]) => {
       },
       OR: playedWords.map((word) => ({
         word: {
-          equals: word.toLowerCase()
+          equals: word,
+          mode: 'insensitive'
         }
       }))
     }
