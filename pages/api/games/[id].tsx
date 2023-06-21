@@ -268,10 +268,9 @@ export const runTurnEnd = async (gameId: number) => {
 
       let newLetters = letters.join(',');
 
-      let winningBoard = winningMove.playedBoard.replaceAll(
-        'submitted',
-        'board'
-      );
+      let winningBoard = winningMove.playedBoard
+        .replaceAll('latest', 'board')
+        .replaceAll('submitted', 'latest');
 
       try {
         const turnResult = await submitTurn(

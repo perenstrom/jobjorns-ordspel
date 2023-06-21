@@ -1,6 +1,14 @@
 import { points } from 'services/game';
 
-import { blue, cyan, green, grey, red, teal } from '@mui/material/colors';
+import {
+  blue,
+  cyan,
+  green,
+  grey,
+  red,
+  teal,
+  yellow
+} from '@mui/material/colors';
 import { Tile as TypeTile } from 'types/types';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -33,6 +41,9 @@ export const Tile = ({
   } else if (status == 'submitted') {
     fillColor = green;
     textColor = '#ffffff';
+  } else if (status == 'latest') {
+    fillColor = yellow;
+    textColor = '#000000';
   } else if (status == 'board') {
     fillColor = blue;
     textColor = '#ffffff';
