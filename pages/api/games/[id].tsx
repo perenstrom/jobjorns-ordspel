@@ -60,7 +60,6 @@ const checkInSAOL = async (board: Tile[][]) => {
   const copiedBoard = [...board];
 
   let playedWords = getPlayedWords(copiedBoard);
-  console.log('playedWords', playedWords);
 
   let checkWordResult = await prisma.sAOL.findMany({
     where: {
@@ -80,7 +79,7 @@ const checkInSAOL = async (board: Tile[][]) => {
 
     someWordMissing = playedWords.some((word) => {
       let foundWord = checkWordResult.findIndex(
-        (SAOL) => SAOL.word == word.toLowerCase()
+        (SAOL) => SAOL.word.toLowerCase() == word.toLowerCase()
       );
       if (foundWord == -1) {
         return true;
