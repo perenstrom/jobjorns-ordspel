@@ -353,7 +353,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       setAlerts([
         {
           severity: 'error',
-          message: `Något gick fel med draget, försök igen`
+          message: moveResult.move.message
+            ? moveResult.move.message
+            : 'Något gick fel. Försök igen.'
         }
       ]);
       setPlayerHasSubmitted(false);
