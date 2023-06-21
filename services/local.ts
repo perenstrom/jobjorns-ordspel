@@ -27,12 +27,9 @@ export const addUser = (user: UserProfile) => {
   fetch(url, options)
     .then((response) => {
       if (response.status === 200) {
-        response
-          .json()
-          .then((data) => console.log(data))
-          .catch((error) => {
-            console.error(error);
-          });
+        response.json().catch((error) => {
+          console.error(error);
+        });
       } else {
         console.error(response.status);
       }
@@ -107,7 +104,6 @@ export const listUsers = (): Promise<ResponseType<User[]>> => {
 };
 
 export const startGame = (players: User[], emailList: string[]) => {
-  console.log(players, emailList);
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
@@ -149,7 +145,7 @@ export const getGame = (
     method: 'GET',
     headers: defaultHeaders
   };
-  console.log('här görs en fetch för getGame');
+
   return fetch(url, options)
     .then((response) => {
       if (response.status === 200) {
@@ -324,7 +320,7 @@ export const getUpdatedInvitations = (
     method: 'GET',
     headers: defaultHeaders
   };
-  console.log('här görs en fetch för getUpdatedInvitations');
+
   return fetch(url, options)
     .then((response) => {
       if (response.status === 200) {

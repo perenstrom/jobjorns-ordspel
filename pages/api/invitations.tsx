@@ -6,15 +6,12 @@ const prisma = new PrismaClient({
 });
 
 const getUpdatedInvitations = async (email: string, sub: string) => {
-  console.log({ email, sub });
   try {
     const invitations = await prisma.invitation.findMany({
       where: {
         email: email
       }
     });
-
-    console.log('invitations', invitations);
 
     if (invitations.length > 0) {
       const updateResult = await Promise.all(
@@ -40,8 +37,6 @@ const getUpdatedInvitations = async (email: string, sub: string) => {
         })
       );
       if (updateResult !== null) {
-        console.log(updateResult);
-
         return {
           message: `Inbjudningar hittades`,
           data: updateResult
