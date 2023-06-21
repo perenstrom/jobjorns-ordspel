@@ -160,8 +160,6 @@ const submitMove = async (
     });
 
     if (createMove !== null) {
-      console.log('createMove gick bra');
-
       let updateUserOnGame = await prisma.usersOnGames.update({
         where: {
           userSub_gameId: {

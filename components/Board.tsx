@@ -69,8 +69,9 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     const ablyApiKey = process.env.NEXT_PUBLIC_ABLY_SUBSCRIBE_KEY;
     if (ablyApiKey) {
       const ably = new Ably.Realtime.Promise(ablyApiKey);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ably.connection.on((stateChange: Ably.Types.ConnectionStateChange) => {
-        console.log(stateChange);
+        // console.log(stateChange);
       });
 
       const channel = ably.channels.get('quickstart');
