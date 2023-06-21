@@ -110,7 +110,7 @@ const submitMove = async (
   let adjacentPlacement = checkAdjacentPlacement(parsedBoard); // brickor får inte placeras som en egen ö
   let wordIsSame = getPlayedWords(parsedBoard).join(', ') === playedWord; // det lagda ordet måste vara samma som det som skickas med
 
-  if (!inSAOL) {
+  if (!inSAOL && getPlayedWords(parsedBoard).length > 0) {
     return {
       success: false,
       message: 'Ett eller flera ord finns inte med i SAOL.'
