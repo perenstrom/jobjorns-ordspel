@@ -126,13 +126,26 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       );
 
       setUnplayedBoard(currentBoard);
+      setTiles(newTiles);
+      setPlacedTiles([]);
+      setSelectedTile(emptyTile);
+    } else if (
+      latestTurn?.turnNumber == game.currentTurn &&
+      !latestUserMove &&
+      JSON.stringify(unplayedBoard) !== JSON.stringify(defaultBoard())
+    ) {
+      // gör här ingenting - allt är som det ska redan
     } else if (game.board && game.board.length > 0) {
+      console.log('else');
       let currentBoard: TileType[][] = JSON.parse(game.board);
-      setUnplayedBoard(currentBoard);
-    }
 
-    setTiles(newTiles);
-    setPlacedTiles([]);
+      setUnplayedBoard(currentBoard);
+      setTiles(newTiles);
+      setPlacedTiles([]);
+      setSelectedTile(emptyTile);
+    }
+    // detta borde hanteras bättre
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game, currentUser]);
 
   useEffect(() => {
