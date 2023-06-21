@@ -68,7 +68,8 @@ export const checkAdjacentPlacement = (board: Tile[][]) => {
     if (
       typeof copiedBoard[tile.row] !== 'undefined' &&
       typeof copiedBoard[tile.row][tile.column] !== 'undefined' &&
-      copiedBoard[tile.row][tile.column].placed === 'board'
+      (copiedBoard[tile.row][tile.column].placed === 'board' ||
+        copiedBoard[tile.row][tile.column].placed === 'latest')
     ) {
       adjacentPlacement = true;
     }
