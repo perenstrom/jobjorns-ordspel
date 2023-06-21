@@ -194,7 +194,11 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const placeTile = (placedTile: TileType, row: number, column: number) => {
     const copiedBoard = [...unplayedBoard];
     const copiedTiles = [...tiles];
-    if (placedTile.placed === 'board' || placedTile.placed === 'submitted') {
+    if (
+      placedTile.placed === 'board' ||
+      placedTile.placed === 'submitted' ||
+      placedTile.placed === 'latest'
+    ) {
       // försök att trycka på en redan lagd bricka
       const newShakingTiles = [...shakingTiles];
       newShakingTiles.push(row * 100 + column);
