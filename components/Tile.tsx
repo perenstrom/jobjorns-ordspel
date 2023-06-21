@@ -110,15 +110,7 @@ export const Tile = ({
             style={{ display: 'block' }}
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect
-              x="0"
-              y="0"
-              width="92%"
-              height="92%"
-              fill={fillColor[500]}
-              rx="0"
-              ry="0"
-            />
+            <polygon points="0,0 92,0 100,100 0,92" fill={fillColor[500]} />
             <text
               x="42.5%"
               y="52.5%"
