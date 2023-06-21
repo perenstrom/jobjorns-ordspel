@@ -62,7 +62,7 @@ const NewGamePage: NextPage<{}> = () => {
     const fetchUsers = async () => {
       const newUsers = await listUsers();
       if (newUsers.success) {
-        setUsers(newUsers.data);
+        setUsers(newUsers.data.sort((a, b) => -b.name.localeCompare(a.name)));
         setLoading(false);
       }
     };
