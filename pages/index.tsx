@@ -34,16 +34,23 @@ const IndexPage: NextPage<{}> = () => {
         }}
       >
         <Head>
-          <title>Översikt | Jobjörns ordspel</title>
           <link rel="icon" href={faviconString()} key="favicon" />
         </Head>
         {user ? (
           <>
+            <Head>
+              <title>Översikt | Jobjörns ordspel</title>
+            </Head>
             <Menu />
             <GameList />
           </>
         ) : (
-          <Splash />
+          <>
+            <Head>
+              <title>Jobjörns ordspel</title>
+            </Head>
+            <Splash />
+          </>
         )}
         <Footer />
       </Box>
