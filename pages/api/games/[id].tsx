@@ -160,8 +160,6 @@ const submitMove = async (
     });
 
     if (createMove !== null) {
-      console.log('createMove gick bra');
-
       let updateUserOnGame = await prisma.usersOnGames.update({
         where: {
           userSub_gameId: {
@@ -270,10 +268,9 @@ export const runTurnEnd = async (gameId: number) => {
 
       let newLetters = letters.join(',');
 
-      let winningBoard = winningMove.playedBoard.replaceAll(
-        'submitted',
-        'board'
-      );
+      let winningBoard = winningMove.playedBoard
+        .replaceAll('latest', 'board')
+        .replaceAll('submitted', 'latest');
 
       try {
         const turnResult = await submitTurn(

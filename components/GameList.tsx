@@ -47,7 +47,6 @@ export const GameList: React.FC<{}> = () => {
         const newGamesList = await listGames(user.sub);
 
         if (newGamesList.success) {
-          console.log('här får vi nya games!', newGamesList.data);
           setGamesList(newGamesList.data);
         }
       }
@@ -65,7 +64,6 @@ export const GameList: React.FC<{}> = () => {
           user.sub
         );
 
-        console.log({ newUpdatedInvitations });
         if (
           newUpdatedInvitations.success &&
           newUpdatedInvitations.data &&
@@ -88,7 +86,6 @@ export const GameList: React.FC<{}> = () => {
       let newGamesListFinished: GameListNecessaryData[] = [];
 
       gamesList.map((game) => {
-        console.log({ 'game.id': game.id, 'game.status': game.status });
         if (game.status == 'FINISHED') {
           newGamesListFinished.push(game);
         } else if (game.status == 'INVITED') {

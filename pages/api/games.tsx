@@ -117,7 +117,6 @@ export const startGame = async (
 };
 
 const listGames = async (userSub: string) => {
-  console.log('nu kör vi listGamesRaw');
   try {
     const listGamesPrisma: GameListNecessaryData[] = await prisma.$queryRaw`
       SELECT 
@@ -156,7 +155,6 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       const loggedInUser = getUser(req, res);
       const loggedInUserSub = loggedInUser?.sub;
 
-      console.log({ players, emailList });
       if (!loggedInUserSub || (!players && !emailList)) {
         res.status(400).end('Players saknas');
         resolve('');

@@ -1,6 +1,14 @@
 import { points } from 'services/game';
 
-import { blue, cyan, green, grey, red, teal } from '@mui/material/colors';
+import {
+  blue,
+  cyan,
+  green,
+  grey,
+  red,
+  teal,
+  yellow
+} from '@mui/material/colors';
 import { Tile as TypeTile } from 'types/types';
 import { keyframes } from '@emotion/react';
 import styled from '@emotion/styled';
@@ -33,6 +41,9 @@ export const Tile = ({
   } else if (status == 'submitted') {
     fillColor = green;
     textColor = '#ffffff';
+  } else if (status == 'latest') {
+    fillColor = yellow;
+    textColor = '#000000';
   } else if (status == 'board') {
     fillColor = blue;
     textColor = '#ffffff';
@@ -99,15 +110,7 @@ export const Tile = ({
             style={{ display: 'block' }}
             xmlns="http://www.w3.org/2000/svg"
           >
-            <rect
-              x="0"
-              y="0"
-              width="92%"
-              height="92%"
-              fill={fillColor[500]}
-              rx="0"
-              ry="0"
-            />
+            <polygon points="0,0 92,0 100,100 0,92" fill={fillColor[500]} />
             <text
               x="42.5%"
               y="52.5%"
