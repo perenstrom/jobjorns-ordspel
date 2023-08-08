@@ -24,7 +24,7 @@ import GridOnIcon from '@mui/icons-material/GridOn';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 import { Stack } from '@mui/system';
 import { gravatar } from 'services/helpers';

@@ -157,10 +157,10 @@ const games = async (
   res: NextApiResponse
 ): Promise<void> => {
   if (req.method === 'POST') {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const { players, emailList }: PostRequestBody = req.body;
 
-      const loggedInUser = getUser(req, res);
+      const loggedInUser = await getUser(req, res);
       const loggedInUserSub = loggedInUser?.sub;
 
       if (!loggedInUserSub || (!players && !emailList)) {

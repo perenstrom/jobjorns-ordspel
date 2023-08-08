@@ -2,7 +2,7 @@ import React from 'react';
 import { Box } from '@mui/material';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import { GameList } from 'components/GameList';
 import { Footer } from 'components/Footer';
 import { Splash } from 'components/Splash';

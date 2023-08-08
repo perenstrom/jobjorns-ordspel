@@ -14,7 +14,7 @@ import { GameWithEverything } from 'types/types';
 import { gravatar } from 'services/helpers';
 import router from 'next/router';
 import { acceptInvite, declineInvite, getGame } from 'services/local';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import { DateTime } from 'luxon';
 
 export const GameInviteListItem = ({
