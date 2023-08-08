@@ -5,7 +5,10 @@ import {
   Backdrop,
   Button,
   Container,
+  LinearProgress,
   Stack,
+  Tooltip,
+  Typography,
   styled
 } from '@mui/material';
 import { defaultBoard } from 'data/defaults';
@@ -20,6 +23,7 @@ import {
   checkSameDirection,
   checkTilesPlayed,
   getPlayedWords,
+  tilePoints,
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
@@ -54,6 +58,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
+  const [bonusPoints, setBonusPoints] = useState<number>(0);
   const [nameList, setNameList] = useState<string>('');
 
   const addAlerts = (newAlerts: Alert[]) => {
@@ -126,13 +131,26 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
       );
 
       setUnplayedBoard(currentBoard);
+      setTiles(newTiles);
+      setPlacedTiles([]);
+      setSelectedTile(emptyTile);
+    } else if (
+      latestTurn?.turnNumber == game.currentTurn &&
+      !latestUserMove &&
+      JSON.stringify(unplayedBoard) !== JSON.stringify(defaultBoard())
+    ) {
+      // gör här ingenting - allt är som det ska redan
     } else if (game.board && game.board.length > 0) {
+      console.log('else');
       let currentBoard: TileType[][] = JSON.parse(game.board);
-      setUnplayedBoard(currentBoard);
-    }
 
-    setTiles(newTiles);
-    setPlacedTiles([]);
+      setUnplayedBoard(currentBoard);
+      setTiles(newTiles);
+      setPlacedTiles([]);
+      setSelectedTile(emptyTile);
+    }
+    // detta borde hanteras bättre
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game, currentUser]);
 
   useEffect(() => {
@@ -149,9 +167,12 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   }, [game, currentUser]);
 
   useEffect(() => {
-    let points = wordPoints(getPlayedWords(unplayedBoard).join(', '));
-    setCurrentPoints(points);
-  }, [unplayedBoard]);
+    let newWordPoints = wordPoints(getPlayedWords(unplayedBoard).join(', '));
+    let newBonusPoints = tilePoints(unplayedBoard);
+
+    setCurrentPoints(newWordPoints + newBonusPoints);
+    setBonusPoints(newBonusPoints);
+  }, [unplayedBoard, placedTiles]);
 
   const shuffleTileHolder = () => {
     let copiedTiles = shuffleArray(tiles);
@@ -428,6 +449,29 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         selectedTile={selectedTile}
         selectTile={selectTile}
       />
+
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ alignItems: 'center', marginBottom: 1 }}
+      >
+        <Tooltip title="Extrapoäng baserat på ordets längd">
+          <LinearProgress
+            sx={{ flexGrow: 1, height: '12px', borderRadius: '6px' }}
+            variant="determinate"
+            value={(bonusPoints / 33) * 100}
+          />
+        </Tooltip>
+        <Typography
+          variant="h6"
+          component={'p'}
+          color="text.secondary"
+          style={{ textAlign: 'right' }}
+        >
+          +{bonusPoints}
+        </Typography>
+      </Stack>
+
       <Stack direction="row" spacing={1}>
         {tiles.length > 0 ? (
           <Button variant="outlined" onClick={() => shuffleTileHolder()}>
@@ -485,8 +529,9 @@ const BoardGrid = styled('div')<BoardGridProps>((props) => ({
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%',
-  maxWidth: 'calc(100vh - 72px - 69px - 16px - 33px - 8px)',
-  // 100vh - navbar - tileholder - margin - button - margin
+  maxWidth:
+    'calc(100vh - 64px - 8px - 8px - 68px - 8px - 28px - 8px - 33px - 8px)',
+  // 100vh - navbar (64) - margin (8) - brädet - margin (8) - tile holder (68) - margin (8) - progress bar (28) - margin (8) -  button (33) - margin (8)
   margin: 'auto',
   aspectRatio: '1/1'
 }));

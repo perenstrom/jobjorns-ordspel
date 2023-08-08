@@ -1,4 +1,3 @@
-import React from 'react';
 import { styled } from '@mui/material';
 import { Tile as TileType } from 'types/types';
 import { Tile } from './Tile';
@@ -14,16 +13,26 @@ export const TileHolder = ({
   selectTile
 }: TileHolderProps) => {
   return (
-    <TileHolderInner>
-      {tiles.map((tile, index) => (
-        <Tile
-          tile={tile}
-          status={selectedTile == tile ? 'selected' : 'hand'}
-          key={index}
-          onClick={() => selectTile(tile)}
-        />
-      ))}
-    </TileHolderInner>
+    <div style={{ width: '100%', position: 'relative' }}>
+      <TileHolderInner>
+        {tiles.map((tile, index) => (
+          <Tile
+            tile={tile}
+            status={selectedTile == tile ? 'selected' : 'hand'}
+            key={index}
+            onClick={() => selectTile(tile)}
+          />
+        ))}
+        {tiles.length < 2 && (
+          <div
+            style={{
+              width: '100%',
+              aspectRatio: '1/1'
+            }}
+          ></div>
+        )}
+      </TileHolderInner>
+    </div>
   );
 };
 

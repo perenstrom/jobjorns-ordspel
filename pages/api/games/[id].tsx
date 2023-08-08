@@ -6,6 +6,7 @@ import {
   checkSameDirection,
   checkTilesPlayed,
   getPlayedWords,
+  tilePoints,
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
@@ -155,7 +156,7 @@ const submitMove = async (
         },
         playedWord: playedWord,
         playedBoard: playedBoard,
-        playedPoints: wordPoints(playedWord)
+        playedPoints: wordPoints(playedWord) + tilePoints(parsedBoard)
       }
     });
 

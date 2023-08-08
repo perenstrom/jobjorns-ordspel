@@ -58,40 +58,48 @@ const NewGamePage: NextPage<{}> = () => {
   }, [gameId]);
 
   if (game && userWithId) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexDirection: 'column',
-          minHeight: '100%',
-          backgroundColor: '#121212'
-        }}
-      >
-        <Head>
-          <title>Jobjörns ordspel</title>
-          <link rel="icon" href={faviconString()} key="favicon" />
-        </Head>
-        <Menu />
-        <Container
-          maxWidth="xl"
+    let userInGame = game.users.findIndex((u) => u.userSub === userWithId.sub);
+
+    if (userInGame > -1) {
+      return (
+        <Box
           sx={{
-            flexGrow: 1,
             display: 'flex',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            p: 0,
-            '@media (min-width: 600px)': {
-              p: 0
-            }
+            justifyContent: 'space-between',
+            flexDirection: 'column',
+            minHeight: '100%',
+            backgroundColor: '#121212'
           }}
         >
-          <Board game={game} user={userWithId} fetchGame={fetchGame} />
-          <ScoreList game={game} />
-        </Container>
-        <Footer />
-      </Box>
-    );
+          <Head>
+            <title>Jobjörns ordspel</title>
+            <link rel="icon" href={faviconString()} key="favicon" />
+          </Head>
+          <Menu />
+          <Container
+            maxWidth="xl"
+            sx={{
+              flexGrow: 1,
+              display: 'flex',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              p: 0,
+              '@media (min-width: 600px)': {
+                p: 0
+              }
+            }}
+          >
+            <Board game={game} user={userWithId} fetchGame={fetchGame} />
+            <ScoreList game={game} />
+          </Container>
+          <Footer />
+        </Box>
+      );
+    } else {
+      router.push('/');
+
+      return <Loading />;
+    }
   } else {
     return <Loading />;
   }
