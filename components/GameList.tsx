@@ -137,9 +137,7 @@ export const GameList: React.FC<{}> = () => {
           <Head>
             <link rel="icon" href={favicon} key="favicon" />
             {gamesListReady.length > 0 && (
-              <title>
-                {'(' + gamesListReady.length + ') Jobjörns ordspel'}
-              </title>
+              <title>{'(' + gamesListReady.length + ') Ordbjörn'}</title>
             )}
           </Head>
         )}

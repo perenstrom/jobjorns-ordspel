@@ -20,7 +20,7 @@ export const Loading: React.FC<{}> = () => {
       }}
     >
       <Head>
-        <title>Jobjörns ordspel</title>
+        <title>Ordbjörn</title>
         <link rel="icon" href={faviconString()} key="favicon" />
       </Head>
       {user && !isLoading && <Menu />}

@@ -427,7 +427,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         </Head>
       )}
       <Head>
-        <title>{nameList + ' | Jobjörns ordspel'}</title>
+        <title>{nameList + ' | Ordbjörn'}</title>
       </Head>
       <BoardGrid size={unplayedBoard.length}>
         {unplayedBoard.map((row, indexRow) =>

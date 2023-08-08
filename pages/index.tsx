@@ -39,7 +39,7 @@ const IndexPage: NextPage<{}> = () => {
         {user ? (
           <>
             <Head>
-              <title>Översikt | Jobjörns ordspel</title>
+              <title>Översikt | Ordbjörn</title>
             </Head>
             <Menu />
             <GameList />
@@ -47,7 +47,7 @@ const IndexPage: NextPage<{}> = () => {
         ) : (
           <>
             <Head>
-              <title>Jobjörns ordspel</title>
+              <title>Ordbjörn</title>
             </Head>
             <Splash />
           </>
