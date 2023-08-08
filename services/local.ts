@@ -1,4 +1,4 @@
-import { UserProfile } from '@auth0/nextjs-auth0';
+import { UserProfile } from '@auth0/nextjs-auth0/client';
 import { Invitation, User } from '@prisma/client';
 import router from 'next/router';
 import {

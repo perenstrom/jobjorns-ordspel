@@ -5,7 +5,7 @@ import {
   useUser,
   withPageAuthRequired,
   WithPageAuthRequiredProps
-} from '@auth0/nextjs-auth0';
+} from '@auth0/nextjs-auth0/client';
 import { Footer } from 'components/Footer';
 import { getGame, getUser } from 'services/local';
 import { GameWithEverything } from 'types/types';

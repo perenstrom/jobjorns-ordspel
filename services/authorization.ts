@@ -1,7 +1,8 @@
-import { UserProfile, getSession } from '@auth0/nextjs-auth0';
+import { getSession } from '@auth0/nextjs-auth0';
+import { UserProfile } from '@auth0/nextjs-auth0/client';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-export const getUser = (req: NextApiRequest, res: NextApiResponse) => {
-  const session = getSession(req, res);
+export const getUser = async (req: NextApiRequest, res: NextApiResponse) => {
+  const session = await getSession(req, res);
   return session?.user as UserProfile | undefined;
 };

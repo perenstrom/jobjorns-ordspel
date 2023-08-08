@@ -7,7 +7,7 @@ import {
   CssBaseline
 } from '@mui/material';
 import { theme } from 'styles/theme';
-import { UserProvider } from '@auth0/nextjs-auth0';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { CacheProvider } from '@emotion/react';
 import createCache from '@emotion/cache';
 import { AppProps } from 'next/dist/shared/lib/router/router';
