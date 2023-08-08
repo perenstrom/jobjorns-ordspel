@@ -5,7 +5,10 @@ import {
   Backdrop,
   Button,
   Container,
+  LinearProgress,
   Stack,
+  Tooltip,
+  Typography,
   styled
 } from '@mui/material';
 import { defaultBoard } from 'data/defaults';
@@ -20,6 +23,7 @@ import {
   checkSameDirection,
   checkTilesPlayed,
   getPlayedWords,
+  tilePoints,
   wordPoints
 } from 'services/game';
 import Ably from 'ably';
@@ -54,6 +58,7 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   const [shakingTiles, setShakingTiles] = useState<number[]>([]);
   const [placedTiles, setPlacedTiles] = useState<number[]>([]);
   const [currentPoints, setCurrentPoints] = useState<number>(0);
+  const [bonusPoints, setBonusPoints] = useState<number>(0);
   const [nameList, setNameList] = useState<string>('');
 
   const addAlerts = (newAlerts: Alert[]) => {
@@ -162,9 +167,12 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
   }, [game, currentUser]);
 
   useEffect(() => {
-    let points = wordPoints(getPlayedWords(unplayedBoard).join(', '));
-    setCurrentPoints(points);
-  }, [unplayedBoard]);
+    let newWordPoints = wordPoints(getPlayedWords(unplayedBoard).join(', '));
+    let newBonusPoints = tilePoints(unplayedBoard);
+
+    setCurrentPoints(newWordPoints + newBonusPoints);
+    setBonusPoints(newBonusPoints);
+  }, [unplayedBoard, placedTiles]);
 
   const shuffleTileHolder = () => {
     let copiedTiles = shuffleArray(tiles);
@@ -443,6 +451,29 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
         selectedTile={selectedTile}
         selectTile={selectTile}
       />
+
+      <Stack
+        direction="row"
+        spacing={1}
+        sx={{ alignItems: 'center', marginBottom: 1 }}
+      >
+        <Tooltip title="Extrapoäng baserat på ordets längd">
+          <LinearProgress
+            sx={{ flexGrow: 1, height: '12px', borderRadius: '6px' }}
+            variant="determinate"
+            value={(bonusPoints / 33) * 100}
+          />
+        </Tooltip>
+        <Typography
+          variant="h6"
+          component={'p'}
+          color="text.secondary"
+          style={{ textAlign: 'right' }}
+        >
+          +{bonusPoints}
+        </Typography>
+      </Stack>
+
       <Stack direction="row" spacing={1}>
         {tiles.length > 0 ? (
           <Button variant="outlined" onClick={() => shuffleTileHolder()}>

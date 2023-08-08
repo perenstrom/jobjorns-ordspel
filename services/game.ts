@@ -1,4 +1,4 @@
-import { allLettersData } from 'data/defaults';
+import { allLettersData, bonusPointsSums } from 'data/defaults';
 import { Tile } from 'types/types';
 // import { ResponseType } from 'types/types';
 
@@ -205,4 +205,24 @@ export const wordPoints = (word: string) => {
   return [...word]
     .map((letter) => points(letter))
     .reduce((accumulated, current) => accumulated + current, 0);
+};
+
+export const tilePoints = (board: Tile[][]) => {
+  const copiedBoard = [...board];
+  let placedTilesCount = 0;
+
+  copiedBoard.forEach((row) =>
+    row.forEach((cell) => {
+      if (cell.placed === 'submitted' || cell.placed === 'hand') {
+        placedTilesCount++;
+      }
+    })
+  );
+
+  let bonusPoints = 0;
+  if (placedTilesCount > 1) {
+    bonusPoints = bonusPointsSums[placedTilesCount - 1];
+  }
+
+  return bonusPoints;
 };
