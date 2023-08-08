@@ -41,7 +41,7 @@ export const Menu: React.FC<{}> = () => {
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           <Link href="/" passHref>
-            <a style={{ textDecoration: 'none' }}>Jobjörns ordspel</a>
+            <a style={{ textDecoration: 'none' }}>Ordbjörn</a>
           </Link>
         </Typography>
         {foldMenu ? (

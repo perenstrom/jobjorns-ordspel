@@ -72,7 +72,7 @@ const NewGamePage: NextPage<{}> = () => {
           }}
         >
           <Head>
-            <title>Jobjörns ordspel</title>
+            <title>Ordbjörn</title>
             <link rel="icon" href={faviconString()} key="favicon" />
           </Head>
           <Menu />
