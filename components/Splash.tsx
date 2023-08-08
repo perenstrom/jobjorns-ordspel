@@ -18,7 +18,7 @@ export const Splash: React.FC<{}> = () => {
           color="text.primary"
           gutterBottom
         >
-          Jobjörns ordspel
+          Ordbjörn
         </Typography>
         <Typography
           variant="h5"
@@ -26,7 +26,7 @@ export const Splash: React.FC<{}> = () => {
           color="text.secondary"
           paragraph
         >
-          Här kan du prova Jobjörns ordspel!
+          Här kan du prova Jobjörns ordspel, Ordbjörn!
         </Typography>
         <Stack
           sx={{ pt: 4 }}
