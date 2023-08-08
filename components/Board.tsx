@@ -531,8 +531,9 @@ const BoardGrid = styled('div')<BoardGridProps>((props) => ({
   gap: props.theme.spacing(0.25),
   justifyItems: 'stretch',
   width: '100%',
-  maxWidth: 'calc(100vh - 72px - 69px - 16px - 33px - 8px)',
-  // 100vh - navbar - tileholder - margin - button - margin
+  maxWidth:
+    'calc(100vh - 64px - 8px - 8px - 68px - 8px - 28px - 8px - 33px - 8px)',
+  // 100vh - navbar (64) - margin (8) - brädet - margin (8) - tile holder (68) - margin (8) - progress bar (28) - margin (8) -  button (33) - margin (8)
   margin: 'auto',
   aspectRatio: '1/1'
 }));
