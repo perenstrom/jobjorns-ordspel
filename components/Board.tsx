@@ -141,10 +141,14 @@ export const Board = ({ game, user: currentUser, fetchGame }: BoardProps) => {
     ) {
       // gör här ingenting - allt är som det ska redan
     } else if (game.board && game.board.length > 0) {
-      console.log('else');
       let currentBoard: TileType[][] = JSON.parse(game.board);
 
       setUnplayedBoard(currentBoard);
+      setTiles(newTiles);
+      setPlacedTiles([]);
+      setSelectedTile(emptyTile);
+    } else {
+      // här hamnar vi på drag 1
       setTiles(newTiles);
       setPlacedTiles([]);
       setSelectedTile(emptyTile);
