@@ -68,40 +68,45 @@ export const startGame = async (
     if (invitations.length > 0 && process.env.SENDGRID_API_KEY) {
       sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 
-      invitations.map(async (email) => {
-        const message = {
-          to: email,
-          from: 'Ordbjörn <jobjorn@jobjorn.se>',
-          subject: starter + ' har bjudit in dig in till Ordbjörn',
-          text:
-            'Hej!\n\n' +
-            he.encode(starter) +
-            ' har bjudit in dig till Ordbj&ouml;rn.\n\n' +
-            'Skapa ett konto p&aring; https://www.ordbjorn.se/ med din mailadress (' +
-            he.encode(email) +
-            ') s&aring; kan ni spela tillsammans!\n\n' +
-            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du avs&auml;ga dig dem h&auml;r: <%asm_group_unsubscribe_raw_url%>\n\n' +
-            'Allt gott,\nJobj&ouml;rn',
-          html:
-            'Hej!<br><br>' +
-            he.encode(starter) +
-            ' har bjudit in dig till <strong>Ordbj&ouml;rn</strong>.<br><br>' +
-            'Skapa ett konto p&aring; <a href="https://www.ordbjorn.se/">Ordbj&ouml;rn</a> med din mailadress (' +
-            he.encode(email) +
-            ') s&aring; kan ni spela tillsammans!<br><br>' +
-            'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du <a href="<%asm_group_unsubscribe_raw_url%>">avs&auml;ga dig dem h&auml;r</a>.<br><br>' +
-            'Allt gott,<br>Jobj&ouml;rn',
-          asm: {
-            groupId: 21182,
-            groups_to_display: [21182]
-          }
-        };
-        try {
-          await sendgrid.send(message);
-        } catch (error) {
-          console.error(error);
-        }
+      const sendingUser = await prisma.user.findUnique({
+        where: { sub: starter }
       });
+      if (sendingUser !== null) {
+        invitations.map(async (email) => {
+          const message = {
+            to: email,
+            from: 'Ordbjörn <jobjorn@jobjorn.se>',
+            subject: sendingUser.name + ' har bjudit in dig in till Ordbjörn',
+            text:
+              'Hej!\n\n' +
+              he.encode(sendingUser.name) +
+              ' har bjudit in dig till Ordbj&ouml;rn.\n\n' +
+              'Skapa ett konto p&aring; https://www.ordbjorn.se/ med din mailadress (' +
+              he.encode(email) +
+              ') s&aring; kan ni spela tillsammans!\n\n' +
+              'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du avs&auml;ga dig dem h&auml;r: <%asm_group_unsubscribe_raw_url%>\n\n' +
+              'Allt gott,\nJobj&ouml;rn',
+            html:
+              'Hej!<br><br>' +
+              he.encode(sendingUser.name) +
+              ' har bjudit in dig till <strong>Ordbj&ouml;rn</strong>.<br><br>' +
+              'Skapa ett konto p&aring; <a href="https://www.ordbjorn.se/">Ordbj&ouml;rn</a> med din mailadress (' +
+              he.encode(email) +
+              ') s&aring; kan ni spela tillsammans!<br><br>' +
+              'Vill du inte ta emot den h&auml;r typen av inbjudningar? D&aring; kan du <a href="<%asm_group_unsubscribe_raw_url%>">avs&auml;ga dig dem h&auml;r</a>.<br><br>' +
+              'Allt gott,<br>Jobj&ouml;rn',
+            asm: {
+              groupId: 21182,
+              groups_to_display: [21182]
+            }
+          };
+          try {
+            await sendgrid.send(message);
+          } catch (error) {
+            console.error(error);
+          }
+        });
+      }
     }
 
     if (createGame !== null) {
