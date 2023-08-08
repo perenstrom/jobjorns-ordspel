@@ -26,7 +26,6 @@
     "@prisma/client": "^5.1.1",
     "@sendgrid/mail": "^7.7.0",
     "ably": "^1.2.42",
-    "framer-motion": "^7.10.3",
     "he": "^1.2.0",
     "luxon": "^3.3.0",
     "next": "^12.3.4",
