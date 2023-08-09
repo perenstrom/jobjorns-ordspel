@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Link, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import Link from 'next/link';
 
 export const Footer: React.FC<{}> = (props) => {
   return (

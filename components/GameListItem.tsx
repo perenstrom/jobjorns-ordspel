@@ -80,8 +80,8 @@ export const GameListListItem = ({ gameId }: { gameId: number }) => {
 
     return (
       <ListItem disableGutters>
-        <Link passHref href={`/game/${game.id}`}>
-          <ListItemButton component="a" sx={{ p: 1, m: -1 }}>
+        <Link passHref href={`/game/${game.id}`} style={{ flexGrow: 1 }}>
+          <ListItemButton sx={{ p: 1, m: -1 }}>
             <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
               <AvatarGroup max={4} spacing={28}>
                 {game.users.map(
@@ -121,8 +121,8 @@ export const GameListListItem = ({ gameId }: { gameId: number }) => {
   } else {
     return (
       <ListItem disableGutters>
-        <Link passHref href={`/game/${gameId}`}>
-          <ListItemButton component="a" sx={{ p: 1, m: -1 }}>
+        <Link passHref href={`/game/${gameId}`} style={{ flexGrow: 1 }}>
+          <ListItemButton sx={{ p: 1, m: -1 }}>
             <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
               <AvatarGroup max={4} spacing={28}>
                 <Skeleton variant="circular" sx={{ width: 40, height: 40 }} />
