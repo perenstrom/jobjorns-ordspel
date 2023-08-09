@@ -73,7 +73,10 @@ const listUsers = async () => {
   }
 };
 
-const users = async (req: NextApiRequest, res: NextApiResponse) => {
+const users = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
       const { sub, name, picture, email }: User = req.body;
@@ -86,11 +89,11 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
       })
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -101,11 +104,11 @@ const users = async (req: NextApiRequest, res: NextApiResponse) => {
       listUsers()
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();

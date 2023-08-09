@@ -4,7 +4,6 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 const getUser = async (email: string) => {
-
   try {
     const findSingleUser = await prisma.user.findUnique({
       where: { email: email }
@@ -26,7 +25,10 @@ interface UserEmail {
   email: string;
 }
 
-const user = async (req: NextApiRequest, res: NextApiResponse) => {
+const user = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'GET') {
     const { email } = req.query as unknown as UserEmail;
 
@@ -34,11 +36,11 @@ const user = async (req: NextApiRequest, res: NextApiResponse) => {
       getUser(email)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
