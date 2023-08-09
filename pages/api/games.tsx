@@ -152,7 +152,10 @@ interface PostRequestBody {
   emailList: string[];
 }
 
-const games = async (req: NextApiRequest, res: NextApiResponse) => {
+const games = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'POST') {
     return new Promise((resolve) => {
       const { players, emailList }: PostRequestBody = req.body;
@@ -162,16 +165,16 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
 
       if (!loggedInUserSub || (!players && !emailList)) {
         res.status(400).end('Players saknas');
-        resolve('');
+        resolve();
       } else {
         startGame(loggedInUserSub, players, emailList)
           .then((result) => {
             res.status(200).json(result);
-            resolve('');
+            resolve();
           })
           .catch((error) => {
             res.status(500).end(error);
-            resolve('');
+            resolve();
           })
           .finally(async () => {
             await prisma.$disconnect();
@@ -183,11 +186,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       listGames(req.query.usersub as string)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();

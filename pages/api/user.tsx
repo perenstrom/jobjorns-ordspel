@@ -20,25 +20,28 @@ const updateUser = async (user: User) => {
   }
 };
 
-const users = async (req: NextApiRequest, res: NextApiResponse) => {
+const users = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'PATCH') {
     return new Promise((resolve) => {
       const loggedInUser = getUser(req, res);
       const user: User = req.body.user;
       if (loggedInUser?.sub !== user.sub) {
         res.status(401).end('Unauthorized.');
-        resolve('');
+        resolve();
         return;
       }
 
       updateUser(user)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();

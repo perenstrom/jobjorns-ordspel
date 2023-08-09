@@ -559,7 +559,10 @@ interface PostRequestBodyTurn {
   latestWord: string;
 }
 
-const games = async (req: NextApiRequest, res: NextApiResponse) => {
+const games = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'POST' && req.body.variant == 'move') {
     return new Promise((resolve) => {
       const {
@@ -578,11 +581,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       )
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -600,11 +603,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       )
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -615,11 +618,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       getGame(parseInt(req.query.id as string, 10))
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -630,11 +633,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       acceptInvite(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -645,11 +648,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       declineInvite(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
@@ -660,11 +663,11 @@ const games = async (req: NextApiRequest, res: NextApiResponse) => {
       dismissRefusal(parseInt(req.query.id as string, 10), req.body.userSub)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
