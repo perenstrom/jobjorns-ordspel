@@ -40,8 +40,8 @@ export const Menu: React.FC<{}> = () => {
     <AppBar position="relative" sx={{ marginBottom: '8px' }}>
       <Toolbar>
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link href="/" passHref>
-            <a style={{ textDecoration: 'none' }}>Ordbjörn</a>
+          <Link href="/" style={{ textDecoration: 'none' }} passHref>
+            Ordbjörn
           </Link>
         </Typography>
         {foldMenu ? (
@@ -75,26 +75,26 @@ const ToolbarList: React.FC<{}> = () => {
       {user ? (
         <Stack direction="row" spacing={1}>
           <Link href="/" passHref>
-            <Button key={'Översikt'} component="a" sx={{ color: 'white' }}>
+            <Button key={'Översikt'} sx={{ color: 'white' }}>
               Översikt
             </Button>
           </Link>
 
           <Link href="/game/new" passHref>
-            <Button key={'Nytt spel'} component="a" sx={{ color: 'white' }}>
+            <Button key={'Nytt spel'} sx={{ color: 'white' }}>
               Nytt spel
             </Button>
           </Link>
           <Divider orientation="vertical" sx={{ height: 'auto' }} />
           <Link href="/api/auth/logout" passHref>
-            <Button key={'Logga ut'} component="a" sx={{ color: 'white' }}>
+            <Button key={'Logga ut'} sx={{ color: 'white' }}>
               Logga ut
             </Button>
           </Link>
         </Stack>
       ) : (
         <Link href="/api/auth/login" passHref>
-          <Button key={'Logga in'} component="a" sx={{ color: 'white' }}>
+          <Button key={'Logga in'} sx={{ color: 'white' }}>
             Logga in
           </Button>
         </Link>
@@ -120,7 +120,7 @@ const DrawerList: React.FC<{}> = () => {
           <Divider />
 
           <Link href="/" passHref>
-            <ListItemButton key={'Översikt'} component="a">
+            <ListItemButton key={'Översikt'}>
               <ListItemIcon>
                 <GridOnIcon />
               </ListItemIcon>
@@ -129,7 +129,7 @@ const DrawerList: React.FC<{}> = () => {
           </Link>
 
           <Link href="/game/new" passHref>
-            <ListItemButton key={'Nytt spel'} component="a">
+            <ListItemButton key={'Nytt spel'}>
               <ListItemIcon>
                 <GridOnIcon />
               </ListItemIcon>
@@ -140,7 +140,7 @@ const DrawerList: React.FC<{}> = () => {
           <Divider />
 
           <Link href="/api/auth/logout" passHref>
-            <ListItemButton key={'Logga ut'} component="a">
+            <ListItemButton key={'Logga ut'}>
               <ListItemIcon>
                 <LogoutIcon />
               </ListItemIcon>
@@ -150,7 +150,7 @@ const DrawerList: React.FC<{}> = () => {
         </>
       ) : (
         <Link href="/api/auth/login" passHref>
-          <ListItemButton key={'Logga in'} component="a">
+          <ListItemButton key={'Logga in'}>
             <ListItemIcon>
               <LoginIcon />
             </ListItemIcon>

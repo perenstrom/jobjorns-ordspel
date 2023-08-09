@@ -51,6 +51,13 @@ const inputGlobalStyles = (
         },
         '#root, #__next': {
           isolation: 'isolate'
+        },
+
+        /*
+        bort med underlinje på länkar
+        */
+        a: {
+          textDecoration: 'none'
         }
       }}
     />
