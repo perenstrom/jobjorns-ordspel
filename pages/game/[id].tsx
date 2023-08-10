@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import { Menu } from 'components/Menu';
-import {
-  useUser,
-  withPageAuthRequired,
-  WithPageAuthRequiredProps
-} from '@auth0/nextjs-auth0/client';
+import { useUser, withPageAuthRequired } from '@auth0/nextjs-auth0/client';
 import { Footer } from 'components/Footer';
 import { getGame, getUser } from 'services/local';
 import { GameWithEverything } from 'types/types';
@@ -105,4 +101,4 @@ const NewGamePage: NextPage<{}> = () => {
   }
 };
 
-export default withPageAuthRequired<WithPageAuthRequiredProps>(NewGamePage);
+export default withPageAuthRequired(NewGamePage);
