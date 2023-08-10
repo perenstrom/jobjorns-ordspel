@@ -25,8 +25,8 @@ const users = async (
   res: NextApiResponse
 ): Promise<void> => {
   if (req.method === 'PATCH') {
-    return new Promise((resolve) => {
-      const loggedInUser = getUser(req, res);
+    return new Promise(async (resolve) => {
+      const loggedInUser = await getUser(req, res);
       const user: User = req.body.user;
       if (loggedInUser?.sub !== user.sub) {
         res.status(401).end('Unauthorized.');
