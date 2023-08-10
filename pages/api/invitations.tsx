@@ -57,17 +57,20 @@ const getUpdatedInvitations = async (email: string, sub: string) => {
   }
 };
 
-const invitations = async (req: NextApiRequest, res: NextApiResponse) => {
+const invitations = async (
+  req: NextApiRequest,
+  res: NextApiResponse
+): Promise<void> => {
   if (req.method === 'GET') {
     return new Promise((resolve) => {
       getUpdatedInvitations(req.query.email as string, req.query.sub as string)
         .then((result) => {
           res.status(200).json(result);
-          resolve('');
+          resolve();
         })
         .catch((error) => {
           res.status(500).end(error);
-          resolve('');
+          resolve();
         })
         .finally(async () => {
           await prisma.$disconnect();
