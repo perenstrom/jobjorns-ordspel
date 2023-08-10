@@ -16,6 +16,8 @@ export const Footer: React.FC<{}> = (props) => {
           Jobjörn Folkesson
         </Link>{' '}
         {new Date().getFullYear()}
+        {' 🍪 '}
+        <Link href="/policy">Integritets- och cookie-policy</Link>
       </Typography>
     </Box>
   );
