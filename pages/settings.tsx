@@ -18,7 +18,7 @@ import Head from 'next/head';
 import { Loading } from 'components/Loading';
 import { getUser, updateUser } from 'services/local';
 
-const NewGamePage: NextPage<{}> = () => {
+const SettingsPage: NextPage<{}> = () => {
   const [loading, setLoading] = useState(true);
   const [databaseUser, setDatabaseUser] = useState<User | null>(null);
   const [settingVisibility, setSettingVisibility] = useState<boolean>(true);
@@ -107,4 +107,4 @@ const NewGamePage: NextPage<{}> = () => {
   }
 };
 
-export default withPageAuthRequired(NewGamePage);
+export default withPageAuthRequired(SettingsPage);
