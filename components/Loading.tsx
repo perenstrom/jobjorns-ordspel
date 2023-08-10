@@ -4,7 +4,7 @@ import { Menu } from './Menu';
 import { Footer } from './Footer';
 import Head from 'next/head';
 import { faviconString } from 'services/helpers';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 export const Loading: React.FC<{}> = () => {
   const { user, isLoading } = useUser(); // härifrån finns också error att ta ut

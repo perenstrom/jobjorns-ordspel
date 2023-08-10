@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { GameWithEverything } from 'types/types';
 import { dismissRefusal, getGame } from 'services/local';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import { DateTime } from 'luxon';
 
 export const GameListRefusal = ({

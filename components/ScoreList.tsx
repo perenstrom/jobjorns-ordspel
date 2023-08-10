@@ -13,7 +13,7 @@ import { GameWithEverything } from 'types/types';
 import { amber, blue, grey } from '@mui/material/colors';
 import { useEffect, useState } from 'react';
 import { FinishedModal } from './FinishedModal';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
 interface ScoreListProps {
   game: GameWithEverything;

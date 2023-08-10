@@ -12,7 +12,7 @@ import { DateTime } from 'luxon';
 import Link from 'next/link';
 import { GameWithEverything } from 'types/types';
 import { gravatar } from 'services/helpers';
-import { useUser } from '@auth0/nextjs-auth0';
+import { useUser } from '@auth0/nextjs-auth0/client';
 import { getGame } from 'services/local';
 
 export const GameListListItem = ({ gameId }: { gameId: number }) => {
