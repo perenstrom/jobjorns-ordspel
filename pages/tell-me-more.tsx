@@ -8,9 +8,9 @@ import { addUser } from 'services/local';
 import Head from 'next/head';
 import { faviconString } from 'services/helpers';
 import { Loading } from 'components/Loading';
-import { Policy } from 'components/Policy';
+import { TellMeMore } from 'components/TellMeMore';
 
-const PolicyPage: NextPage<{}> = () => {
+const TellMeMorePage: NextPage<{}> = () => {
   const { user, isLoading } = useUser(); // härifrån finns också error att ta ut
 
   if (typeof user !== 'undefined' && isLoading === false) {
@@ -34,14 +34,14 @@ const PolicyPage: NextPage<{}> = () => {
       >
         <Head>
           <link rel="icon" href={faviconString()} key="favicon" />
-          <title>Integritets- och cookie-policy | Ordbjörn</title>
+          <title>Berätta mer | Ordbjörn</title>
         </Head>
         <Menu />
-        <Policy />
+        <TellMeMore />
         <Footer />
       </Box>
     </>
   );
 };
 
-export default PolicyPage;
+export default TellMeMorePage;
