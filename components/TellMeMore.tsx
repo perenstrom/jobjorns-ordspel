@@ -55,14 +55,14 @@ export const TellMeMore: React.FC<{}> = () => {
         Du får dessutom extra poäng baserat på hur många brickor du spelar.
       </Typography>
       <ul>
-        <li>1 bricka: 0 extra poäng</li>
-        <li>2 brickor: 1 extra poäng</li>
-        <li>3 brickor: 1 extra poäng (totalt 2 extra poäng)</li>
-        <li>4 brickor: 2 extra poäng (totalt 4 extra poäng)</li>
-        <li>5 brickor: 3 extra poäng (totalt 7 extra poäng)</li>
-        <li>6 brickor: 5 extra poäng (totalt 12 extra poäng)</li>
-        <li>7 brickor: 8 extra poäng (totalt 20 extra poäng)</li>
-        <li>8 brickor: 13 extra poäng (totalt 33 extra poäng)</li>
+        <li>Bricka 1: 0 extra poäng</li>
+        <li>Bricka 2: 1 extra poäng</li>
+        <li>Bricka 3: 1 extra poäng (totalt 2 extra poäng)</li>
+        <li>Bricka 4: 2 extra poäng (totalt 4 extra poäng)</li>
+        <li>Bricka 5: 3 extra poäng (totalt 7 extra poäng)</li>
+        <li>Bricka 6: 5 extra poäng (totalt 12 extra poäng)</li>
+        <li>Bricka 7: 8 extra poäng (totalt 20 extra poäng)</li>
+        <li>Bricka 8: 13 extra poäng (totalt 33 extra poäng)</li>
       </ul>
       <Typography sx={{ marginY: 1 }} variant="body1">
         Du får poäng även om ditt ord inte blev det vinnande ordet.
@@ -74,7 +74,7 @@ export const TellMeMore: React.FC<{}> = () => {
         <Stack direction="row" spacing={1}>
           <Box sx={{ width: '3em' }}>
             <Tile
-              tile={{ letter: 'O', placed: 'hand' }}
+              tile={{ letter: 'S', placed: 'hand' }}
               status="hand"
               onClick={() => {}}
             />
@@ -93,7 +93,7 @@ export const TellMeMore: React.FC<{}> = () => {
         <Stack direction="row" spacing={1}>
           <Box sx={{ width: '3em' }}>
             <Tile
-              tile={{ letter: 'R', placed: 'selected' }}
+              tile={{ letter: 'P', placed: 'selected' }}
               status="selected"
               onClick={() => {}}
             />
@@ -112,7 +112,7 @@ export const TellMeMore: React.FC<{}> = () => {
         <Stack direction="row" spacing={1}>
           <Box sx={{ width: '3em' }}>
             <Tile
-              tile={{ letter: 'D', placed: 'submitted' }}
+              tile={{ letter: 'E', placed: 'submitted' }}
               status="submitted"
               onClick={() => {}}
             />
@@ -131,7 +131,7 @@ export const TellMeMore: React.FC<{}> = () => {
         <Stack direction="row" spacing={1}>
           <Box sx={{ width: '3em' }}>
             <Tile
-              tile={{ letter: 'B', placed: 'board' }}
+              tile={{ letter: 'L', placed: 'board' }}
               status="board"
               onClick={() => {}}
             />
@@ -150,7 +150,7 @@ export const TellMeMore: React.FC<{}> = () => {
         <Stack direction="row" spacing={1}>
           <Box sx={{ width: '3em' }}>
             <Tile
-              tile={{ letter: 'J', placed: 'latest' }}
+              tile={{ letter: 'A', placed: 'latest' }}
               status="latest"
               onClick={() => {}}
             />
@@ -230,9 +230,9 @@ export const TellMeMore: React.FC<{}> = () => {
 
       <Typography sx={{ marginY: 1 }} variant="body1">
         Det hade inte varit möjligt att bygga Ordbjörn utan råd och stöd från{' '}
-        <Link href="https://www.perenstrom.com/">Per Enström</Link>, som
-        faktiskt kan något om webbutveckling. Tack även till mina betatestare
-        och förslagsgivare Hedvig, Camilla, med flera. Tack också till Svenska
+        <Link href="https://www.per.fyi/">Per Enström</Link>, som faktiskt kan
+        något om webbutveckling. Tack även till mina betatestare och
+        förslagsgivare Hedvig, Camilla, med flera. Tack också till Svenska
         Akademien som tillhandahållit ordlistan.
       </Typography>
     </Container>
