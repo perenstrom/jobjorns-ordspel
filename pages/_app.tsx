@@ -54,9 +54,10 @@ const inputGlobalStyles = (
         },
 
         /*
-        bort med underlinje på länkar
+        bort med underlinje på länkar i listorna
         */
-        a: {
+
+        '.MuiListItem-root a, .MuiList-root a': {
           textDecoration: 'none'
         }
       }}

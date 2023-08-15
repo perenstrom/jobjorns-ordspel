@@ -20,7 +20,6 @@ import {
 } from '@mui/material';
 
 import MenuIcon from '@mui/icons-material/Menu';
-import GridOnIcon from '@mui/icons-material/GridOn';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 
@@ -28,6 +27,7 @@ import { useUser } from '@auth0/nextjs-auth0/client';
 import Link from 'next/link';
 import { Stack } from '@mui/system';
 import { gravatar } from 'services/helpers';
+import { AddBox, Gavel, ViewList } from '@mui/icons-material';
 
 export const Menu: React.FC<{}> = () => {
   const [drawer, setDrawer] = useState(false);
@@ -85,6 +85,11 @@ const ToolbarList: React.FC<{}> = () => {
               Nytt spel
             </Button>
           </Link>
+          <Link href="/tell-me-more" passHref>
+            <Button key={'Regler'} sx={{ color: 'white' }}>
+              Regler
+            </Button>
+          </Link>
           <Divider orientation="vertical" sx={{ height: 'auto' }} />
           <Link href="/api/auth/logout" passHref>
             <Button key={'Logga ut'} sx={{ color: 'white' }}>
@@ -122,7 +127,7 @@ const DrawerList: React.FC<{}> = () => {
           <Link href="/" passHref>
             <ListItemButton key={'Översikt'}>
               <ListItemIcon>
-                <GridOnIcon />
+                <ViewList />
               </ListItemIcon>
               <ListItemText primary={'Översikt'} />
             </ListItemButton>
@@ -131,9 +136,18 @@ const DrawerList: React.FC<{}> = () => {
           <Link href="/game/new" passHref>
             <ListItemButton key={'Nytt spel'}>
               <ListItemIcon>
-                <GridOnIcon />
+                <AddBox />
               </ListItemIcon>
               <ListItemText primary={'Nytt spel'} />
+            </ListItemButton>
+          </Link>
+
+          <Link href="/tell-me-more" passHref>
+            <ListItemButton key={'Regler'}>
+              <ListItemIcon>
+                <Gavel />
+              </ListItemIcon>
+              <ListItemText primary={'Regler'} />
             </ListItemButton>
           </Link>
 

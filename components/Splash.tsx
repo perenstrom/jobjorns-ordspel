@@ -37,7 +37,12 @@ export const Splash: React.FC<{}> = () => {
           <Button variant="contained" href="/api/auth/login">
             Logga in
           </Button>
-          <Button variant="outlined">Berätta mer</Button>
+          <Button variant="contained" href="/api/auth/login">
+            Registrera dig
+          </Button>
+          <Button variant="outlined" href="/tell-me-more">
+            Berätta mer
+          </Button>
         </Stack>
       </Container>
     </Box>
