@@ -1,11 +1,7 @@
 import { UserProfile } from '@auth0/nextjs-auth0/client';
 import { Invitation, User } from '@prisma/client';
 import router from 'next/router';
-import {
-  ResponseType,
-  GameWithEverything,
-  GameListNecessaryData
-} from 'types/types';
+import { ResponseType, GameWithEverything, GameListData } from 'types/types';
 
 export const addUser = (user: UserProfile) => {
   const defaultHeaders = {
@@ -170,7 +166,7 @@ export const getGame = (
 
 export const listGames = (
   userSub: string
-): Promise<ResponseType<GameListNecessaryData[]>> => {
+): Promise<ResponseType<GameListData[]>> => {
   const defaultHeaders = {
     Accept: 'application/json',
     'Content-Type': 'application/json;charset=UTF-8'
