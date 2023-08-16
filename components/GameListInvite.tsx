@@ -80,10 +80,7 @@ export const GameInviteListItem = ({
           primary={<Typography>{starterName} har bjudit in dig</Typography>}
           secondary={
             <>
-              <Typography
-                variant="body2"
-                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
-              >
+              <Typography variant="body2" color="text.secondary">
                 {'Inbjudan skickades ' + startTimeString}
               </Typography>
               <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
@@ -120,6 +117,7 @@ export const GameInviteListItem = ({
           </AvatarGroup>
         </ListItemAvatar>
         <ListItemText
+          disableTypography
           primary={<Skeleton variant="text" />}
           secondary={
             <>
