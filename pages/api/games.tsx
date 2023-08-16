@@ -143,6 +143,9 @@ const listGames = async (userSub: string) => {
             invitations: true
           }
         }
+      },
+      orderBy: {
+        statusTime: 'desc'
       }
     });
 
