@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Button, Container, Stack, Typography } from '@mui/material';
+import { Box, Button, Container, Typography } from '@mui/material';
 
 export const Splash: React.FC<{}> = () => {
   return (
@@ -28,22 +28,33 @@ export const Splash: React.FC<{}> = () => {
         >
           Här kan du prova Jobjörns ordspel, Ordbjörn!
         </Typography>
-        <Stack
-          sx={{ pt: 4 }}
-          direction="row"
-          spacing={2}
-          justifyContent="center"
+        <Box
+          sx={{
+            pt: 4,
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'wrap',
+            justifyContent: 'center'
+          }}
         >
-          <Button variant="contained" href="/api/auth/login">
+          <Button
+            sx={{ mt: 1, ml: 1 }}
+            variant="contained"
+            href="/api/auth/login"
+          >
             Logga in
           </Button>
-          <Button variant="contained" href="/api/auth/login">
+          <Button
+            sx={{ mt: 1, ml: 1 }}
+            variant="contained"
+            href="/api/auth/login"
+          >
             Registrera dig
           </Button>
-          <Button variant="outlined" href="/tell-me-more">
+          <Button sx={{ mt: 1, ml: 1 }} variant="outlined" href="/tell-me-more">
             Berätta mer
           </Button>
-        </Stack>
+        </Box>
       </Container>
     </Box>
   );
