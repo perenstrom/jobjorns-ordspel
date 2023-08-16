@@ -5,6 +5,7 @@ import {
   ListItemText,
   Skeleton,
   Stack,
+  Typography,
   styled
 } from '@mui/material';
 import { GameListData } from 'types/types';
@@ -44,10 +45,13 @@ export const GameListRefusal = ({
     return (
       <FadeWrapper fade={fade} disableGutters>
         <ListItemText
-          primary={'Alla inbjudna spelare tackade nej'}
+          disableTypography
+          primary={<Typography>Alla inbjudna spelare tackade nej</Typography>}
           secondary={
             <>
-              {'Inbjudan skickades ' + startTimeString}
+              <Typography variant="body2" color="text.secondary">
+                {'Inbjudan skickades ' + startTimeString}
+              </Typography>
               <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
                 <Button
                   variant="contained"
@@ -67,10 +71,14 @@ export const GameListRefusal = ({
     return (
       <FadeWrapper fade={fade} disableGutters>
         <ListItemText
-          primary={'Alla inbjudna spelare tackade nej'}
+          disableTypography
+          primary={<Typography>Alla inbjudna spelare tackade nej</Typography>}
           secondary={
             <>
-              {'Inbjudan skickades ' + <Skeleton variant="text" width={100} />}
+              <Typography variant="body2" color="text.secondary">
+                {'Inbjudan skickades ' +
+                <Skeleton variant="text" width={100} />}
+              </Typography>
               <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
                 <Button
                   variant="contained"
