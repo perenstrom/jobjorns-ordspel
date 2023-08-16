@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Button,
   ListItem,
@@ -7,34 +7,19 @@ import {
   Stack,
   styled
 } from '@mui/material';
-import { GameWithEverything } from 'types/types';
-import { dismissRefusal, getGame } from 'services/local';
+import { GameListData } from 'types/types';
+import { dismissRefusal } from 'services/local';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { DateTime } from 'luxon';
 
 export const GameListRefusal = ({
-  gameId,
+  game,
   removeGameFromList
 }: {
-  gameId: number;
+  game: GameListData['game'];
   removeGameFromList: (gameId: number) => void;
 }) => {
   const [fade, setFade] = React.useState(false);
-  const [game, setGame] = useState<GameWithEverything>();
-
-  const fetchGame = async (gameId: number) => {
-    if (gameId > 0) {
-      const newGame = await getGame(gameId);
-
-      if (newGame.success && newGame.data) {
-        setGame(newGame.data);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchGame(gameId);
-  }, [gameId]);
 
   const { user } = useUser();
   if (!user) return null;
@@ -42,10 +27,10 @@ export const GameListRefusal = ({
   const handleDismissRefusal = () => {
     if (user && user.sub) {
       setFade(true);
-      dismissRefusal(gameId, user.sub);
+      dismissRefusal(game.id, user.sub);
       setTimeout(() => {
-        removeGameFromList(gameId);
-      }, 1000);
+        removeGameFromList(game.id);
+      }, 1100);
     }
   };
 

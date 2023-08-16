@@ -4,7 +4,7 @@ import { allLetters } from 'data/defaults';
 import { shuffleArray } from 'services/helpers';
 import sendgrid from '@sendgrid/mail';
 import he from 'he';
-import { GameListNecessaryData } from 'types/types';
+import { GameListData } from 'types/types';
 import { getUser } from 'services/authorization';
 
 const prisma = new PrismaClient({
@@ -123,15 +123,28 @@ export const startGame = async (
 
 const listGames = async (userSub: string) => {
   try {
-    const listGamesPrisma: GameListNecessaryData[] = await prisma.$queryRaw`
-      SELECT 
-        "UsersOnGames"."gameId" AS "id",
-        "UsersOnGames"."status" AS "status",
-        "UsersOnGames"."statusTime" AS "statusTime"
-      FROM "UsersOnGames"
-      WHERE "UsersOnGames"."userSub" = ${userSub}
-      ORDER BY "UsersOnGames"."statusTime" DESC
-      `;
+    const listGamesPrisma: GameListData[] = await prisma.usersOnGames.findMany({
+      where: {
+        userSub: userSub
+      },
+      include: {
+        game: {
+          include: {
+            users: {
+              orderBy: {
+                user: {
+                  name: 'asc'
+                }
+              },
+              include: {
+                user: true
+              }
+            },
+            invitations: true
+          }
+        }
+      }
+    });
 
     if (listGamesPrisma === null || typeof listGamesPrisma === 'undefined') {
       return { message: 'Inga spel returnerades' };

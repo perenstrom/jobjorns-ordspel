@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   AvatarGroup,
@@ -10,28 +10,11 @@ import {
 } from '@mui/material';
 import { DateTime } from 'luxon';
 import Link from 'next/link';
-import { GameWithEverything } from 'types/types';
+import { GameListData } from 'types/types';
 import { gravatar } from 'services/helpers';
 import { useUser } from '@auth0/nextjs-auth0/client';
-import { getGame } from 'services/local';
 
-export const GameListListItem = ({ gameId }: { gameId: number }) => {
-  const [game, setGame] = useState<GameWithEverything>();
-
-  const fetchGame = async (gameId: number) => {
-    if (gameId > 0) {
-      const newGame = await getGame(gameId);
-
-      if (newGame.success && newGame.data) {
-        setGame(newGame.data);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchGame(gameId);
-  }, [gameId]);
-
+export const GameListListItem = ({ game }: { game: GameListData['game'] }) => {
   const { user } = useUser();
   if (!user) return null;
 
@@ -47,7 +30,7 @@ export const GameListListItem = ({ gameId }: { gameId: number }) => {
 
     if (game.finished) {
       timeSinceText = 'Spelet slutade ';
-    } else if (game.turns[0]) {
+    } else if (game.currentTurn > 1) {
       timeSinceText = 'Turen startade ';
     } else {
       timeSinceText = 'Spelet startade ';
@@ -121,26 +104,24 @@ export const GameListListItem = ({ gameId }: { gameId: number }) => {
   } else {
     return (
       <ListItem disableGutters>
-        <Link passHref href={`/game/${gameId}`} style={{ flexGrow: 1 }}>
-          <ListItemButton sx={{ p: 1, m: -1 }}>
-            <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
-              <AvatarGroup max={4} spacing={28}>
-                <Skeleton variant="circular" sx={{ width: 40, height: 40 }} />
-              </AvatarGroup>
-            </ListItemAvatar>
-            <ListItemText
-              sx={{
-                '& .MuiListItemText-primary': {
-                  textOverflow: 'ellipsis',
-                  overflow: 'hidden',
-                  whiteSpace: 'nowrap'
-                }
-              }}
-              primary={<Skeleton variant="text" />}
-              secondary={<Skeleton variant="text" />}
-            />
-          </ListItemButton>
-        </Link>
+        <ListItemButton sx={{ p: 1, m: -1 }}>
+          <ListItemAvatar sx={{ pr: 1, minWidth: '100px' }}>
+            <AvatarGroup max={4} spacing={28}>
+              <Skeleton variant="circular" sx={{ width: 40, height: 40 }} />
+            </AvatarGroup>
+          </ListItemAvatar>
+          <ListItemText
+            sx={{
+              '& .MuiListItemText-primary': {
+                textOverflow: 'ellipsis',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap'
+              }
+            }}
+            primary={<Skeleton variant="text" />}
+            secondary={<Skeleton variant="text" />}
+          />
+        </ListItemButton>
       </ListItem>
     );
   }

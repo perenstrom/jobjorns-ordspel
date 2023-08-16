@@ -33,8 +33,23 @@ export type GameWithEverything = Prisma.GameGetPayload<{
   };
 }>;
 
-export type GameListNecessaryData = {
-  id: number;
-  status: string;
-  statusTime: Date;
-};
+export type GameListData = Prisma.UsersOnGamesGetPayload<{
+  include: {
+    game: {
+      include: {
+        users: {
+          orderBy: {
+            user: {
+              name: 'asc';
+            };
+          };
+          include: {
+            user: true;
+          };
+        };
+
+        invitations: true;
+      };
+    };
+  };
+}>;
