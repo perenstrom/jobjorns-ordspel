@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   Avatar,
   AvatarGroup,
@@ -8,56 +8,42 @@ import {
   ListItemText,
   Skeleton,
   Stack,
+  Typography,
   styled
 } from '@mui/material';
-import { GameWithEverything } from 'types/types';
+import { GameListData } from 'types/types';
 import { gravatar } from 'services/helpers';
 import router from 'next/router';
-import { acceptInvite, declineInvite, getGame } from 'services/local';
+import { acceptInvite, declineInvite } from 'services/local';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { DateTime } from 'luxon';
 
 export const GameInviteListItem = ({
-  gameId,
+  game,
   removeGameFromList
 }: {
-  gameId: number;
+  game: GameListData['game'];
   removeGameFromList: (gameId: number) => void;
 }) => {
   const [fade, setFade] = React.useState(false);
-  const [game, setGame] = useState<GameWithEverything>();
-
-  const fetchGame = async (gameId: number) => {
-    if (gameId > 0) {
-      const newGame = await getGame(gameId);
-
-      if (newGame.success && newGame.data) {
-        setGame(newGame.data);
-      }
-    }
-  };
-
-  useEffect(() => {
-    fetchGame(gameId);
-  }, [gameId]);
 
   const { user } = useUser();
   if (!user) return null;
 
   const handleAcceptInvite = () => {
     if (user && user.sub) {
-      acceptInvite(gameId, user.sub);
+      acceptInvite(game.id, user.sub);
 
-      router.push(`/game/${gameId}`);
+      router.push(`/game/${game.id}`);
     }
   };
 
   const handleDeclineInvite = () => {
     if (user && user.sub) {
       setFade(true);
-      declineInvite(gameId, user.sub);
+      declineInvite(game.id, user.sub);
       setTimeout(() => {
-        removeGameFromList(gameId);
+        removeGameFromList(game.id);
       }, 1000);
     }
   };
@@ -90,10 +76,16 @@ export const GameInviteListItem = ({
           </AvatarGroup>
         </ListItemAvatar>
         <ListItemText
-          primary={starterName + ' har bjudit in dig'}
+          disableTypography
+          primary={<Typography>{starterName} har bjudit in dig</Typography>}
           secondary={
             <>
-              {'Inbjudan skickades ' + startTimeString}
+              <Typography
+                variant="body2"
+                sx={{ color: 'rgba(255, 255, 255, 0.7)' }}
+              >
+                {'Inbjudan skickades ' + startTimeString}
+              </Typography>
               <Stack direction="row" spacing={1} sx={{ pt: 1 }}>
                 <Button
                   variant="contained"
