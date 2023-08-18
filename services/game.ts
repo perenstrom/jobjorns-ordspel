@@ -58,7 +58,7 @@ export const checkAdjacentPlacement = (board: Tile[][]) => {
         adjacentTiles.push({ row: indexRow, column: indexColumn - 1 }); // den till vänster
         adjacentTiles.push({ row: indexRow, column: indexColumn + 1 }); // den till höger
         adjacentTiles.push({ row: indexRow + 1, column: indexColumn }); // den under
-      } else if (cell.placed === 'board') {
+      } else if (cell.placed === 'board' || cell.placed === 'latest') {
         noOtherTiles = false;
       }
     })

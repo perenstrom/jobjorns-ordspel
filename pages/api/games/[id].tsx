@@ -117,10 +117,11 @@ const submitMove = async (
       message: 'Ett eller flera ord finns inte med i SAOL.'
     };
   } else if (
-    !(tilesPlayed == adjacentPlacement) ||
-    !sameDirection ||
-    !coherentWord ||
-    !wordIsSame
+    (!(tilesPlayed == adjacentPlacement) ||
+      !sameDirection ||
+      !coherentWord ||
+      !wordIsSame) &&
+    playedWord.length > 0
   ) {
     return {
       success: false,
